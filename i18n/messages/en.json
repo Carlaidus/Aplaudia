@@ -1,0 +1,199 @@
+{
+  "metadata": {
+    "title": "Aplaudia | Digital Studio for Business",
+    "description": "We create premium websites, AI agents for WhatsApp, and AI-enhanced visuals for businesses that want to stand out."
+  },
+  "header": {
+    "services": "Services",
+    "process": "Process",
+    "portfolio": "Portfolio",
+    "whatsapp": "WhatsApp AI",
+    "about": "About",
+    "cta": "Let's Talk"
+  },
+  "hero": {
+    "badge": "Boutique Digital Studio",
+    "title": "Digital Presence that",
+    "titleHighlight": "Drives",
+    "titleEnd": "your business",
+    "subtitle": "Premium websites, AI agents for WhatsApp, and AI-enhanced visuals that make your business stand out. Advanced technology with design that converts.",
+    "cta": "Start your project",
+    "ctaSecondary": "View portfolio",
+    "techLabel": "Powered by advanced technologies",
+    "scroll": "Scroll down"
+  },
+  "scrollStory": {
+    "line1": "Your business deserves",
+    "line2": "a digital presence",
+    "line3": "that truly",
+    "highlight": "impacts",
+    "benefit1": "Premium Design",
+    "benefit1Desc": "Interfaces that convert",
+    "benefit2": "AI Technology",
+    "benefit2Desc": "Intelligent automation",
+    "benefit3": "Enhanced Visuals",
+    "benefit3Desc": "Content that stands out"
+  },
+  "services": {
+    "badge": "Services",
+    "title": "Everything your business needs to",
+    "titleHighlight": "shine",
+    "titleEnd": "digitally",
+    "subtitle": "We combine cutting-edge technology with exceptional design to create digital experiences that connect with your customers and drive results.",
+    "explore": "Explore service",
+    "web": {
+      "title": "Premium Websites",
+      "description": "Modern design, extreme speed, and exceptional user experience. Each site is a unique work that represents your brand.",
+      "feature1": "Custom design",
+      "feature2": "SEO optimized",
+      "feature3": "Ultra-fast performance",
+      "feature4": "Perfect responsive"
+    },
+    "whatsapp": {
+      "title": "AI Agents for WhatsApp",
+      "description": "Intelligent assistants that serve your customers 24/7 with natural conversations.",
+      "feature1": "Instant responses",
+      "feature2": "Natural language",
+      "feature3": "Business integration",
+      "feature4": "Lead capture"
+    },
+    "visuals": {
+      "title": "AI-Enhanced Visuals",
+      "description": "AI image enhancement, generated backgrounds, animations, and visual content for web, social media, and physical spaces.",
+      "feature1": "Image enhancement",
+      "feature2": "Animated web backgrounds",
+      "feature3": "Screen content",
+      "feature4": "Product compositions"
+    }
+  },
+  "howItWorks": {
+    "badge": "Process",
+    "title": "How we work",
+    "titleHighlight": "with you",
+    "subtitle": "A clear and collaborative process that keeps you informed at every stage.",
+    "step1": {
+      "title": "Initial conversation",
+      "description": "We understand your business, your goals, and your vision. No commitment."
+    },
+    "step2": {
+      "title": "Custom proposal",
+      "description": "We present a clear strategy with scope, timeline, and pricing."
+    },
+    "step3": {
+      "title": "Design and development",
+      "description": "We build your project with reviews at every important stage."
+    },
+    "step4": {
+      "title": "Launch and support",
+      "description": "We launch together and support you to ensure everything works perfectly."
+    }
+  },
+  "showcase": {
+    "conceptual": {
+      "badge": "Conceptual Cases",
+      "title": "Design",
+      "titleHighlight": "explorations",
+      "subtitle": "Conceptual projects that demonstrate our approach and capabilities."
+    },
+    "portfolio": {
+      "badge": "Real Portfolio",
+      "title": "Delivered",
+      "titleHighlight": "projects",
+      "subtitle": "Real work for clients who trusted us.",
+      "viewSite": "View site",
+      "comingSoon": "More projects coming soon"
+    }
+  },
+  "whatsappDemo": {
+    "badge": "WhatsApp AI",
+    "title": "WhatsApp Assistant with",
+    "titleHighlight": "Artificial Intelligence",
+    "subtitle": "Respond to your customers naturally, 24/7, while you focus on what matters.",
+    "comingSoon": "Interactive demo coming soon",
+    "benefit1": "Natural conversation",
+    "benefit2": "Instant responses 24/7",
+    "benefit3": "Automatic lead capture",
+    "benefit4": "Business integration",
+    "chatHeader": "AI Assistant",
+    "chatOnline": "Online",
+    "inputPlaceholder": "Type a message...",
+    "suggestionsLabel": "Frequently asked questions"
+  },
+  "visualGallery": {
+    "badge": "Digital Visuals",
+    "title": "Visual content that",
+    "titleHighlight": "elevates",
+    "titleEnd": "your brand",
+    "subtitle": "AI-enhanced images, animated backgrounds, premium compositions, and visual content for your website, social media, and physical spaces.",
+    "category1": {
+      "title": "AI Image Enhancement",
+      "description": "Intelligent optimization of your existing images for a premium presentation."
+    },
+    "category2": {
+      "title": "Backgrounds & Compositions",
+      "description": "Generated backgrounds and visual compositions for your web sections."
+    },
+    "category3": {
+      "title": "Web Animations",
+      "description": "Animated loops and visual effects that enrich the digital experience."
+    },
+    "category4": {
+      "title": "Screen Content",
+      "description": "Visual material for stores, exhibitions, and commercial spaces."
+    }
+  },
+  "benefits": {
+    "badge": "Why choose us",
+    "title": "A boutique studio with a",
+    "titleHighlight": "craft",
+    "subtitle": "We're not a massive agency. We're a small team that treats every project as if it were our own.",
+    "benefit1": {
+      "title": "Unique design",
+      "description": "No generic templates. Every project is designed from scratch to reflect your brand."
+    },
+    "benefit2": {
+      "title": "Modern technology",
+      "description": "We use the most advanced tools: Next.js, Vercel, Claude AI for exceptional results."
+    },
+    "benefit3": {
+      "title": "Fast delivery",
+      "description": "Efficient processes that let you see results in weeks, not months."
+    },
+    "benefit4": {
+      "title": "Direct collaboration",
+      "description": "You work directly with whoever builds your project. No intermediaries."
+    },
+    "benefit5": {
+      "title": "Guaranteed quality",
+      "description": "Every detail counts. We review and polish until it's perfect."
+    },
+    "benefit6": {
+      "title": "Ongoing support",
+      "description": "Your project doesn't end at launch. We're here to help you grow."
+    }
+  },
+  "about": {
+    "badge": "About us",
+    "title": "A studio with",
+    "titleHighlight": "purpose",
+    "description": "Aplaudia was born from the conviction that small businesses deserve top-tier digital tools. We don't believe in generic solutions. Every project is an opportunity to create something that truly works for you and your customers.",
+    "stat1": "Projects",
+    "stat2": "Satisfaction",
+    "stat3": "Years experience"
+  },
+  "finalCta": {
+    "title": "Ready to take your business to the next level",
+    "subtitle": "Schedule a no-commitment call. Let's talk about your project, your goals, and how we can help you grow digitally.",
+    "cta": "Schedule your call",
+    "ctaSecondary": "Message us on WhatsApp"
+  },
+  "footer": {
+    "tagline": "Boutique digital studio",
+    "services": "Services",
+    "company": "Company",
+    "contact": "Contact",
+    "rights": "All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  }
+}

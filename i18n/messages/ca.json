@@ -1,0 +1,199 @@
+{
+  "metadata": {
+    "title": "Aplaudia | Estudi Digital per a Negocis",
+    "description": "Creem webs premium, agents IA per a WhatsApp i visuals millorats amb IA per a negocis que volen destacar."
+  },
+  "header": {
+    "services": "Serveis",
+    "process": "Procés",
+    "portfolio": "Portafoli",
+    "whatsapp": "WhatsApp IA",
+    "about": "Nosaltres",
+    "cta": "Parlem"
+  },
+  "hero": {
+    "badge": "Estudi Digital Boutique",
+    "title": "Presència Digital que",
+    "titleHighlight": "Impulsa",
+    "titleEnd": "el teu negoci",
+    "subtitle": "Webs premium, agents IA per a WhatsApp i visuals millorats amb IA que fan que el teu negoci destaqui. Tecnologia avançada amb disseny que converteix.",
+    "cta": "Comença el teu projecte",
+    "ctaSecondary": "Veure portafoli",
+    "techLabel": "Potenciat amb tecnologies avançades",
+    "scroll": "Desplaça't"
+  },
+  "scrollStory": {
+    "line1": "El teu negoci mereix",
+    "line2": "una presència digital",
+    "line3": "que realment",
+    "highlight": "impacti",
+    "benefit1": "Disseny Premium",
+    "benefit1Desc": "Interfícies que converteixen",
+    "benefit2": "Tecnologia IA",
+    "benefit2Desc": "Automatització intel·ligent",
+    "benefit3": "Visuals Millorats",
+    "benefit3Desc": "Contingut que destaca"
+  },
+  "services": {
+    "badge": "Serveis",
+    "title": "Tot el que el teu negoci necessita per",
+    "titleHighlight": "brillar",
+    "titleEnd": "en digital",
+    "subtitle": "Combinem tecnologia d'avantguarda amb disseny excepcional per crear experiències digitals que connecten amb els teus clients.",
+    "explore": "Explorar servei",
+    "web": {
+      "title": "Llocs Web Premium",
+      "description": "Disseny modern, velocitat extrema i experiència d'usuari excepcional. Cada lloc és una obra única que representa la teva marca.",
+      "feature1": "Disseny personalitzat",
+      "feature2": "SEO optimitzat",
+      "feature3": "Rendiment ultra-ràpid",
+      "feature4": "Responsive perfecte"
+    },
+    "whatsapp": {
+      "title": "Agents IA per a WhatsApp",
+      "description": "Assistents intel·ligents que atenen els teus clients 24/7 amb converses naturals en català.",
+      "feature1": "Respostes instantànies",
+      "feature2": "Llenguatge natural",
+      "feature3": "Integració amb el teu negoci",
+      "feature4": "Captura de leads"
+    },
+    "visuals": {
+      "title": "Visuals Millorats amb IA",
+      "description": "Millora d'imatges amb IA, fons generats, animacions i contingut visual per a web, xarxes i espais físics.",
+      "feature1": "Millora d'imatges",
+      "feature2": "Fons animats per a web",
+      "feature3": "Contingut per a pantalles",
+      "feature4": "Composicions de producte"
+    }
+  },
+  "howItWorks": {
+    "badge": "Procés",
+    "title": "Com treballem",
+    "titleHighlight": "amb tu",
+    "subtitle": "Un procés clar i col·laboratiu que et manté informat a cada etapa.",
+    "step1": {
+      "title": "Conversa inicial",
+      "description": "Entenem el teu negoci, els teus objectius i la teva visió. Sense compromís."
+    },
+    "step2": {
+      "title": "Proposta personalitzada",
+      "description": "Et presentem una estratègia clara amb abast, temps i preu."
+    },
+    "step3": {
+      "title": "Disseny i desenvolupament",
+      "description": "Construïm el teu projecte amb revisions a cada etapa important."
+    },
+    "step4": {
+      "title": "Llançament i suport",
+      "description": "Publiquem junts i t'acompanyem perquè tot funcioni perfecte."
+    }
+  },
+  "showcase": {
+    "conceptual": {
+      "badge": "Casos Conceptuals",
+      "title": "Exploracions de",
+      "titleHighlight": "disseny",
+      "subtitle": "Projectes conceptuals que demostren el nostre enfocament i capacitats."
+    },
+    "portfolio": {
+      "badge": "Portafoli Real",
+      "title": "Projectes",
+      "titleHighlight": "lliurats",
+      "subtitle": "Treballs reals per a clients que van confiar en nosaltres.",
+      "viewSite": "Veure web",
+      "comingSoon": "Pròximament més projectes"
+    }
+  },
+  "whatsappDemo": {
+    "badge": "WhatsApp IA",
+    "title": "Assistent WhatsApp amb",
+    "titleHighlight": "Intel·ligència Artificial",
+    "subtitle": "Respon als teus clients de forma natural, 24/7, mentre tu et centres en el que és important.",
+    "comingSoon": "Demo interactiva pròximament",
+    "benefit1": "Conversa natural en català",
+    "benefit2": "Respostes instantànies 24/7",
+    "benefit3": "Captura de leads automàtica",
+    "benefit4": "Integració amb el teu negoci",
+    "chatHeader": "Assistent IA",
+    "chatOnline": "En línia",
+    "inputPlaceholder": "Escriu un missatge...",
+    "suggestionsLabel": "Preguntes freqüents"
+  },
+  "visualGallery": {
+    "badge": "Visuals per a Digital",
+    "title": "Contingut visual que",
+    "titleHighlight": "destaca",
+    "titleEnd": "la teva marca",
+    "subtitle": "Imatges millorades amb IA, fons animats, composicions premium i contingut visual per al teu lloc web, xarxes i espais físics.",
+    "category1": {
+      "title": "Millora d'Imatges amb IA",
+      "description": "Optimització intel·ligent de les teves imatges existents per a una presentació premium."
+    },
+    "category2": {
+      "title": "Fons i Composicions",
+      "description": "Fons generats i composicions visuals per a les teves seccions web."
+    },
+    "category3": {
+      "title": "Animacions Web",
+      "description": "Loops animats i efectes visuals que enriqueixen l'experiència digital."
+    },
+    "category4": {
+      "title": "Contingut per a Pantalles",
+      "description": "Material visual per a botigues, exposicions i espais comercials."
+    }
+  },
+  "benefits": {
+    "badge": "Per què triar-nos",
+    "title": "Un estudi boutique amb enfocament",
+    "titleHighlight": "artesanal",
+    "subtitle": "No som una agència massiva. Som un equip petit que tracta cada projecte com si fos propi.",
+    "benefit1": {
+      "title": "Disseny únic",
+      "description": "Res de plantilles genèriques. Cada projecte es dissenya des de zero per reflectir la teva marca."
+    },
+    "benefit2": {
+      "title": "Tecnologia moderna",
+      "description": "Fem servir les eines més avançades: Next.js, Vercel, Claude AI per a resultats excepcionals."
+    },
+    "benefit3": {
+      "title": "Lliurament ràpid",
+      "description": "Processos eficients que et permeten veure resultats en setmanes, no mesos."
+    },
+    "benefit4": {
+      "title": "Col·laboració directa",
+      "description": "Treballes directament amb qui construeix el teu projecte. Sense intermediaris."
+    },
+    "benefit5": {
+      "title": "Qualitat garantida",
+      "description": "Cada detall compta. Revisem i polim fins que quedi perfecte."
+    },
+    "benefit6": {
+      "title": "Suport continu",
+      "description": "El teu projecte no acaba en el llançament. Som aquí per ajudar-te a créixer."
+    }
+  },
+  "about": {
+    "badge": "Nosaltres",
+    "title": "Un estudi amb",
+    "titleHighlight": "propòsit",
+    "description": "Aplaudia va néixer de la convicció que els negocis petits mereixen eines digitals de primer nivell. No creiem en les solucions genèriques. Cada projecte és una oportunitat per crear alguna cosa que realment funcioni per a tu i els teus clients.",
+    "stat1": "Projectes",
+    "stat2": "Satisfacció",
+    "stat3": "Anys experiència"
+  },
+  "finalCta": {
+    "title": "Preparat per portar el teu negoci al següent nivell",
+    "subtitle": "Agenda una trucada sense compromís. Parlem del teu projecte, els teus objectius i com podem ajudar-te a créixer digitalment.",
+    "cta": "Agenda la teva trucada",
+    "ctaSecondary": "Escriu-nos per WhatsApp"
+  },
+  "footer": {
+    "tagline": "Estudi digital boutique",
+    "services": "Serveis",
+    "company": "Empresa",
+    "contact": "Contacte",
+    "rights": "Tots els drets reservats.",
+    "privacy": "Privacitat",
+    "terms": "Termes"
+  }
+}
