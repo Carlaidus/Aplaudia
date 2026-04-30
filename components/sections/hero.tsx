@@ -65,6 +65,7 @@ export function Hero() {
   const textOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
   const textY = useTransform(scrollYProgress, [0, 0.5], ["0%", "20%"])
   const scaleDown = useTransform(scrollYProgress, [0, 0.5], [1, 0.95])
+  const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
 
   const techStack = ["Next.js", "Claude AI", "Vercel", "WhatsApp API"]
 
@@ -276,6 +277,7 @@ export function Hero() {
       {/* Scroll indicator with bounce animation */}
       <motion.div
         className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
+        style={{ opacity: scrollIndicatorOpacity }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2.5 }}
