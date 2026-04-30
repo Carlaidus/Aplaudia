@@ -130,7 +130,7 @@ export function FinalCTA() {
                 size="lg"
                 className="relative bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base font-semibold rounded-xl"
               >
-                <Link href="mailto:hola@aplaudia.com" className="flex items-center gap-2">
+                <Link href="mailto:carlosvfx@gmail.com" className="flex items-center gap-2">
                   {t("cta")}
                   <motion.span
                     animate={{ x: isPrimaryHovered ? [0, 5, 0] : 0 }}

@@ -22,7 +22,7 @@ export function Footer() {
       { labelKey: "company.about", href: "#nosotros" },
     ],
     contacto: [
-      { labelKey: "contact.email", href: "mailto:hola@aplaudia.com", value: "hola@aplaudia.com" },
+      { labelKey: "contact.email", href: "mailto:carlosvfx@gmail.com", value: "carlosvfx@gmail.com" },
       { labelKey: "contact.whatsapp", href: "https://wa.me/521234567890", value: "WhatsApp" },
     ],
   }
