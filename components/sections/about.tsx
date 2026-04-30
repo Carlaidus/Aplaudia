@@ -67,7 +67,7 @@ export function About() {
   const stats = [
     { value: "100%", label: t("stat1") },
     { value: "24/7", label: t("stat2") },
-    { value: "MX", label: t("stat3") },
+    { value: "BCN", label: t("stat3") },
   ]
 
   return (
