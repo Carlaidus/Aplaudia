@@ -1,12 +1,6 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
 import { I18nProvider } from '@/i18n'
 import './globals.css'
-
-const inter = Inter({ 
-  subsets: ["latin"],
-  variable: "--font-inter",
-})
 
 export const metadata: Metadata = {
   title: 'Aplaudia | Estudio Digital para Negocios',
@@ -34,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="bg-background" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <I18nProvider>
           {children}
         </I18nProvider>
