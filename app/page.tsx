@@ -10,11 +10,13 @@ import { Benefits } from "@/components/sections/benefits"
 import { About } from "@/components/sections/about"
 import { FinalCTA } from "@/components/sections/final-cta"
 import { Footer } from "@/components/sections/footer"
+import { ConstructionNotice } from "@/components/sections/construction-notice"
 
 export default function Home() {
   return (
     <>
       <Header />
+      <ConstructionNotice />
       <main>
         <Hero />
         <ScrollStory />
