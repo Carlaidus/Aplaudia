@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { siteConfig } from '@/content/site'
+import { StructuredData } from '@/components/seo/structured-data'
 import { I18nProvider } from '@/i18n'
 import './globals.css'
 
@@ -42,6 +43,7 @@ export default function RootLayout({
   return (
     <html lang="es" className="bg-background" suppressHydrationWarning>
       <body className="font-sans antialiased">
+        <StructuredData />
         <I18nProvider>
           {children}
         </I18nProvider>
