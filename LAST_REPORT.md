@@ -90,8 +90,36 @@ Esta opcion es mejor que enlazar solo fuera, porque Aplaudia mantiene contexto c
 
 ## Estado de Railway
 
-- Antes de hacer push, Railway seguia en verde segun el estado heredado documentado.
-- Pendiente de comprobar el deployment del commit de esta tarea tras `git push`.
+- Railway CLI no estaba disponible por sesion expirada (`Unauthorized`), asi que la comprobacion se hizo desde Railway web.
+- Servicio: `Aplaudia`.
+- Environment: `production`.
+- Dominio mostrado en Railway: `aplaudia.com`.
+- Estado verificado tras el push: `Online`.
+- Deployment activo verificado: `Add real portfolio case studies`.
+- Resultado mostrado por Railway: `Deployment successful`.
+- Runtime mostrado: `node@22.23.1`.
+- Region mostrada: `EU West`.
+
+## Validacion en produccion
+
+- `https://aplaudia.com/`: `200`.
+- `https://aplaudia.com/casos`: `200`.
+- `https://aplaudia.com/casos/cronoras`: `200`.
+- `https://aplaudia.com/casos/arik-custom`: `200`.
+- `https://aplaudia.com/casos/aventuras-pixeladas`: `200`.
+- `https://aplaudia.com/sitemap.xml`: `200` e incluye `/casos` y las tres fichas.
+- `https://aplaudia.com/#portfolio` en desktop 1440 px:
+  - contiene Cronoras, Arik Custom y Aventuras Pixeladas.
+  - aviso de construccion visible.
+  - sin overflow horizontal real (`documentScrollWidth` 1425 frente a `innerWidth` 1440).
+- `https://aplaudia.com/#portfolio` en movil 390 px:
+  - contiene Cronoras, Arik Custom y Aventuras Pixeladas.
+  - aviso de construccion visible.
+  - sin overflow horizontal real (`documentScrollWidth` 375 frente a `innerWidth` 390).
+- `https://aplaudia.com/casos/cronoras` en movil 390 px:
+  - carga la ficha.
+  - aviso de construccion visible.
+  - sin overflow horizontal real.
 
 ## Estado final local
 
@@ -99,4 +127,4 @@ Aplaudia ya tiene una primera propuesta real de portfolio/casos con ejemplos exi
 
 ## Siguiente paso recomendado
 
-Despues del push, comprobar Railway y produccion. Si queda en verde, Carlos deberia revisar los tres casos y decidir si se amplian con mas capturas por proyecto, resultados concretos o testimonios reales cuando existan datos confirmados.
+Carlos deberia revisar los tres casos en movil y escritorio reales y decidir si se amplian con mas capturas por proyecto, resultados concretos o testimonios reales cuando existan datos confirmados.

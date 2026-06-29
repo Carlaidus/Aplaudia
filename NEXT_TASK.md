@@ -6,7 +6,7 @@ Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Objetivo inmediato
 
-Validar en produccion el nuevo portfolio real de Aplaudia y revisar con Carlos si los casos de Cronoras, Arik Custom y Aventuras Pixeladas comunican bien lo que vende Aplaudia.
+Revisar con Carlos si los casos de Cronoras, Arik Custom y Aventuras Pixeladas comunican bien lo que vende Aplaudia y decidir si se amplian antes de retirar el aviso de construccion.
 
 ## Repo
 
@@ -19,7 +19,8 @@ Validar en produccion el nuevo portfolio real de Aplaudia y revisar con Carlos s
 ## Contexto confirmado
 
 - `https://aplaudia.com/` funciona y mantiene aviso de construccion.
-- Railway estaba en verde antes de esta tarea.
+- Railway quedo en verde tras desplegar el portfolio real.
+- Deployment verificado en Railway web: `Add real portfolio case studies`, `Deployment successful`.
 - El portfolio ya no debe usar proyectos demo ni placeholders.
 - Se han anadido casos reales basados en trabajos de Carlos:
   - Cronoras.
@@ -44,20 +45,19 @@ Se preparo una primera estructura real de portfolio/casos:
 - Sitemap actualizado con las rutas de casos.
 - Aviso de construccion visible tambien en las rutas nuevas.
 - Build local validado.
+- Produccion validada en `https://aplaudia.com/#portfolio`, `/casos` y las tres fichas.
 - Lint sigue sin estar disponible porque `eslint` no esta instalado.
 
 ## Tarea para la proxima sesion
 
-1. Confirmar que el deployment de Railway del ultimo push queda en verde.
-
-2. Revisar en produccion:
+1. Revisar con Carlos en produccion:
    - `https://aplaudia.com/#portfolio`;
    - `https://aplaudia.com/casos`;
    - `https://aplaudia.com/casos/cronoras`;
    - `https://aplaudia.com/casos/arik-custom`;
    - `https://aplaudia.com/casos/aventuras-pixeladas`.
 
-3. Validar en movil real y escritorio:
+2. Validar en movil real y escritorio:
    - sin solapes;
    - sin palabras pegadas;
    - imagenes bien recortadas;
@@ -65,13 +65,13 @@ Se preparo una primera estructura real de portfolio/casos:
    - aviso de construccion visible;
    - sin overflow horizontal.
 
-4. Carlos debe decidir si:
+3. Carlos debe decidir si:
    - estas tres fichas son suficientes para lanzamiento;
    - conviene anadir una segunda captura por caso;
    - conviene ampliar cada ficha con proceso, stack tecnico o resultados;
    - se mantienen los enlaces a Railway en Arik/Aventuras o se sustituyen por dominios propios cuando existan.
 
-5. Deuda tecnica opcional:
+4. Deuda tecnica opcional:
    - instalar/configurar ESLint para que `npm run lint` funcione;
    - revisar si se mantiene `next build --webpack` mientras el workspace local siga en unidad de red mapeada;
    - anadir JSON-LD de casos solo si se decide una estructura SEO definitiva para portfolio.
@@ -80,7 +80,7 @@ Se preparo una primera estructura real de portfolio/casos:
 
 - `npm run build`.
 - `npm run lint` solo si se instala/configura ESLint.
-- Revisar Railway tras push.
+- Revisar Railway solo si se hace un commit nuevo.
 - Revisar `https://aplaudia.com/#portfolio`.
 - Revisar las cuatro rutas de `/casos`.
 - Revisar `https://aplaudia.com/sitemap.xml`.
