@@ -90,8 +90,36 @@ No se han guardado capturas RAW, perfiles temporales de Chrome, secretos ni dato
 
 ## Estado de Railway
 
-- Pendiente de push y comprobacion del deployment de este cambio.
-- Estado anterior confirmado en memoria: Railway estaba en verde y `https://aplaudia.com` respondia correctamente antes de esta segunda pasada.
+- Railway CLI no estaba disponible por sesion expirada (`Unauthorized`).
+- Comprobacion realizada en Railway web:
+  - Servicio: `Aplaudia`.
+  - Environment: `production`.
+  - Dominio mostrado: `aplaudia.com`.
+  - Deployment activo: `Improve real portfolio case studies`.
+  - Commit desplegado: `d1cd38c`.
+  - Estado mostrado: `Online`.
+  - Resultado mostrado: `Deployment successful`.
+  - Runtime mostrado: `node@22.23.1`.
+  - Region mostrada: `EU West`.
+
+## Validacion en produccion
+
+- `https://aplaudia.com/`: `200`.
+- `https://aplaudia.com/casos`: `200`.
+- `https://aplaudia.com/casos/cronoras`: `200`.
+- `https://aplaudia.com/casos/arik-custom`: `200`.
+- `https://aplaudia.com/casos/aventuras-pixeladas`: `200`.
+- `https://aplaudia.com/sitemap.xml`: `200`.
+- HTML de produccion:
+  - home contiene aviso de construccion;
+  - home contiene Cronoras, Arik Custom y Aventuras Pixeladas;
+  - home referencia `cronoras-app-dashboard`;
+  - ficha de Aventuras contiene `Vistas clave`, `Cartuchos de navegacion` y `Paneles de contenido`.
+- Auditoria responsive en produccion con Chrome headless:
+  - `https://aplaudia.com/#portfolio` movil 390 px: sin overflow (`scrollWidth` 390), aviso visible, 3 imagenes de portfolio cargadas.
+  - `https://aplaudia.com/casos` movil 390 px: sin overflow (`scrollWidth` 390), aviso visible, 3 imagenes de portfolio cargadas.
+  - `https://aplaudia.com/casos/aventuras-pixeladas` movil 390 px: sin overflow (`scrollWidth` 390), aviso visible, 3 imagenes de portfolio cargadas.
+  - `https://aplaudia.com/#portfolio` desktop 1440 px: sin overflow (`scrollWidth` 1440), aviso visible, 3 imagenes de portfolio cargadas.
 
 ## Estado final local
 
@@ -105,4 +133,4 @@ Aplaudia tiene ahora una segunda pasada de portfolio mas comercial:
 
 ## Siguiente paso recomendado
 
-Hacer push, comprobar Railway en verde y revisar en produccion con Carlos si esta segunda version de casos es suficiente para lanzamiento o si falta anadir resultados reales, stack tecnico o testimonios confirmados.
+Revisar en produccion con Carlos si esta segunda version de casos es suficiente para lanzamiento o si falta anadir resultados reales, stack tecnico, proceso de trabajo o testimonios confirmados.

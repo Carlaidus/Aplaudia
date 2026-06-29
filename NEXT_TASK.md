@@ -19,7 +19,10 @@ Revisar en produccion con Carlos la segunda pasada de portfolio/casos y decidir 
 ## Contexto confirmado
 
 - `https://aplaudia.com/` funciona y debe mantener aviso de construccion hasta validacion final de Carlos.
-- Railway estaba en verde antes de esta segunda pasada.
+- Railway queda en verde tras la segunda pasada de portfolio:
+  - deployment activo `Improve real portfolio case studies`;
+  - commit desplegado `d1cd38c`;
+  - resultado Railway web `Deployment successful`.
 - El portfolio ya usa trabajos reales:
   - Cronoras.
   - Arik Custom.
@@ -57,8 +60,7 @@ Se ha reforzado el portfolio/casos sin redisenar la web:
 
 ## Tarea para la proxima sesion
 
-1. Confirmar deployment:
-   - comprobar que Railway esta en verde tras el ultimo push;
+1. Revisar en produccion:
    - abrir `https://aplaudia.com/#portfolio`;
    - abrir `https://aplaudia.com/casos`;
    - abrir las tres fichas de caso.
