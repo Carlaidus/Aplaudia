@@ -4,44 +4,69 @@ Fecha: 2026-06-29
 
 ## Objetivo de la tarea
 
-Corregir la experiencia movil de `https://aplaudia.com` antes de retirar el aviso de construccion, manteniendo la identidad visual, el dominio ya conectado y Railway en verde.
+Auditar y optimizar el rendimiento percibido de `https://aplaudia.com` en movil y escritorio sin redisenar la landing, sin cambiar el orden de secciones y manteniendo el aviso de construccion.
+
+## Problema detectado
+
+Carlos indico que la pagina se percibia lenta, tambien en escritorio, y que algunas animaciones se cortaban o daban tirones.
+
+## Causa confirmada
+
+La causa principal era acumulacion de animaciones simultaneas:
+
+- 34 apariciones de `repeat: Infinity` en secciones antes de la optimizacion.
+- Fondos con glows grandes, `blur` alto y movimiento continuo.
+- Animacion letra a letra del hero tambien en movil.
+- Parallax y hover 3D activos en dispositivos tactiles.
+- Multiples efectos decorativos animandose aunque no aportaban informacion.
+
+La medicion inicial en produccion movil mostro `filter: 36`, `backdrop: 27`, `shadow: 15` y `transform: 332` elementos detectados en una lectura DOM simple.
 
 ## Cambios aplicados
 
+- Anadido `MotionPerformanceProvider`:
+  - respeta `prefers-reduced-motion`;
+  - activa modo ligero en `max-width: 900px` o `pointer: coarse`;
+  - fuerza `MotionConfig` con movimiento reducido en movil/tactil.
 - Hero:
-  - La animacion de texto ya agrupa letras por palabra con `whitespace-nowrap`, evitando que una letra de `digital` quede sola en otra linea.
-  - El H1 usa un tamano movil mas contenido, `line-height` mas estable y `aria-label` completo para lectura accesible.
-  - Copy ES ajustado a frase natural: `Presencia digital que impulsa tu negocio`.
+  - en modo ligero ya no usa animacion letra a letra;
+  - los glows de fondo pasan a ser estaticos;
+  - se eliminan loops de badge, flecha, dots, scroll indicator y glow de CTA;
+  - queda solo el gradiente principal del titular en escritorio.
 - Scroll story:
-  - Copy ES simplificado a `Tu negocio merece una presencia digital que impacte`.
-  - Copy CA/EN actualizado de forma coherente.
-  - Titular movil con `max-width`, `line-height`, `text-balance` y `aria-label` completo.
-- Titulares de secciones:
-  - Ajustados los H2 largos de WhatsApp, servicios, visuales y beneficios para mejorar equilibrio en movil sin redisenar secciones.
-- Aviso de construccion:
-  - Sigue visible por defecto.
-  - En pantallas pequenas y medias arranca como pastilla compacta: `En construccion - 29 junio 2026`.
-  - La pastilla se puede abrir para ver el aviso completo.
-  - El aviso completo incluye boton accesible para minimizar.
-  - En desktop sigue mostrandose completo por defecto.
-  - La pastilla movil se posiciona bajo el header para no tapar CTAs.
-- Build:
-  - `npm run build` pasa a usar `next build --webpack`.
-  - Motivo: `next build` con Turbopack falla en este workspace Windows sobre unidad de red mapeada por normalizacion UNC de rutas, aunque Railway ya compilaba en verde.
+  - en modo ligero muestra palabras sin blur/3D;
+  - fondos y scan line pasan a estaticos;
+  - se elimina el loop del destacado.
+- WhatsApp demo:
+  - fondos animados pasan a estaticos;
+  - se eliminan pulsos continuos del mockup.
+- Servicios:
+  - parallax decorativo desactivado en modo ligero;
+  - hover tactil desactivado;
+  - corregidos espacios reales del H2 para evitar lecturas tipo `parabrillaren`.
+- Showcase, visual gallery, benefits, about, how-it-works y final CTA:
+  - parallax decorativo desactivado en modo ligero;
+  - glows/fondos de bucle continuo convertidos en estaticos;
+  - hover complejo desactivado en dispositivos tactiles;
+  - loops decorativos secundarios retirados.
+- Footer:
+  - pulsos decorativos convertidos en estaticos.
 
 ## Archivos modificados
 
+- `app/layout.tsx`
+- `components/motion-performance-provider.tsx`
 - `components/sections/hero.tsx`
 - `components/sections/scroll-story.tsx`
-- `components/sections/construction-notice.tsx`
+- `components/sections/whatsapp-demo.tsx`
 - `components/sections/services.tsx`
+- `components/sections/how-it-works.tsx`
+- `components/sections/showcase.tsx`
 - `components/sections/visual-gallery.tsx`
 - `components/sections/benefits.tsx`
-- `components/sections/whatsapp-demo.tsx`
-- `i18n/messages/es.json`
-- `i18n/messages/ca.json`
-- `i18n/messages/en.json`
-- `package.json`
+- `components/sections/about.tsx`
+- `components/sections/final-cta.tsx`
+- `components/sections/footer.tsx`
 - `LAST_REPORT.md`
 - `NEXT_TASK.md`
 
@@ -50,32 +75,38 @@ Corregir la experiencia movil de `https://aplaudia.com` antes de retirar el avis
 - `npm install`: no necesario; `node_modules` y `package-lock.json` ya estaban presentes.
 - `npm run build`: OK con `next build --webpack`.
 - `npm run lint`: no ejecutable; el repo define `eslint .`, pero `eslint` no esta instalado como dependencia.
-- Local responsive con navegador:
-  - 360 px, 390 px y 430 px: H1/H2 sin desbordes, sin palabras partidas y sin letras sueltas.
-  - Tablet y desktop: sin regresiones detectadas.
-  - Aviso minimizable y reabrible validado con botones accesibles.
+- Local con `next start`:
+  - 360 px, 390 px, 430 px, tablet y desktop revisados.
+  - Sin errores ni warnings relevantes en consola.
+  - H1 y H2 sin overflow.
+  - Hero mantiene `Presencia digital que impulsa tu negocio`.
+  - Servicios mantiene `Todo lo que tu negocio necesita para brillar en digital` con espacios correctos.
+  - Aviso de construccion abre y minimiza correctamente.
 - Produccion en `https://aplaudia.com`:
-  - 360 px, 390 px, 430 px y tablet: pastilla de construccion visible sin tapar CTAs ni controles.
-  - Desktop: aviso completo visible y sin tapar controles.
-  - Hero validado con `Presencia digital que impulsa tu negocio` y sin riesgo de partir palabras.
+  - 360 px, 390 px, 430 px, tablet y desktop revisados.
+  - Sin errores ni warnings relevantes en consola.
+  - `filter` en movil baja de 36 a 28 elementos detectados.
+  - `transform` en movil baja de 332 a 264 elementos detectados.
+  - `parabrillaren` ya no aparece en el texto de la pagina.
+  - Aviso de construccion sigue visible como pastilla en movil y completo en desktop.
 - Endpoints:
   - `https://aplaudia.com/`: `200`.
-  - `https://www.aplaudia.com/`: `301` a `https://aplaudia.com/`, siguiendo redireccion acaba en `200`.
+  - `https://www.aplaudia.com/`: `301` a `https://aplaudia.com/`.
   - `https://aplaudia.com/robots.txt`: `200`.
   - `https://aplaudia.com/llms.txt`: `200`.
   - `https://aplaudia.com/sitemap.xml`: `200`.
 
 ## Estado de Railway
 
-- Railway en verde.
-- Deployment funcional validado: `5546e2bc-0061-4a45-a383-d62a3c0d546d`, `SUCCESS`, 2026-06-29 13:11:39 +02:00.
-- Commit funcional validado: `76ee74bf5a3cc9e6e0f2a3aa5df938b87cb02369`.
+- Railway en verde tras el commit funcional de rendimiento.
+- Deployment funcional validado: `7d5dff89-9d40-4ae9-8d98-e1a5bd22b73e`, `SUCCESS`, 2026-06-29 15:00:37 +02:00.
+- Commit funcional validado: `85c31ac6b63c54e0e44dd4c09e3fc58ae3d39ac6`.
 - Servicio: `Aplaudia`, environment `production`, custom domain `aplaudia.com`, target port `8080`.
 
 ## Estado final
 
-`aplaudia.com` carga correctamente, mantiene SEO/IA tecnico, conserva el aviso de construccion y mejora la revision movil detectada por Carlos. No se ha tocado dominio, DNS, Cloudflare, backend, base de datos, auth ni pagos.
+`aplaudia.com` carga correctamente, mantiene SEO/IA tecnico, conserva el aviso de construccion y reduce de forma clara el coste de animaciones. No se ha tocado dominio, DNS, Cloudflare, backend, base de datos, auth ni pagos.
 
 ## Siguiente paso recomendado
 
-Carlos debe revisar `https://aplaudia.com` en movil real. Si lo valida, el siguiente paso es decidir si se retira, suaviza o mantiene el aviso de construccion y cerrar contenido comercial, contacto real, textos CA/EN y legales basicos antes del lanzamiento publico.
+Carlos debe revisar la web en movil real y escritorio real para confirmar sensacion de fluidez. Si la valida, el siguiente foco es decision de lanzamiento: mantener, suavizar o retirar el aviso de construccion, cerrar contacto/copy/legal basico y, como deuda tecnica, instalar/configurar ESLint para que `npm run lint` sea una validacion real.
