@@ -1,136 +1,97 @@
 # LAST REPORT
 
-Fecha: 2026-06-29
+Fecha: 2026-06-30
 
 ## Objetivo de la tarea
 
-Dar una segunda vuelta fuerte al portfolio/casos de Aplaudia para que los proyectos reales de Carlos vendan mejor, sin redisenar la web ni tocar backend, base de datos, auth, pagos, dominio, DNS o Cloudflare.
+Corregir la segunda pasada del portfolio/casos de Aplaudia para que Cronoras, Arik Custom y Aventuras Pixeladas tengan una estructura visual coherente:
 
-## Auditoria realizada
+- portada o imagen principal por proyecto;
+- tres vistas clave por proyecto;
+- panel de control o gestión visible en los tres casos;
+- explicación clara de cada imagen;
+- Aventuras Pixeladas con cartuchos correctos de la home y una muestra del sistema modular.
 
-- La primera pasada ya eliminaba placeholders, pero cada proyecto dependia demasiado de una sola imagen.
-- Aventuras Pixeladas no ensenaba con suficiente claridad los cartuchos ni los paneles vivos de contenido.
-- Arik Custom abria con una captura de catalogo/producto, demasiado concreta como primera impresion del proyecto.
-- Cronoras necesitaba mas soporte visual de interfaz real: dashboard, proyectos, estadisticas y flujo de trabajo.
-- La estrategia hibrida sigue siendo la mas conveniente:
-  - mini caso dentro de Aplaudia para explicar valor;
-  - enlace externo a la web/demo real cuando procede.
+No se ha rediseñado la web ni se ha tocado backend, base de datos, auth, pagos, dominio, DNS, Cloudflare o Railway.
 
-## Criterio visual aplicado
+## Problemas detectados
 
-- Cronoras:
-  - Imagen principal cambiada a una vista de dashboard de producto.
-  - Galeria con proyectos, estadisticas y proyecto en curso.
-  - Motivo: muestra mejor el problema que resuelve y la profundidad SaaS.
-- Arik Custom:
-  - Imagen principal cambiada a la home/portada.
-  - El catalogo se conserva como imagen secundaria.
-  - Motivo: la primera impresion debe comunicar marca, propuesta y camino comercial, no solo un detalle de producto.
-- Aventuras Pixeladas:
-  - Imagen principal sustituida por una captura completa de home con cartuchos y paneles.
-  - Galeria con cartuchos de navegacion y paneles de evento/directo/musica.
-  - Motivo: responde al feedback de Carlos y ensena el sistema modular de la web.
-
-## Imagenes anadidas o sustituidas
-
-Todas viven en `public/portfolio/` y estan optimizadas en WebP 1280 x 800 aprox.:
-
-- `cronoras-app-dashboard.webp` - nueva imagen principal de Cronoras, 40 KB aprox.
-- `cronoras-proyectos.webp` - nueva captura secundaria, 46 KB aprox.
-- `cronoras-estadisticas.webp` - nueva captura secundaria, 35 KB aprox.
-- `cronoras-proyecto-activo.webp` - nueva captura secundaria, 33 KB aprox.
-- `arik-home.webp` - nueva imagen principal de Arik Custom, 31 KB aprox.
-- `arik-catalogo.webp` - se conserva como apoyo secundario, 33 KB aprox.
-- `aventuras-pixeladas-home.webp` - sustituida por captura completa de home, 124 KB aprox.
-- `aventuras-cartuchos.webp` - nueva captura secundaria, 46 KB aprox.
-- `aventuras-paneles.webp` - nueva captura secundaria, 64 KB aprox.
-
-No se han guardado capturas RAW, perfiles temporales de Chrome, secretos ni datos privados.
+- Arik Custom tenía portada correcta, pero solo una vista clave.
+- Cronoras tenía tres vistas, pero faltaba el panel de control interno.
+- Aventuras Pixeladas tenía dos vistas y el recorte de cartuchos era demasiado aislado: no explicaba bien que los cartuchos pertenecen a la portada real ni que son modulares.
+- Las fichas no enseñaban de forma homogénea la parte de gestión/control de los proyectos.
 
 ## Cambios aplicados
 
-- `content/showcase.ts`:
-  - Ampliado el modelo de contenido con `cardTakeaway`, `proofPoints` y `gallery`.
-  - Reescritos los textos comerciales de Cronoras, Arik Custom y Aventuras Pixeladas.
-  - Actualizadas imagenes principales y enlaces externos cuando procedia.
-- `components/sections/showcase.tsx`:
-  - Anadido un bloque breve `Que ensena` en cada tarjeta de la home.
-  - Se mantiene la seccion `#portfolio`, orden, animacion y estructura general.
-- `app/casos/page.tsx`:
-  - Anadido el resumen `Que ensena` al indice de casos.
-- `app/casos/[slug]/page.tsx`:
-  - Anadida galeria no invasiva de vistas clave.
-  - Anadido bloque de valor visible con tres puntos por caso.
-  - Se mantiene header, aviso de construccion, hero, CTAs y estructura general.
-- `public/portfolio/`:
-  - Anadidas nuevas capturas optimizadas.
-  - Sustituida la captura principal de Aventuras Pixeladas por una vista mas completa.
+- Cronoras:
+  - imagen principal cambiada a la portada/demo de producto;
+  - vistas clave: dashboard de producto, panel de control interno y estadísticas accionables.
+- Arik Custom:
+  - imagen principal conservada como home/portada;
+  - vistas clave: catálogo filtrable, ficha de producto y panel de control.
+- Aventuras Pixeladas:
+  - imagen principal conservada como home completa;
+  - `aventuras-cartuchos.webp` sustituida por una composición basada en la captura real de la home;
+  - añadida vista de control modular;
+  - añadida animación ligera en la ficha para mostrar cartuchos que se mueven, cambian de tamaño y mantienen la composición.
+
+## Imágenes añadidas o sustituidas
+
+Todas viven en `public/portfolio/` y están optimizadas en WebP:
+
+- `cronoras-admin-panel.webp` - panel administrativo limpio, sin datos privados.
+- `arik-producto.webp` - ficha de producto con técnicas, colores, tallas y CTA a presupuesto.
+- `arik-admin-panel.webp` - panel de gestión de productos, líneas, familias, servicios y presupuestos.
+- `aventuras-control-modular.webp` - vista explicativa del control modular de cartuchos.
+- `aventuras-cartuchos.webp` - sustituida por una composición con la captura real de cartuchos dentro de la home.
+
+## Archivos modificados
+
+- `content/showcase.ts`
+- `app/casos/[slug]/page.tsx`
+- `components/cases/cartucho-motion-demo.tsx`
+- `app/globals.css`
+- `public/portfolio/aventuras-cartuchos.webp`
+- `public/portfolio/cronoras-admin-panel.webp`
+- `public/portfolio/arik-producto.webp`
+- `public/portfolio/arik-admin-panel.webp`
+- `public/portfolio/aventuras-control-modular.webp`
+- `LAST_REPORT.md`
+- `NEXT_TASK.md`
+- `PROJECT_STATE.md`
 
 ## Validaciones ejecutadas
 
-- `npm install`: no necesario; `node_modules` ya estaba presente.
-- `npm run build`:
-  - Primer intento desde ruta UNC `\\pinocho\...`: fallo por limitacion de `cmd.exe`, que cae en `C:\Windows` e intenta crear `C:\Windows\.next`.
-  - Repetido desde `T:\20-PROYECTOS\APLAUDIA`: OK con `next build --webpack`.
-- `npm run lint`: no ejecutable; el script llama a `eslint .`, pero `eslint` no esta instalado como dependencia.
-- `npx tsc --noEmit`: falla por deuda previa no tocada en esta tarea:
-  - tipos ausentes de `react-day-picker` en `components/ui/calendar.tsx`;
-  - diferencias antiguas entre mensajes i18n en `i18n/provider.tsx`.
-- `git diff --check`: OK.
-- Busqueda de copy:
-  - No aparecen `reservacion`, `agendar`, `capacitar`, AM/PM ni `portafolio` en contenido visible revisado.
-- Local con `next start` en `http://127.0.0.1:3010`:
-  - `/#portfolio` desktop 1440 px: sin overflow horizontal real (`scrollWidth` 1425 frente a `innerWidth` 1440).
-  - `/#portfolio` movil 390 px: sin overflow horizontal real (`scrollWidth` 390).
-  - `/casos` movil 390 px: sin overflow horizontal real (`scrollWidth` 390).
-  - `/casos/cronoras` movil 390 px: sin overflow horizontal real (`scrollWidth` 390), 4 imagenes de portfolio cargadas.
-  - `/casos/arik-custom` movil 390 px: sin overflow horizontal real (`scrollWidth` 390), 2 imagenes de portfolio cargadas.
-  - `/casos/aventuras-pixeladas` movil 390 px: sin overflow horizontal real (`scrollWidth` 390), 3 imagenes de portfolio cargadas.
-  - Aviso de construccion visible en home y rutas de casos.
+- `npm install`: no necesario; no se añadieron dependencias y `node_modules` estaba presente.
+- `npm run build`: OK con `next build --webpack`.
+- `npm run lint`: no ejecutable; el script existe, pero `eslint` no está instalado como dependencia.
+- `npx tsc --noEmit`:
+  - primero detectó un error propio por `motionDemo` en la unión literal de proyectos;
+  - corregido tipando `caseStudies` como `readonly PortfolioProject[]`;
+  - después solo quedaron errores previos no tocados:
+    - tipos ausentes/implícitos en `components/ui/calendar.tsx`;
+    - desalineación antigua de mensajes `about` en `i18n/provider.tsx`.
+- Servidor local de producción en `http://127.0.0.1:3017`:
+  - home móvil 390 px: aviso de construcción visible;
+  - `/casos/cronoras`: 3 vistas clave;
+  - `/casos/arik-custom`: 3 vistas clave;
+  - `/casos/aventuras-pixeladas`: 3 vistas clave y animación modular visible;
+  - sin overflow horizontal en home ni en las tres fichas (`scrollWidth` = 390 px en móvil).
 
 ## Estado de Railway
 
-- Railway CLI no estaba disponible por sesion expirada (`Unauthorized`).
-- Comprobacion realizada en Railway web:
-  - Servicio: `Aplaudia`.
-  - Environment: `production`.
-  - Dominio mostrado: `aplaudia.com`.
-  - Deployment de codigo `Improve real portfolio case studies` (`d1cd38c`): `Deployment successful`.
-  - Deployment documental posterior `docs: record portfolio case study deployment`: `Deployment successful`.
-  - Estado final mostrado al cierre: `Online`.
-  - Resultado final mostrado al cierre: `Deployment successful`.
-  - Runtime mostrado: `node@22.23.1`.
-  - Region mostrada: `EU West`.
-
-## Validacion en produccion
-
-- `https://aplaudia.com/`: `200`.
-- `https://aplaudia.com/casos`: `200`.
-- `https://aplaudia.com/casos/cronoras`: `200`.
-- `https://aplaudia.com/casos/arik-custom`: `200`.
-- `https://aplaudia.com/casos/aventuras-pixeladas`: `200`.
-- `https://aplaudia.com/sitemap.xml`: `200`.
-- HTML de produccion:
-  - home contiene aviso de construccion;
-  - home contiene Cronoras, Arik Custom y Aventuras Pixeladas;
-  - home referencia `cronoras-app-dashboard`;
-  - ficha de Aventuras contiene `Vistas clave`, `Cartuchos de navegacion` y `Paneles de contenido`.
-- Auditoria responsive en produccion con Chrome headless:
-  - `https://aplaudia.com/#portfolio` movil 390 px: sin overflow (`scrollWidth` 390), aviso visible, 3 imagenes de portfolio cargadas.
-  - `https://aplaudia.com/casos` movil 390 px: sin overflow (`scrollWidth` 390), aviso visible, 3 imagenes de portfolio cargadas.
-  - `https://aplaudia.com/casos/aventuras-pixeladas` movil 390 px: sin overflow (`scrollWidth` 390), aviso visible, 3 imagenes de portfolio cargadas.
-  - `https://aplaudia.com/#portfolio` desktop 1440 px: sin overflow (`scrollWidth` 1440), aviso visible, 3 imagenes de portfolio cargadas.
+Pendiente de comprobar tras el push de esta tarea.
 
 ## Estado final local
 
-Aplaudia tiene ahora una segunda pasada de portfolio mas comercial:
+Aplaudia queda con una estructura de portfolio más seria y homogénea:
 
-- Cronoras comunica mejor producto SaaS y flujo de trabajo.
-- Arik Custom abre con una captura global de home/portada.
-- Aventuras Pixeladas ensena cartuchos, paneles y sistema modular.
-- La home mantiene el aviso de construccion.
-- No se ha tocado dominio, DNS, Cloudflare, backend, base de datos, auth ni pagos.
+- cada caso tiene portada o imagen principal;
+- cada caso tiene exactamente tres vistas clave;
+- cada caso muestra una parte de control o gestión;
+- Aventuras Pixeladas explica mejor los cartuchos de la home y su comportamiento modular;
+- el aviso de construcción sigue visible.
 
 ## Siguiente paso recomendado
 
-Revisar en produccion con Carlos si esta segunda version de casos es suficiente para lanzamiento o si falta anadir resultados reales, stack tecnico, proceso de trabajo o testimonios confirmados.
+Desplegar y revisar en producción `https://aplaudia.com/casos/cronoras`, `https://aplaudia.com/casos/arik-custom` y `https://aplaudia.com/casos/aventuras-pixeladas` con Carlos en móvil real y escritorio. Si Carlos valida esta base, el siguiente foco debería ser contenido legal/contacto antes de retirar el aviso de construcción.

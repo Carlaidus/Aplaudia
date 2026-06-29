@@ -1,6 +1,6 @@
 # PROJECT STATE - Aplaudia
 
-Ultima actualizacion: 2026-06-29
+Ultima actualizacion: 2026-06-30
 
 ## Identificacion
 
@@ -45,6 +45,10 @@ Ultima actualizacion: 2026-06-29
   - `app/llms.txt/route.ts` genera `/llms.txt` desde `siteConfig`.
   - `public/sitemap.xml` apunta a `https://aplaudia.com/`.
 - Copy principal ES revisado para espanol de Espana: `reserva`, `reservar`, `portfolio`, horarios 24 h y giros menos latinoamericanos.
+- Portfolio/casos con trabajos reales en `content/showcase.ts`:
+  - Cronoras con portada/demo, dashboard, panel de control y estadisticas.
+  - Arik Custom con home, catalogo, ficha de producto y panel de gestion.
+  - Aventuras Pixeladas con home, cartuchos reales de portada, paneles vivos, control modular y animacion ligera de cartuchos.
 
 ## Estado de despliegue
 
@@ -92,6 +96,7 @@ Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 1. Mantener Railway en verde.
 2. Mantener el aviso de construccion visible hasta validacion final de Carlos.
 3. Documentacion tecnica al dia para que Codex y ChatGPT puedan continuar sin perder contexto.
+4. Revisar con Carlos si el portfolio/casos ya es suficiente para validacion final.
 
 ## Pendiente
 
@@ -99,7 +104,7 @@ Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 - Revisar textos ES / CA / EN.
 - Crear legal basico: aviso legal, privacidad y cookies si se va a captar contacto.
 - Decidir formulario/contacto/WhatsApp real; no hay numero de WhatsApp publicado en `siteConfig`.
-- Generar capturas o demo para portfolio cuando la web este estable.
+- Revisar en produccion con Carlos la nueva version de portfolio/casos.
 - Definir datos legales reales antes de ampliar JSON-LD con direccion, telefono, redes sociales o fundador.
 
 ## Servicios externos

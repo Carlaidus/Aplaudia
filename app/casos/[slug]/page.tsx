@@ -4,6 +4,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ArrowLeft, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { CartuchoMotionDemo } from "@/components/cases/cartucho-motion-demo"
 import { ConstructionNotice } from "@/components/sections/construction-notice"
 import { Footer } from "@/components/sections/footer"
 import { Header } from "@/components/sections/header"
@@ -155,6 +156,8 @@ export default async function CasePage({ params }: CasePageProps) {
             </div>
           </section>
         )}
+
+        {project.motionDemo === "modular-cartuchos" && <CartuchoMotionDemo />}
 
         <section className="py-16">
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-3 lg:px-8">

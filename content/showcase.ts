@@ -31,6 +31,7 @@ export type PortfolioProject = {
   deliverables: readonly string[]
   proofPoints: readonly PortfolioProofPoint[]
   gallery: readonly PortfolioImage[]
+  motionDemo?: "modular-cartuchos"
 }
 
 export const showcaseLabels = {
@@ -51,9 +52,9 @@ export const portfolioProjects = [
       "Aplicación para controlar jornadas, proyectos, importes, facturas y estadísticas con demo pública basada en datos ficticios.",
     description:
       "Cronoras es un producto SaaS para profesionales freelance que necesitan entender horas, cobros, proyectos activos y facturación sin depender de hojas sueltas.",
-    image: "/portfolio/cronoras-app-dashboard.webp",
+    image: "/portfolio/cronoras-dashboard.webp",
     imageAlt:
-      "Dashboard de Cronoras con métricas de trabajo sin facturar, facturas pendientes, proyectos y datos de demo.",
+      "Portada de demo de Cronoras con acceso a datos ficticios, dashboard y estadísticas del producto.",
     url: "https://cronoras.com/demo-guia.html",
     caseHref: "/casos/cronoras",
     visitLabel: "Probar demo",
@@ -99,11 +100,18 @@ export const portfolioProjects = [
     ],
     gallery: [
       {
-        src: "/portfolio/cronoras-proyectos.webp",
-        alt: "Vista de proyectos de Cronoras con clientes, fechas, horas, ingresos y estados de cobro.",
-        title: "Control de proyectos",
+        src: "/portfolio/cronoras-app-dashboard.webp",
+        alt: "Dashboard de Cronoras con métricas de trabajo sin facturar, facturas pendientes, proyectos y datos de demo.",
+        title: "Dashboard de producto",
         description:
-          "Listado con clientes, horas, ingresos y estados para ver de un vistazo qué está en curso o cobrado.",
+          "Vista principal de uso diario con horas, importes, proyectos y cobros para entender el negocio en segundos.",
+      },
+      {
+        src: "/portfolio/cronoras-admin-panel.webp",
+        alt: "Panel administrativo de Cronoras para revisar analítica, lanzamiento, usuarios, novedades y actividad sin datos privados.",
+        title: "Panel de control interno",
+        description:
+          "Control operativo para revisar analítica, lanzamiento, usuarios, novedades y actividad sin exponer información sensible.",
       },
       {
         src: "/portfolio/cronoras-estadisticas.webp",
@@ -111,13 +119,6 @@ export const portfolioProjects = [
         title: "Estadísticas accionables",
         description:
           "Métricas por periodo para entender horas, cobros, tarifa media y evolución del trabajo.",
-      },
-      {
-        src: "/portfolio/cronoras-proyecto-activo.webp",
-        alt: "Vista de proyecto en curso de Cronoras con sesión activa, notas y entradas de tiempo.",
-        title: "Flujo de trabajo diario",
-        description:
-          "Registro de sesión, notas y entradas de tiempo para convertir el control horario en hábito.",
       },
     ],
   },
@@ -183,6 +184,20 @@ export const portfolioProjects = [
         description:
           "Productos, familias y filtros para que el visitante pase de explorar a preparar una solicitud concreta.",
       },
+      {
+        src: "/portfolio/arik-producto.webp",
+        alt: "Ficha de producto de Arik Custom con camiseta personalizable, técnicas, colores, tallas y llamada a presupuesto.",
+        title: "Ficha de producto",
+        description:
+          "Cada prenda aterriza en una ficha útil para elegir técnica, color, talla y avanzar hacia una petición comercial.",
+      },
+      {
+        src: "/portfolio/arik-admin-panel.webp",
+        alt: "Panel de control de Arik Custom con productos activos, líneas, familias, acciones rápidas y productos recientes.",
+        title: "Panel de control",
+        description:
+          "Área protegida para gestionar productos, líneas de catálogo, familias, servicios, contenidos y presupuestos.",
+      },
     ],
   },
   {
@@ -242,10 +257,10 @@ export const portfolioProjects = [
     gallery: [
       {
         src: "/portfolio/aventuras-cartuchos.webp",
-        alt: "Cartuchos de Aventuras Pixeladas para directos, historias, música, eventos, noticias y Twitch.",
-        title: "Cartuchos de navegación",
+        alt: "Cartuchos de la portada de Aventuras Pixeladas para directos, historias, música, eventos, noticias y Twitch dentro de la home real.",
+        title: "Cartuchos de la portada",
         description:
-          "Secciones convertidas en piezas visuales con icono, color y llamada a la acción.",
+          "Piezas visuales de la home con distintos tamaños, preparadas para expandirse, moverse y modular la portada.",
       },
       {
         src: "/portfolio/aventuras-paneles.webp",
@@ -254,11 +269,19 @@ export const portfolioProjects = [
         description:
           "Bloques para evento, directo y música que hacen que la home parezca viva y actualizable.",
       },
+      {
+        src: "/portfolio/aventuras-control-modular.webp",
+        alt: "Vista de control modular de Aventuras Pixeladas con cartuchos de distintos tamaños, botones de guardar y restablecer, y movimiento de módulos.",
+        title: "Control modular",
+        description:
+          "El sistema permite mover, redimensionar, ocultar y guardar módulos para que cada portada pueda adaptarse sin romper la identidad.",
+      },
     ],
+    motionDemo: "modular-cartuchos",
   },
 ] as const satisfies readonly PortfolioProject[]
 
-export const caseStudies = portfolioProjects
+export const caseStudies: readonly PortfolioProject[] = portfolioProjects
 
 export function getCaseStudy(slug: string) {
   return caseStudies.find((project) => project.slug === slug)

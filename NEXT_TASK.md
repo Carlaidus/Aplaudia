@@ -6,7 +6,7 @@ Nivel de inteligencia recomendado: Alto
 
 ## Objetivo inmediato
 
-Revisar en produccion con Carlos la segunda pasada de portfolio/casos y decidir si Aplaudia queda lista para validacion final de lanzamiento o si necesita una ultima capa de contenido comercial.
+Revisar en producción con Carlos la nueva versión de portfolio/casos y decidir si Aplaudia queda lista para validación final o si falta una última capa comercial, legal o de contacto.
 
 ## Repo
 
@@ -18,67 +18,54 @@ Revisar en produccion con Carlos la segunda pasada de portfolio/casos y decidir 
 
 ## Contexto confirmado
 
-- `https://aplaudia.com/` funciona y debe mantener aviso de construccion hasta validacion final de Carlos.
-- Railway queda en verde tras la segunda pasada de portfolio:
-  - commit de codigo `d1cd38c` verificado;
-  - commit documental posterior verificado;
-  - resultado Railway web `Deployment successful`.
-- El portfolio ya usa trabajos reales:
-  - Cronoras.
-  - Arik Custom.
+- `https://aplaudia.com/` funciona y debe mantener aviso de construcción hasta validación final de Carlos.
+- El portfolio usa trabajos reales:
+  - Cronoras;
+  - Arik Custom;
   - Aventuras Pixeladas.
-- Se mantiene estrategia hibrida:
+- La estrategia recomendada sigue siendo híbrida:
   - resumen potente dentro de Aplaudia;
   - ficha propia por caso;
-  - enlace externo a web/demo real cuando procede.
-- No tocar backend, base de datos, auth, pagos, dominio, DNS ni Cloudflare salvo peticion explicita.
+  - enlace externo a web/demo real cuando proceda.
+- No tocar backend, base de datos, auth, pagos, dominio, DNS ni Cloudflare salvo petición explícita.
 
-## Estado de la ultima tarea
+## Estado de la última tarea
 
-Se ha reforzado el portfolio/casos sin redisenar la web:
+Se corrigió la estructura visual de las fichas de caso sin rediseñar la web:
 
-- Home `#portfolio`:
-  - mantiene tres tarjetas reales;
-  - anade el bloque `Que ensena` para explicar valor comercial;
-  - conserva orden, estilo y comportamiento visual general.
-- `/casos`:
-  - anade resumen comercial por proyecto.
-- Fichas individuales:
-  - `/casos/cronoras`;
-  - `/casos/arik-custom`;
-  - `/casos/aventuras-pixeladas`;
-  - ahora incluyen galeria de vistas clave y puntos de valor visible.
-- Imagenes WebP nuevas en `public/portfolio/`:
-  - Cronoras: dashboard, proyectos, estadisticas y proyecto en curso.
-  - Arik Custom: home como imagen principal; catalogo como secundaria.
-  - Aventuras Pixeladas: home completa, cartuchos y paneles.
-- Validacion local:
-  - `npm run build` OK desde unidad `T:`;
-  - `npm run lint` sigue sin estar disponible porque `eslint` no esta instalado;
-  - `npx tsc --noEmit` sigue fallando por deuda previa ajena a esta tarea;
-  - mobile 390 px sin overflow horizontal real en home, `/casos` y las tres fichas.
+- Cada proyecto tiene imagen principal de portada o demo principal.
+- Cada proyecto tiene exactamente tres vistas clave.
+- Los tres casos enseñan un panel de control o gestión:
+  - Cronoras: panel administrativo/operativo;
+  - Arik Custom: panel de gestión de productos, líneas, familias, servicios y presupuestos;
+  - Aventuras Pixeladas: control modular de cartuchos.
+- Aventuras Pixeladas ahora muestra los cartuchos de la home real y una animación ligera de movimiento/expansión.
+- El aviso de construcción sigue visible.
 
-## Tarea para la proxima sesion
+## Tarea para la próxima sesión
 
-1. Revisar en produccion:
-   - abrir `https://aplaudia.com/#portfolio`;
-   - abrir `https://aplaudia.com/casos`;
-   - abrir las tres fichas de caso.
+1. Revisar producción:
+   - `https://aplaudia.com/#portfolio`;
+   - `https://aplaudia.com/casos`;
+   - `https://aplaudia.com/casos/cronoras`;
+   - `https://aplaudia.com/casos/arik-custom`;
+   - `https://aplaudia.com/casos/aventuras-pixeladas`.
 
-2. Revisar con Carlos en movil real y escritorio:
-   - si Cronoras se entiende como SaaS/producto real;
-   - si Arik Custom vende mejor con la home como imagen principal;
-   - si Aventuras Pixeladas comunica bien cartuchos, paneles y base editorial;
-   - si el aviso de construccion sigue siendo correcto hasta validacion final.
+2. Revisar con Carlos en móvil real y escritorio:
+   - si Cronoras comunica SaaS/producto real;
+   - si Arik Custom comunica catálogo, ficha y gestión interna;
+   - si Aventuras Pixeladas comunica cartuchos, paneles, control modular y base editorial;
+   - si las imágenes se sienten serias y suficientemente comerciales.
 
-3. Decidir contenido final antes de lanzamiento:
-   - mantener tal cual;
-   - anadir resultados reales confirmados;
-   - anadir stack tecnico resumido;
-   - anadir proceso de trabajo;
-   - anadir testimonios solo si existen textos reales aprobados.
+3. Decidir el siguiente foco antes de lanzamiento:
+   - mantener portfolio tal cual;
+   - añadir resultados reales confirmados;
+   - añadir stack técnico resumido;
+   - añadir proceso de trabajo;
+   - añadir testimonio solo si existe texto real aprobado;
+   - preparar legal básico y llamada de contacto real.
 
-4. Deuda tecnica recomendada:
+4. Deuda técnica recomendada:
    - instalar/configurar ESLint para que `npm run lint` funcione;
    - revisar `react-day-picker` y tipos de calendario para que `npx tsc --noEmit` pase;
    - alinear mensajes i18n de `about` en ES/CA/EN;
@@ -87,26 +74,25 @@ Se ha reforzado el portfolio/casos sin redisenar la web:
 ## Validaciones recomendadas
 
 - `npm run build`.
-- `npm run lint` solo despues de configurar ESLint.
-- `npx tsc --noEmit` solo despues de resolver deuda de tipos/i18n.
+- `npm run lint` solo después de configurar ESLint.
+- `npx tsc --noEmit` solo después de resolver deuda de tipos/i18n.
 - Revisar Railway.
 - Revisar `https://aplaudia.com/#portfolio`.
-- Revisar `https://aplaudia.com/casos`.
-- Revisar las tres rutas de caso en movil y escritorio.
+- Revisar las tres rutas de caso en móvil y escritorio.
 
 ## Restricciones
 
-- No redisenar la web completa.
+- No rediseñar la web completa.
 - No cambiar identidad visual.
 - No cambiar el orden general de secciones de la home.
 - No inventar clientes, datos legales, resultados, cifras o testimonios.
 - No usar capturas privadas ni paneles con datos reales sensibles.
-- No tocar dominio, DNS ni Cloudflare salvo peticion explicita.
-- No anadir backend, base de datos, auth ni pagos.
+- No tocar dominio, DNS ni Cloudflare salvo petición explícita.
+- No añadir backend, base de datos, auth ni pagos.
 - No guardar secretos.
 
-## Cierre esperado de la proxima sesion
+## Cierre esperado de la próxima sesión
 
-- Railway en verde tras el ultimo push.
-- Portfolio real revisado en produccion.
-- Decision de Carlos sobre si se retira el aviso de construccion o si queda una ultima revision comercial/legal antes del lanzamiento.
+- Railway en verde.
+- Portfolio revisado en producción.
+- Decisión de Carlos sobre si se retira el aviso de construcción o si queda una última revisión comercial/legal antes del lanzamiento.
