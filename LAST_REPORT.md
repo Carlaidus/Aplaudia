@@ -10,6 +10,8 @@ Cerrar la preparacion de lanzamiento de Aplaudia: validar despliegue, dominio pr
 
 - Revisada la memoria operativa antes de tocar codigo: `README.md`, `PROJECT_STATE.md`, `DECISIONS.md`, `WORKFLOW.md`, `NEXT_TASK.md` y `LAST_REPORT.md`.
 - Confirmado con `railway deployment list` que Railway estaba en verde antes del push de cierre: deployment `c3ff522c-510e-4967-bf17-88e752e5be39`, `SUCCESS`, 2026-06-29 10:33:28 +02:00.
+- Push de cierre funcional realizado a `main`: commit `aaea86c8af863cf139251ce8f8bb7b35406537b3`.
+- Deployment generado por ese push: `19fb8c54-8e77-4301-b431-59a8d8a90083`, `SUCCESS`, 2026-06-29 11:04:03 +02:00.
 - Revisados `app/layout.tsx`, `app/robots.ts`, `public/sitemap.xml`, `app/llms.txt/route.ts` y `components/seo/structured-data.tsx`.
 - Corregido `app/robots.ts` para que el campo `Host` use `aplaudia.com` y no una URL con esquema.
 - Mantenidos metadata, canonical, Open Graph, Twitter card, locale `es_ES` y JSON-LD desde `siteConfig`.
@@ -62,8 +64,9 @@ Cerrar la preparacion de lanzamiento de Aplaudia: validar despliegue, dominio pr
 
 ## Estado de Railway
 
-- Railway estaba en verde antes del push de cierre: `c3ff522c-510e-4967-bf17-88e752e5be39`, `SUCCESS`.
-- El push de cierre debe generar un deployment nuevo desde `main`; el ID exacto se comprobara despues del push porque Railway lo crea a posteriori.
+- Railway queda en verde tras el push de cierre funcional: `19fb8c54-8e77-4301-b431-59a8d8a90083`, `SUCCESS`.
+- URL temporal Railway comprobada: `https://aplaudia-production.up.railway.app/` responde `200`, mantiene el aviso de construccion, contiene canonical `https://aplaudia.com`, JSON-LD y no contiene el numero placeholder de WhatsApp.
+- Endpoints comprobados en Railway: `/robots.txt` `200`, `/llms.txt` `200`, `/sitemap.xml` `200`.
 
 ## Estado de `aplaudia.com`
 
@@ -83,4 +86,4 @@ Cerrar la preparacion de lanzamiento de Aplaudia: validar despliegue, dominio pr
 
 ## Siguiente paso recomendado
 
-Hacer push del cierre, esperar Railway `SUCCESS`, comprobar la URL temporal de Railway y, cuando Carlos tenga Cloudflare abierto, conectar `aplaudia.com` con los registros exactos que Railway indique.
+Cuando Carlos tenga Cloudflare abierto, conectar `aplaudia.com` con los registros exactos que Railway indique y comprobar `https://aplaudia.com`, `https://www.aplaudia.com`, `/robots.txt`, `/llms.txt` y `/sitemap.xml`.

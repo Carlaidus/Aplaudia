@@ -6,7 +6,7 @@ Razonamiento recomendado: Alto
 
 ## Objetivo inmediato
 
-Hacer push de los cambios SEO/AI discoverability actuales, confirmar Railway en verde y conectar `aplaudia.com` cuando Carlos pueda crear los DNS reales en Cloudflare, manteniendo el aviso de construccion visible.
+Conectar `aplaudia.com` cuando Carlos pueda crear los DNS reales en Cloudflare, manteniendo el aviso de construccion visible hasta validacion final.
 
 ## Repo
 
@@ -18,8 +18,8 @@ Hacer push de los cambios SEO/AI discoverability actuales, confirmar Railway en 
 
 ## Revisar al desplegar
 
-- Railway ya esta en verde: ultimo deployment consultado `c3ff522c-510e-4967-bf17-88e752e5be39`, `SUCCESS`, 2026-06-29 10:33:28 +02:00.
-- Al subir los cambios SEO actuales, Railway debe lanzar un nuevo deploy desde `main`.
+- Railway ya esta en verde: deployment de cierre funcional `19fb8c54-8e77-4301-b431-59a8d8a90083`, `SUCCESS`, 2026-06-29 11:04:03 +02:00.
+- Commit funcional desplegado: `aaea86c8af863cf139251ce8f8bb7b35406537b3`.
 - La home debe cargar sin errores.
 - Debe mantenerse visible el aviso flotante de construccion con fecha 29 junio 2026.
 - El aviso debe indicar que Aplaudia esta en construccion y que se esta preparando la activacion del dominio `aplaudia.com`.
@@ -29,7 +29,7 @@ Hacer push de los cambios SEO/AI discoverability actuales, confirmar Railway en 
 - `content/site.ts` debe seguir siendo la fuente central de marca, URL, contacto, SEO, servicios y rutas futuras.
 - `siteConfig.contact.whatsappHref` esta pendiente porque no hay numero real confirmado; los enlaces visibles de WhatsApp apuntan a la demo interna `#whatsapp` hasta que Carlos confirme un canal real.
 
-## Despues del deploy SEO
+## Siguiente paso de dominio
 
 - En Railway, ejecutar la adicion de dominio personalizado para `aplaudia.com` y copiar los registros exactos que devuelva Railway.
 - Crear en Cloudflare exactamente esos registros DNS, sin modificar valores ni inventar CNAME/TXT.

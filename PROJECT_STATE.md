@@ -52,9 +52,9 @@ Ultima actualizacion: 2026-06-29
 - El fallo real confirmado en Railway fue `npm ETARGET`: `@radix-ui/react-switch@1.3.3` no existe en npm.
 - Railway/Railpack ya estaba usando Node `22.23.1`; Node 18 no era la causa del fallo final.
 - Correccion aplicada previamente: `@radix-ui/react-switch` bajado a `1.3.1` y `package-lock.json` generado.
-- Estado consultado con `railway deployment list` el 2026-06-29: ultimo deployment `c3ff522c-510e-4967-bf17-88e752e5be39` en `SUCCESS` a las `10:33:28 +02:00`.
-- URL temporal comprobada: `https://aplaudia-production.up.railway.app` responde `200` y mantiene el aviso de construccion.
-- Los cambios SEO/AI discoverability actuales estan locales en `main`; el push de cierre debe generar un deployment nuevo desde GitHub.
+- Estado consultado con `railway deployment list` el 2026-06-29: deployment de cierre funcional `19fb8c54-8e77-4301-b431-59a8d8a90083` en `SUCCESS` a las `11:04:03 +02:00`.
+- URL temporal comprobada tras el push de cierre: `https://aplaudia-production.up.railway.app` responde `200`, mantiene el aviso de construccion, sirve JSON-LD, `/robots.txt`, `/llms.txt` y `/sitemap.xml`.
+- Commit de cierre funcional desplegado: `aaea86c8af863cf139251ce8f8bb7b35406537b3`.
 
 ## Dominio y DNS
 
@@ -85,14 +85,12 @@ No estan activadas todavia para evitar cambios visuales o paginas vacias. Rutas 
 Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 
 1. Mantener Railway en verde.
-2. Desplegar los cambios SEO/AI discoverability actuales cuando Carlos lo autorice.
-3. Conectar el dominio `aplaudia.com`.
-4. Mantener el aviso de construccion visible hasta validacion final de Carlos.
-5. Documentacion tecnica al dia para que Codex y ChatGPT puedan continuar sin perder contexto.
+2. Conectar el dominio `aplaudia.com` cuando Carlos pueda crear los DNS exactos en Cloudflare.
+3. Mantener el aviso de construccion visible hasta validacion final de Carlos.
+4. Documentacion tecnica al dia para que Codex y ChatGPT puedan continuar sin perder contexto.
 
 ## Pendiente
 
-- Hacer push de los cambios SEO actuales y comprobar el deployment nuevo de Railway.
 - Conectar `aplaudia.com` y `www.aplaudia.com`.
 - Revisar contenido comercial antes de lanzar.
 - Revisar textos ES / CA / EN.
