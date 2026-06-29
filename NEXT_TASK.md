@@ -1,43 +1,51 @@
 # NEXT TASK - Aplaudia
 
 Prioridad: Alta
-Modelo recomendado: GPT-5.5
-Razonamiento recomendado: Alto
+Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Objetivo inmediato
 
-Verificar que Aplaudia despliega correctamente en Railway despues de fijar Node 22 y anadir el aviso de construccion.
+Refinar la estructura no visual de Aplaudia para SEO, descubrimiento por IA y futuras ampliaciones sin cambiar el diseño.
 
-## Repo
+## Estado actual
 
-`Carlaidus/Aplaudia`
+- Railway vuelve a desplegar en verde tras corregir dependencias.
+- El dominio oficial previsto es `https://aplaudia.com`.
+- La home mantiene aviso de construccion.
+- El castellano principal debe ser espanol de Espana (`es-ES`).
+- Existe `content/site.ts` como fuente central para datos de marca, URL, keywords, servicios y rutas futuras.
+- `app/layout.tsx`, `app/robots.ts` y `/llms.txt` reutilizan `siteConfig`.
+- Hay JSON-LD basico de Organization en `components/seo/structured-data.tsx`.
 
-## Rama preparada
+## Siguiente trabajo para Codex
 
-`chore/control-docs-construction-node`
+- Ejecutar build y revisar que los ultimos cambios SEO compilan.
+- Extraer datos hardcodeados de secciones a `content/` sin cambiar el resultado visual:
+  - showcase/casos;
+  - demo WhatsApp;
+  - servicios;
+  - textos SEO reutilizables.
+- Ampliar JSON-LD con WebSite, ItemList y Service usando `siteConfig.services`.
+- Revisar todos los textos visibles para mantener espanol de Espana.
+- Preparar estructura futura documentada para:
+  - `/servicios/paginas-web`
+  - `/servicios/agentes-ia-whatsapp`
+  - `/servicios/visuales-ia`
+  - `/casos`
+  - `/sobre-aplaudia`
+  - `/contacto`
+  - `/recursos`
 
-## Revisar al integrar
+## Dominio
 
-- Railway debe lanzar nuevo deploy desde `main`.
-- El deploy debe pasar de `failure` a verde.
-- La home debe cargar sin errores.
-- Debe verse una ventana flotante premium con fecha 29 junio 2026.
-- El aviso debe indicar que Aplaudia esta en construccion y que se esta preparando la activacion del dominio `aplaudia.com`.
-- El aviso no debe tapar navegacion ni CTA de forma grave en mobile.
-- `package.json` debe conservar dependencias originales y anadir solo `engines.node = 22.x`.
-- `.nvmrc` debe contener `22`.
+- Conectar `aplaudia.com` en Railway como custom domain.
+- Crear en Cloudflare solo los registros exactos que Railway indique.
+- Redirigir `www.aplaudia.com` al dominio raiz.
 
-## Despues del deploy
+## Restricciones
 
-- Conectar `aplaudia.com` en Railway como dominio personalizado.
-- Crear en Cloudflare los registros exactos que Railway indique.
-- Configurar `www.aplaudia.com` para que vaya al dominio principal.
-- Mantener el aviso de construccion hasta que Carlos valide el lanzamiento.
-
-## Importante
-
-- No inventar registros de dominio.
-- No guardar claves privadas.
-- No anadir backend todavia.
-- Mantener la memoria `.md` compacta.
-- Al cerrar, reemplazar `LAST_CODEX_REPORT.md` con el resultado real del deploy.
+- No tocar diseno visual.
+- No cambiar animaciones.
+- No anadir backend, base de datos, auth ni pagos.
+- No inventar datos de empresa no confirmados.
+- Actualizar `LAST_REPORT.md` al cerrar.
