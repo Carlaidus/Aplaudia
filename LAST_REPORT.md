@@ -33,9 +33,16 @@ Refuerzo no visual de Aplaudia para SEO, buscadores, IAs y futuras ampliaciones.
 
 - Railway estaba en verde antes de esta tanda.
 - Commits previos de espanol de Espana, canonical, sitemap y JSON-LD basico: success.
-- Ultimo commit de JSON-LD ampliado: pendiente de confirmacion Railway al cerrar este informe.
+- Commit de JSON-LD ampliado: success.
+- Ultimo commit de documentacion SEO: success.
+
+## Estado actual
+
+- Railway/GitHub: success.
+- Dominio oficial preparado en codigo: `https://aplaudia.com`.
+- Pendiente conectar dominio en Railway y Cloudflare.
 
 ## Siguiente paso recomendado
 
-- Si Railway confirma verde el ultimo commit, pasar a conectar dominio.
+- Conectar `aplaudia.com` y `www.aplaudia.com` en Railway/Cloudflare usando exactamente los registros que Railway indique.
 - Despues, pedir a Codex extraer datos hardcodeados de secciones a `content/` sin tocar visual.
