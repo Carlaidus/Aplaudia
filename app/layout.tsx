@@ -3,15 +3,22 @@ import { I18nProvider } from '@/i18n'
 import './globals.css'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://aplaudia.com'),
   title: 'Aplaudia | Estudio Digital para Negocios',
   description: 'Creamos webs premium, agentes IA para WhatsApp y visuales mejorados con IA para negocios que quieren destacar.',
   generator: 'Aplaudia',
-  keywords: ['web design', 'AI WhatsApp', 'digital studio', 'small business', 'Barcelona', 'Mexico'],
+  keywords: ['web design', 'AI WhatsApp', 'digital studio', 'small business', 'Barcelona', 'España'],
   authors: [{ name: 'Aplaudia' }],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'Aplaudia | Estudio Digital para Negocios',
     description: 'Creamos webs premium, agentes IA para WhatsApp y visuales mejorados con IA para negocios que quieren destacar.',
+    url: 'https://aplaudia.com',
+    siteName: 'Aplaudia',
     type: 'website',
+    locale: 'es_ES',
   },
 }
 
