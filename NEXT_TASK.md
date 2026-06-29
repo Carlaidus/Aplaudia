@@ -6,7 +6,7 @@ Nivel de inteligencia recomendado: Alto
 
 ## Objetivo inmediato
 
-Revisar en producción con Carlos la versión corregida de portfolio/casos, ahora basada en capturas reales y sin composiciones sintéticas.
+Revisar con Carlos la versión de portfolio/casos ya desplegada en producción, ahora basada en capturas reales, sin composiciones sintéticas y con el aviso móvil corregido.
 
 ## Repo
 
@@ -30,28 +30,30 @@ Revisar en producción con Carlos la versión corregida de portfolio/casos, ahor
   - mejora legibilidad en fichas;
   - elimina menciones públicas a Carlos como marca y quita `Claude AI`/`Vercel` del stack visible.
 - Railway CLI puede seguir sin sesión (`invalid_grant`); si ocurre, validar producción por HTTP.
+- Producción ya se comprobó por HTTP y navegador tras el commit `19677cc`: rutas y assets `200`, aviso visible abajo en móvil y sin scroll horizontal.
 
 ## Tarea para la próxima sesión
 
-1. Revisar producción:
+1. Revisar visualmente con Carlos:
    - `https://aplaudia.com/#portfolio`;
    - `https://aplaudia.com/casos`;
    - `https://aplaudia.com/casos/cronoras`;
    - `https://aplaudia.com/casos/arik-custom`;
    - `https://aplaudia.com/casos/aventuras-pixeladas`.
 
-2. Revisar con Carlos:
+2. Decidir con Carlos:
    - si las nuevas capturas de Arik Custom ya se ven reales y profesionales;
    - si Cronoras se entiende mejor con dashboard, proyectos y estadísticas;
    - si Aventuras Pixeladas vende bien con cartuchos, paneles y responsive;
    - si el tamaño de texto en fichas resulta cómodo en móvil.
 
-3. Decidir el siguiente foco antes de lanzamiento:
+3. Cerrar el siguiente foco antes de lanzamiento:
    - mantener portfolio tal cual;
    - añadir resultados reales confirmados;
    - añadir stack técnico resumido dentro de cada caso;
    - añadir proceso de trabajo;
-   - preparar legal básico y llamada de contacto real.
+   - preparar legal básico y llamada de contacto real;
+   - decidir si se retira o se mantiene el aviso de construcción.
 
 4. Deuda técnica recomendada:
    - instalar/configurar ESLint para que `npm run lint` funcione;

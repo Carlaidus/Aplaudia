@@ -63,9 +63,11 @@ Ultima actualizacion: 2026-06-30
 - URL temporal comprobada tras el push de cierre: `https://aplaudia-production.up.railway.app` responde `200`, mantiene el aviso de construccion, sirve JSON-LD, `/robots.txt`, `/llms.txt` y `/sitemap.xml`.
 - Commit de app comprobado antes de conectar dominio: `b868871db4e123ed91405a83c43edb410c0ed9f1`.
 - Commit documental de conexion de dominio comprobado en Railway: `a8588d358c006b1877c5f0e708fc13cd0c1f7ff3`.
-- Commit de portfolio/casos verificado en produccion el 2026-06-30: `70fceb871b700b4196a865dd04437b38aa8be7b2`.
+- Commit de portfolio/casos verificado en produccion el 2026-06-30: `0e762d67d853de24224d8e7a939f794f27c71853`.
+- Commit de ajuste movil del aviso de construccion verificado en produccion el 2026-06-30: `19677cc`.
   - Railway CLI no pudo leer dashboard por token caducado (`invalid_grant`).
   - Produccion `https://aplaudia.com` sirvio home, rutas de casos y assets nuevos con `200`.
+  - En movil, el aviso minimizado queda abajo y ya no tapa el encabezado del caso.
 
 ## Dominio y DNS
 
@@ -101,6 +103,7 @@ Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 2. Mantener el aviso de construccion visible hasta validacion final de Carlos.
 3. Documentacion tecnica al dia para que Codex y ChatGPT puedan continuar sin perder contexto.
 4. Revisar con Carlos si el portfolio/casos ya es suficiente para validacion final.
+5. Revisar legal/contacto antes de retirar el aviso de construccion.
 
 ## Pendiente
 
@@ -108,7 +111,7 @@ Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 - Revisar textos ES / CA / EN.
 - Crear legal basico: aviso legal, privacidad y cookies si se va a captar contacto.
 - Decidir formulario/contacto/WhatsApp real; no hay numero de WhatsApp publicado en `siteConfig`.
-- Revisar en produccion con Carlos la nueva version de portfolio/casos.
+- Revisar en produccion con Carlos la nueva version de portfolio/casos ya desplegada.
 - Definir datos legales reales antes de ampliar JSON-LD con direccion, telefono, redes sociales o fundador.
 
 ## Servicios externos

@@ -72,6 +72,9 @@ Motivo: no eran capturas reales limpias; eran composiciones sintéticas y podía
   - Aviso de construcción sin Cloudflare/Railway como mensaje público.
 - `app/llms.txt/route.ts`:
   - Estado de construcción redactado sin nombrar a Carlos.
+- `components/sections/construction-notice.tsx`:
+  - Aviso minimizado fijado abajo también en móvil para evitar solapes con antetítulos de casos.
+  - Eliminado listener de scroll que ya no era necesario.
 - `app/globals.css`:
   - Eliminado CSS de la animación modular.
 - `components/cases/cartucho-motion-demo.tsx`:
@@ -80,7 +83,8 @@ Motivo: no eran capturas reales limpias; eran composiciones sintéticas y podía
 ## Validaciones ejecutadas
 
 - `npm install`: no necesario; no se añadieron dependencias.
-- `npm run build`: OK.
+- `npm run build`: OK desde `T:\20-PROYECTOS\APLAUDIA`.
+- `npm run build` desde ruta UNC: falla por limitación de `cmd.exe` con rutas UNC y no representa un fallo del proyecto.
 - `npm run lint`: no ejecutable; `eslint` no está instalado como dependencia.
 - `npx tsc --noEmit`: falla solo por deuda previa:
   - tipos/implícitos en `components/ui/calendar.tsx`;
@@ -91,12 +95,26 @@ Motivo: no eran capturas reales limpias; eran composiciones sintéticas y podía
   - `/casos/arik-custom`: 3 vistas, ficha y presupuesto reales, sin overflow móvil/escritorio.
   - `/casos/aventuras-pixeladas`: 3 vistas reales, sin animación inventada, sin overflow móvil/escritorio.
   - `scrollWidth` = `clientWidth` en móvil y escritorio revisados.
+- Producción pública `https://aplaudia.com`:
+  - `/`, `/casos`, `/casos/cronoras`, `/casos/arik-custom`, `/casos/aventuras-pixeladas`, `/robots.txt`, `/llms.txt` y `/sitemap.xml` responden `200`.
+  - Los 12 assets de `public/portfolio/` usados por los casos responden `200 image/webp`.
+  - Revisión móvil en navegador: aviso de construcción visible abajo, sin pisar el antetítulo del caso, sin scroll horizontal.
+  - Arik Custom muestra home, catálogo, ficha real `kp133` y presupuesto real.
+  - Aventuras Pixeladas muestra home, cartuchos reales, paneles de contenido y vista responsive real.
+  - No aparecen los textos públicos retirados: `trabajos reales de Carlos`, `Claude AI`, `Vercel`, `Cloudflare` ni `programación con IA`.
 
 ## Estado de Railway
 
-Pendiente de comprobar tras el push de esta tarea. En la sesión anterior Railway CLI estaba sin sesión (`invalid_grant`), por lo que se validará producción por HTTP si el CLI sigue sin acceso.
+El CLI de Railway sigue sin sesión válida (`invalid_grant` / `Unauthorized`), así que no se pudo leer el dashboard desde terminal sin volver a autenticar.
 
-## Estado final local
+Estado real comprobado por producción:
+
+- Commit de portfolio real publicado: `0e762d67d853de24224d8e7a939f794f27c71853`.
+- Commit de ajuste móvil del aviso publicado: `19677cc`.
+- `https://aplaudia.com` sirve las rutas y assets nuevos con `200`.
+- El comportamiento móvil corregido ya se observa en producción.
+
+## Estado final
 
 Los casos quedan más sobrios y creíbles:
 
@@ -105,7 +123,8 @@ Los casos quedan más sobrios y creíbles:
 - Aventuras Pixeladas usa recortes reales sin overlays añadidos.
 - La tipografía de fichas es más legible.
 - La marca pública habla como Aplaudia.
+- El aviso flotante de construcción sigue visible y ya no pisa el encabezado del caso en móvil.
 
 ## Siguiente paso recomendado
 
-Revisar en producción con Carlos, en móvil real y escritorio, si la nueva selección de capturas ya transmite suficiente confianza comercial. Si se valida, el siguiente foco debería ser legal/contacto antes de retirar el aviso de construcción.
+Revisar en producción con Carlos, en móvil real y escritorio, si la nueva selección de capturas ya transmite suficiente confianza comercial. Si se valida, el siguiente foco debería ser legal/contacto y datos reales de contacto antes de retirar el aviso de construcción.
