@@ -31,7 +31,6 @@ export type PortfolioProject = {
   deliverables: readonly string[]
   proofPoints: readonly PortfolioProofPoint[]
   gallery: readonly PortfolioImage[]
-  motionDemo?: "modular-cartuchos"
 }
 
 export const showcaseLabels = {
@@ -107,11 +106,11 @@ export const portfolioProjects = [
           "Vista principal de uso diario con horas, importes, proyectos y cobros para entender el negocio en segundos.",
       },
       {
-        src: "/portfolio/cronoras-admin-panel.webp",
-        alt: "Panel administrativo de Cronoras para revisar analítica, lanzamiento, usuarios, novedades y actividad sin datos privados.",
-        title: "Panel de control interno",
+        src: "/portfolio/cronoras-proyectos.webp",
+        alt: "Vista de proyectos de Cronoras con clientes, fechas, horas, ingresos y estados de cobro.",
+        title: "Control de proyectos",
         description:
-          "Control operativo para revisar analítica, lanzamiento, usuarios, novedades y actividad sin exponer información sensible.",
+          "Listado real de la demo con clientes, horas, ingresos y estados para revisar de un vistazo qué está en curso o cobrado.",
       },
       {
         src: "/portfolio/cronoras-estadisticas.webp",
@@ -186,17 +185,17 @@ export const portfolioProjects = [
       },
       {
         src: "/portfolio/arik-producto.webp",
-        alt: "Ficha de producto de Arik Custom con camiseta personalizable, técnicas, colores, tallas y llamada a presupuesto.",
+        alt: "Ficha real de producto de Arik Custom con una gorra KP133, colores, materiales, técnicas y mínimo de unidades.",
         title: "Ficha de producto",
         description:
-          "Cada prenda aterriza en una ficha útil para elegir técnica, color, talla y avanzar hacia una petición comercial.",
+          "Producto real con foto, variantes de color, materiales, técnicas y cantidad mínima antes de añadirlo al presupuesto.",
       },
       {
-        src: "/portfolio/arik-admin-panel.webp",
-        alt: "Panel de control de Arik Custom con productos activos, líneas, familias, acciones rápidas y productos recientes.",
-        title: "Panel de control",
+        src: "/portfolio/arik-presupuesto.webp",
+        alt: "Solicitud real de presupuesto de Arik Custom con producto añadido, cantidad, datos de contacto y opciones de envío.",
+        title: "Solicitud de presupuesto",
         description:
-          "Área protegida para gestionar productos, líneas de catálogo, familias, servicios, contenidos y presupuestos.",
+          "Flujo comercial real con producto seleccionado, cantidades, datos de contacto y canales de envío de la solicitud.",
       },
     ],
   },
@@ -257,10 +256,10 @@ export const portfolioProjects = [
     gallery: [
       {
         src: "/portfolio/aventuras-cartuchos.webp",
-        alt: "Cartuchos de la portada de Aventuras Pixeladas para directos, historias, música, eventos, noticias y Twitch dentro de la home real.",
+        alt: "Cartuchos reales de la home responsive de Aventuras Pixeladas para directos, historias, música, eventos, noticias y Twitch.",
         title: "Cartuchos de la portada",
         description:
-          "Piezas visuales de la home con distintos tamaños, preparadas para expandirse, moverse y modular la portada.",
+          "Secciones principales convertidas en piezas visuales reconocibles, con iconos, color y mensajes propios.",
       },
       {
         src: "/portfolio/aventuras-paneles.webp",
@@ -270,14 +269,13 @@ export const portfolioProjects = [
           "Bloques para evento, directo y música que hacen que la home parezca viva y actualizable.",
       },
       {
-        src: "/portfolio/aventuras-control-modular.webp",
-        alt: "Vista de control modular de Aventuras Pixeladas con cartuchos de distintos tamaños, botones de guardar y restablecer, y movimiento de módulos.",
-        title: "Control modular",
+        src: "/portfolio/aventuras-responsive.webp",
+        alt: "Vista responsive real de Aventuras Pixeladas con cabecera, hero pixel art y cartuchos principales.",
+        title: "Experiencia responsive",
         description:
-          "El sistema permite mover, redimensionar, ocultar y guardar módulos para que cada portada pueda adaptarse sin romper la identidad.",
+          "La identidad pixel art se mantiene en una vista responsive con navegación compacta, hero visual y módulos reconocibles.",
       },
     ],
-    motionDemo: "modular-cartuchos",
   },
 ] as const satisfies readonly PortfolioProject[]
 

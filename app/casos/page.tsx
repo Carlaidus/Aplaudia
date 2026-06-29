@@ -12,7 +12,7 @@ import { portfolioProjects, showcaseLabels } from "@/content/showcase"
 export const metadata: Metadata = {
   title: `Casos reales | ${siteConfig.name}`,
   description:
-    "Portfolio real de Aplaudia con proyectos construidos por Carlos: SaaS, catálogo comercial y experiencia editorial modular.",
+    "Portfolio real de Aplaudia con proyectos publicados: SaaS, catálogo comercial y experiencia editorial modular.",
   alternates: {
     canonical: "/casos",
   },
@@ -32,9 +32,9 @@ export default function CasesPage() {
             <h1 className="mt-4 max-w-3xl text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
               Casos construidos y publicados
             </h1>
-            <p className="mt-6 max-w-2xl text-pretty text-muted-foreground">
-              Una primera selección de trabajos reales de Carlos para enseñar producto,
-              criterio visual, estructura comercial y capacidad técnica sin inventar proyectos.
+            <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
+              Una selección de proyectos reales desarrollados por Aplaudia para enseñar producto,
+              criterio visual, estructura comercial y capacidad técnica sin inventar ejemplos.
             </p>
           </div>
         </section>
@@ -62,14 +62,14 @@ export default function CasesPage() {
                   <h2 className="mt-3 text-2xl font-semibold tracking-tight">
                     {project.name}
                   </h2>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mt-3 text-base leading-relaxed text-muted-foreground">
                     {project.shortDescription}
                   </p>
                   <div className="mt-4 border-l border-primary/50 pl-4">
                     <p className="text-xs font-medium uppercase tracking-wider text-foreground/70">
                       {showcaseLabels.takeawayLabel}
                     </p>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-2 text-base leading-relaxed text-muted-foreground">
                       {project.cardTakeaway}
                     </p>
                   </div>

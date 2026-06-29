@@ -24,7 +24,7 @@ export function GET() {
     "",
     "Estado actual:",
     "",
-    "La web mantiene visible el aviso de construcción hasta que Carlos valide el lanzamiento.",
+    "La web mantiene visible el aviso de construcción hasta la validación final del lanzamiento.",
     "",
     "Contacto:",
     "",

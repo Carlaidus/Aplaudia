@@ -6,7 +6,7 @@ Nivel de inteligencia recomendado: Alto
 
 ## Objetivo inmediato
 
-Revisar en producción con Carlos la nueva versión de portfolio/casos y decidir si Aplaudia queda lista para validación final o si falta una última capa comercial, legal o de contacto.
+Revisar en producción con Carlos la versión corregida de portfolio/casos, ahora basada en capturas reales y sin composiciones sintéticas.
 
 ## Repo
 
@@ -18,31 +18,18 @@ Revisar en producción con Carlos la nueva versión de portfolio/casos y decidir
 
 ## Contexto confirmado
 
-- `https://aplaudia.com/` funciona y debe mantener aviso de construcción hasta validación final de Carlos.
-- Último commit de portfolio verificado en producción: `70fceb871b700b4196a865dd04437b38aa8be7b2`.
-- Railway CLI quedó sin sesión (`invalid_grant`), pero producción sirvió el nuevo contenido y assets con `200`.
+- `https://aplaudia.com/` funciona y debe mantener aviso de construcción hasta validación final.
 - El portfolio usa trabajos reales:
   - Cronoras;
   - Arik Custom;
   - Aventuras Pixeladas.
-- La estrategia recomendada sigue siendo híbrida:
-  - resumen potente dentro de Aplaudia;
-  - ficha propia por caso;
-  - enlace externo a web/demo real cuando proceda.
-- No tocar backend, base de datos, auth, pagos, dominio, DNS ni Cloudflare salvo petición explícita.
-
-## Estado de la última tarea
-
-Se corrigió la estructura visual de las fichas de caso sin rediseñar la web:
-
-- Cada proyecto tiene imagen principal de portada o demo principal.
-- Cada proyecto tiene exactamente tres vistas clave.
-- Los tres casos enseñan un panel de control o gestión:
-  - Cronoras: panel administrativo/operativo;
-  - Arik Custom: panel de gestión de productos, líneas, familias, servicios y presupuestos;
-  - Aventuras Pixeladas: control modular de cartuchos.
-- Aventuras Pixeladas ahora muestra los cartuchos de la home real y una animación ligera de movimiento/expansión.
-- El aviso de construcción sigue visible.
+- Última corrección local:
+  - elimina imágenes sintéticas de Arik, Cronoras y Aventuras;
+  - sustituye Arik por ficha real `kp133` y presupuesto real;
+  - sustituye Aventuras por recortes reales sin overlays;
+  - mejora legibilidad en fichas;
+  - elimina menciones públicas a Carlos como marca y quita `Claude AI`/`Vercel` del stack visible.
+- Railway CLI puede seguir sin sesión (`invalid_grant`); si ocurre, validar producción por HTTP.
 
 ## Tarea para la próxima sesión
 
@@ -53,18 +40,17 @@ Se corrigió la estructura visual de las fichas de caso sin rediseñar la web:
    - `https://aplaudia.com/casos/arik-custom`;
    - `https://aplaudia.com/casos/aventuras-pixeladas`.
 
-2. Revisar con Carlos en móvil real y escritorio:
-   - si Cronoras comunica SaaS/producto real;
-   - si Arik Custom comunica catálogo, ficha y gestión interna;
-   - si Aventuras Pixeladas comunica cartuchos, paneles, control modular y base editorial;
-   - si las imágenes se sienten serias y suficientemente comerciales.
+2. Revisar con Carlos:
+   - si las nuevas capturas de Arik Custom ya se ven reales y profesionales;
+   - si Cronoras se entiende mejor con dashboard, proyectos y estadísticas;
+   - si Aventuras Pixeladas vende bien con cartuchos, paneles y responsive;
+   - si el tamaño de texto en fichas resulta cómodo en móvil.
 
 3. Decidir el siguiente foco antes de lanzamiento:
    - mantener portfolio tal cual;
    - añadir resultados reales confirmados;
-   - añadir stack técnico resumido;
+   - añadir stack técnico resumido dentro de cada caso;
    - añadir proceso de trabajo;
-   - añadir testimonio solo si existe texto real aprobado;
    - preparar legal básico y llamada de contacto real.
 
 4. Deuda técnica recomendada:
@@ -78,8 +64,7 @@ Se corrigió la estructura visual de las fichas de caso sin rediseñar la web:
 - `npm run build`.
 - `npm run lint` solo después de configurar ESLint.
 - `npx tsc --noEmit` solo después de resolver deuda de tipos/i18n.
-- Revisar Railway.
-- Revisar `https://aplaudia.com/#portfolio`.
+- Revisar Railway o, si no hay sesión CLI, validar producción por HTTP.
 - Revisar las tres rutas de caso en móvil y escritorio.
 
 ## Restricciones
@@ -88,13 +73,15 @@ Se corrigió la estructura visual de las fichas de caso sin rediseñar la web:
 - No cambiar identidad visual.
 - No cambiar el orden general de secciones de la home.
 - No inventar clientes, datos legales, resultados, cifras o testimonios.
-- No usar capturas privadas ni paneles con datos reales sensibles.
+- No usar imágenes inventadas si hay capturas reales disponibles.
+- No mencionar a Carlos como marca pública.
+- No mencionar programación con IA.
 - No tocar dominio, DNS ni Cloudflare salvo petición explícita.
 - No añadir backend, base de datos, auth ni pagos.
 - No guardar secretos.
 
 ## Cierre esperado de la próxima sesión
 
-- Railway en verde.
-- Portfolio revisado en producción.
-- Decisión de Carlos sobre si se retira el aviso de construcción o si queda una última revisión comercial/legal antes del lanzamiento.
+- Railway/producción en verde.
+- Portfolio revisado visualmente en producción.
+- Decisión de Carlos sobre si queda listo para pasar a legal/contacto y validación final.

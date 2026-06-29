@@ -46,9 +46,10 @@ Ultima actualizacion: 2026-06-30
   - `public/sitemap.xml` apunta a `https://aplaudia.com/`.
 - Copy principal ES revisado para espanol de Espana: `reserva`, `reservar`, `portfolio`, horarios 24 h y giros menos latinoamericanos.
 - Portfolio/casos con trabajos reales en `content/showcase.ts`:
-  - Cronoras con portada/demo, dashboard, panel de control y estadisticas.
-  - Arik Custom con home, catalogo, ficha de producto y panel de gestion.
-  - Aventuras Pixeladas con home, cartuchos reales de portada, paneles vivos, control modular y animacion ligera de cartuchos.
+  - Cronoras con portada/demo, dashboard, proyectos y estadisticas.
+  - Arik Custom con home, catalogo, ficha real de producto y solicitud real de presupuesto.
+  - Aventuras Pixeladas con home, cartuchos reales, paneles vivos y vista responsive.
+  - Las composiciones sinteticas de panel/control se retiraron el 2026-06-30 para priorizar capturas reales limpias.
 
 ## Estado de despliegue
 

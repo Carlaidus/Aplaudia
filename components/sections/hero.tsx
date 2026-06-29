@@ -106,7 +106,7 @@ export function Hero() {
   const scaleDown = useTransform(scrollYProgress, [0, 0.5], [1, 0.95])
   const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
 
-  const techStack = ["Next.js", "Claude AI", "Vercel", "WhatsApp API"]
+  const techStack = ["Next.js", "React", "TypeScript", "SEO técnico"]
 
   return (
     <section ref={containerRef} className="relative min-h-[110vh] flex items-center justify-center overflow-hidden pt-20">

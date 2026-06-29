@@ -4,7 +4,6 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ArrowLeft, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { CartuchoMotionDemo } from "@/components/cases/cartucho-motion-demo"
 import { ConstructionNotice } from "@/components/sections/construction-notice"
 import { Footer } from "@/components/sections/footer"
 import { Header } from "@/components/sections/header"
@@ -122,7 +121,7 @@ export default async function CasePage({ params }: CasePageProps) {
                 <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
                   Lo que se ve en este proyecto
                 </h2>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-4 text-base leading-relaxed text-muted-foreground">
                   Capturas seleccionadas para explicar mejor la experiencia real, no solo para decorar el portfolio.
                 </p>
               </div>
@@ -139,14 +138,14 @@ export default async function CasePage({ params }: CasePageProps) {
                         alt={image.alt}
                         fill
                         sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                        className="object-cover"
+                        className="object-contain"
                       />
                     </div>
                     <div className="p-5">
-                      <h3 className="text-base font-semibold tracking-tight">
+                      <h3 className="text-lg font-semibold tracking-tight">
                         {image.title}
                       </h3>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      <p className="mt-2 text-base leading-relaxed text-muted-foreground">
                         {image.description}
                       </p>
                     </div>
@@ -157,15 +156,13 @@ export default async function CasePage({ params }: CasePageProps) {
           </section>
         )}
 
-        {project.motionDemo === "modular-cartuchos" && <CartuchoMotionDemo />}
-
         <section className="py-16">
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-3 lg:px-8">
             <article className="rounded-2xl border border-border bg-card p-6">
               <h2 className="text-sm font-medium uppercase tracking-wider text-primary">
                 Qué es
               </h2>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
                 {project.whatItIs}
               </p>
             </article>
@@ -174,7 +171,7 @@ export default async function CasePage({ params }: CasePageProps) {
               <h2 className="text-sm font-medium uppercase tracking-wider text-primary">
                 Para quién es
               </h2>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
                 {project.audience}
               </p>
             </article>
@@ -183,7 +180,7 @@ export default async function CasePage({ params }: CasePageProps) {
               <h2 className="text-sm font-medium uppercase tracking-wider text-primary">
                 Por qué vende bien
               </h2>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
                 {project.whyItWorks}
               </p>
             </article>
@@ -202,7 +199,7 @@ export default async function CasePage({ params }: CasePageProps) {
                     <h2 className="text-lg font-semibold tracking-tight">
                       {point.title}
                     </h2>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-2 text-base leading-relaxed text-muted-foreground">
                       {point.description}
                     </p>
                   </div>
@@ -216,10 +213,10 @@ export default async function CasePage({ params }: CasePageProps) {
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-2 lg:px-8">
             <article className="rounded-2xl border border-border bg-card p-6 sm:p-8">
               <h2 className="text-2xl font-semibold tracking-tight">Qué se hizo</h2>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
                 {project.whatWasDone}
               </p>
-              <ul className="mt-6 grid gap-3 text-sm leading-relaxed text-muted-foreground">
+              <ul className="mt-6 grid gap-3 text-base leading-relaxed text-muted-foreground">
                 {project.deliverables.map((item) => (
                   <li key={item} className="border-l border-primary/50 pl-4">
                     {item}
@@ -230,7 +227,7 @@ export default async function CasePage({ params }: CasePageProps) {
 
             <article className="rounded-2xl border border-border bg-card p-6 sm:p-8">
               <h2 className="text-2xl font-semibold tracking-tight">Qué destaca</h2>
-              <ul className="mt-6 grid gap-3 text-sm leading-relaxed text-muted-foreground">
+              <ul className="mt-6 grid gap-3 text-base leading-relaxed text-muted-foreground">
                 {project.highlights.map((item) => (
                   <li key={item} className="border-l border-primary/50 pl-4">
                     {item}

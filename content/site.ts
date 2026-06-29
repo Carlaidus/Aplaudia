@@ -42,8 +42,8 @@ export const siteConfig = {
     status: "En construcción",
     title: "Aplaudia está en construcción",
     body:
-      "Estamos terminando la web y conectando el dominio oficial aplaudia.com desde Cloudflare y Railway. La activaremos en breve con todo revisado.",
-    detail: "Dominio comprado en Cloudflare · Producción prevista en Railway",
+      "Estamos terminando la web oficial de Aplaudia. La activaremos en breve con contenido, casos y contacto revisados.",
+    detail: "Dominio oficial conectado · Producción en revisión",
   },
   services,
   futureRoutes,
