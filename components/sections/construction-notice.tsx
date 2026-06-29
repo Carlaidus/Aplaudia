@@ -8,21 +8,11 @@ import { siteConfig } from "@/content/site"
 export function ConstructionNotice() {
   const { constructionNotice } = siteConfig
   const [isMinimized, setIsMinimized] = useState(false)
-  const [isNearTop, setIsNearTop] = useState(true)
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 900px)").matches) {
       setIsMinimized(true)
     }
-  }, [])
-
-  useEffect(() => {
-    const updatePosition = () => setIsNearTop(window.scrollY < 120)
-
-    updatePosition()
-    window.addEventListener("scroll", updatePosition, { passive: true })
-
-    return () => window.removeEventListener("scroll", updatePosition)
   }, [])
 
   if (isMinimized) {
@@ -33,19 +23,15 @@ export function ConstructionNotice() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         onClick={() => setIsMinimized(false)}
-        className={`fixed right-4 z-[60] inline-flex max-w-[calc(100vw-2rem)] items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-card/90 px-3 py-2.5 text-sm font-medium text-foreground shadow-2xl shadow-primary/20 backdrop-blur-2xl transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-3.5 min-[901px]:bottom-4 min-[901px]:top-auto ${
-          isNearTop ? "top-20" : "bottom-4"
-        }`}
+        className="fixed bottom-4 right-4 z-[60] inline-flex max-w-[calc(100vw-2rem)] items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-card/90 px-3 py-2.5 text-sm font-medium text-foreground shadow-2xl shadow-primary/20 backdrop-blur-2xl transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-3.5"
         aria-label="Mostrar aviso de construcción"
       >
         <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
-        <span className={isNearTop ? "shrink-0" : "sr-only sm:not-sr-only sm:shrink-0"}>
-          {constructionNotice.status}
-        </span>
+        <span className="shrink-0">{constructionNotice.status}</span>
         <span className="hidden shrink-0 px-0.5 text-muted-foreground sm:inline" aria-hidden="true">-</span>
         <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">{constructionNotice.dateLabel}</span>
         <ChevronUp
-          className={isNearTop ? "h-4 w-4 text-muted-foreground" : "hidden h-4 w-4 text-muted-foreground sm:block"}
+          className="h-4 w-4 text-muted-foreground"
           aria-hidden="true"
         />
       </motion.button>
