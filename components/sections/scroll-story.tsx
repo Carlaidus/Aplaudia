@@ -85,7 +85,11 @@ export function ScrollStory() {
           animate={isInView ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight" style={{ perspective: "1200px" }}>
+          <h2
+            className="mx-auto max-w-[22rem] text-[2.125rem] font-bold tracking-normal text-foreground leading-[1.14] text-balance sm:max-w-3xl sm:text-4xl sm:leading-tight md:text-5xl lg:text-6xl"
+            style={{ perspective: "1200px" }}
+            aria-label={`${t("line1")} ${t("line2")} ${t("line3")} ${highlightText}`}
+          >
             {/* Line 1 */}
             <div className="block mb-2">
               {line1Words.map((word, i) => (

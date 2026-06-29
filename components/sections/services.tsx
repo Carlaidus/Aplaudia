@@ -230,7 +230,7 @@ export function Services() {
 
           {/* Title with word-by-word reveal */}
           <motion.h2 
-            className="text-4xl md:text-5xl font-bold tracking-tight text-foreground text-balance mb-6"
+            className="text-[2.25rem] sm:text-4xl md:text-5xl font-bold tracking-normal leading-tight text-foreground text-balance mb-6"
           >
             <motion.span
               initial={{ opacity: 0, y: 30 }}

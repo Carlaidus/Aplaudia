@@ -189,7 +189,7 @@ export function Benefits() {
           {/* Title with split reveal */}
           <div className="overflow-hidden mb-6">
             <motion.h2 
-              className="text-4xl md:text-5xl font-bold tracking-tight text-foreground text-balance"
+              className="text-[2.25rem] sm:text-4xl md:text-5xl font-bold tracking-normal leading-tight text-foreground text-balance"
               initial={{ y: "100%" }}
               animate={isHeaderInView ? { y: 0 } : {}}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}

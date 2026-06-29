@@ -258,7 +258,7 @@ export function VisualGallery() {
           
           {/* Title with 3D entrance */}
           <motion.h2 
-            className="text-4xl md:text-5xl font-bold tracking-tight text-foreground text-balance mb-6"
+            className="text-[2.25rem] sm:text-4xl md:text-5xl font-bold tracking-normal leading-tight text-foreground text-balance mb-6"
             initial={{ opacity: 0, rotateX: -20, y: 30 }}
             animate={isHeaderInView ? { opacity: 1, rotateX: 0, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.1 }}

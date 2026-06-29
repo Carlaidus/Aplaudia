@@ -9,25 +9,37 @@ import { useTranslations } from "@/i18n"
 
 // Character reveal animation for text
 function AnimatedText({ text, delay = 0, className = "" }: { text: string; delay?: number; className?: string }) {
-  const characters = text.split("")
+  let characterOffset = 0
   
   return (
-    <span className={className}>
-      {characters.map((char, index) => (
-        <motion.span
-          key={index}
-          initial={{ opacity: 0, y: 50, rotateX: -90 }}
-          animate={{ opacity: 1, y: 0, rotateX: 0 }}
-          transition={{
-            duration: 0.5,
-            delay: delay + index * 0.025,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          style={{ display: "inline-block", transformOrigin: "bottom" }}
-        >
-          {char === " " ? "\u00A0" : char}
-        </motion.span>
-      ))}
+    <span className={className} aria-label={text}>
+      <span aria-hidden="true">
+        {text.split(" ").map((word, wordIndex, words) => {
+          const startIndex = characterOffset
+          characterOffset += word.length + 1
+
+          return (
+            <span key={`${word}-${wordIndex}`} className="inline-block whitespace-nowrap">
+              {word.split("").map((char, charIndex) => (
+                <motion.span
+                  key={`${char}-${charIndex}`}
+                  initial={{ opacity: 0, y: 50, rotateX: -90 }}
+                  animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: delay + (startIndex + charIndex) * 0.025,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  style={{ display: "inline-block", transformOrigin: "bottom" }}
+                >
+                  {char}
+                </motion.span>
+              ))}
+              {wordIndex < words.length - 1 ? " " : null}
+            </span>
+          )
+        })}
+      </span>
     </span>
   )
 }
@@ -147,8 +159,11 @@ export function Hero() {
           </motion.div>
 
           {/* Main headline with character-by-character reveal */}
-          <div className="max-w-5xl mb-8">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground leading-[1.1]">
+          <div className="mx-auto mb-8 max-w-[22rem] sm:max-w-3xl md:max-w-5xl">
+            <h1
+              className="text-[2.75rem] font-bold tracking-normal text-foreground leading-[1.06] text-balance sm:text-5xl sm:leading-[1.1] md:text-7xl lg:text-8xl"
+              aria-label={`${t("title")} ${t("titleHighlight")} ${t("titleEnd")}`}
+            >
               <MaskedWord delay={0.3}>
                 <AnimatedText text={t("title")} delay={0.3} />
               </MaskedWord>
