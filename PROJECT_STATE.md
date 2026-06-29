@@ -62,6 +62,9 @@ Ultima actualizacion: 2026-06-30
 - URL temporal comprobada tras el push de cierre: `https://aplaudia-production.up.railway.app` responde `200`, mantiene el aviso de construccion, sirve JSON-LD, `/robots.txt`, `/llms.txt` y `/sitemap.xml`.
 - Commit de app comprobado antes de conectar dominio: `b868871db4e123ed91405a83c43edb410c0ed9f1`.
 - Commit documental de conexion de dominio comprobado en Railway: `a8588d358c006b1877c5f0e708fc13cd0c1f7ff3`.
+- Commit de portfolio/casos verificado en produccion el 2026-06-30: `70fceb871b700b4196a865dd04437b38aa8be7b2`.
+  - Railway CLI no pudo leer dashboard por token caducado (`invalid_grant`).
+  - Produccion `https://aplaudia.com` sirvio home, rutas de casos y assets nuevos con `200`.
 
 ## Dominio y DNS
 

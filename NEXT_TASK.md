@@ -19,6 +19,8 @@ Revisar en producción con Carlos la nueva versión de portfolio/casos y decidir
 ## Contexto confirmado
 
 - `https://aplaudia.com/` funciona y debe mantener aviso de construcción hasta validación final de Carlos.
+- Último commit de portfolio verificado en producción: `70fceb871b700b4196a865dd04437b38aa8be7b2`.
+- Railway CLI quedó sin sesión (`invalid_grant`), pero producción sirvió el nuevo contenido y assets con `200`.
 - El portfolio usa trabajos reales:
   - Cronoras;
   - Arik Custom;

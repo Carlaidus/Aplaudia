@@ -80,7 +80,20 @@ Todas viven en `public/portfolio/` y están optimizadas en WebP:
 
 ## Estado de Railway
 
-Pendiente de comprobar tras el push de esta tarea.
+- Commit desplegado/pusheado: `70fceb871b700b4196a865dd04437b38aa8be7b2`.
+- Railway CLI no permite consultar el panel en esta sesión:
+  - `railway status`: `Unauthorized`, token OAuth caducado con `invalid_grant`;
+  - `railway deployment list --limit 5`: mismo resultado.
+- Comprobación funcional de producción:
+  - `https://aplaudia.com/`: `200`, aviso de construcción visible;
+  - `https://aplaudia.com/casos/cronoras`: `200`, referencia `cronoras-admin-panel`;
+  - `https://aplaudia.com/casos/arik-custom`: `200`, referencia `arik-admin-panel`;
+  - `https://aplaudia.com/casos/aventuras-pixeladas`: `200`, referencia `Movimiento modular`;
+  - `https://aplaudia.com/portfolio/cronoras-admin-panel.webp`: `200`;
+  - `https://aplaudia.com/portfolio/arik-admin-panel.webp`: `200`;
+  - `https://aplaudia.com/portfolio/aventuras-control-modular.webp`: `200`.
+- Producción empezó a servir el contenido nuevo en el tercer intento de polling.
+- Estado final práctico: despliegue funcional en producción confirmado. El estado visual exacto del dashboard Railway no se pudo leer sin volver a iniciar sesión en Railway CLI.
 
 ## Estado final local
 
@@ -94,4 +107,4 @@ Aplaudia queda con una estructura de portfolio más seria y homogénea:
 
 ## Siguiente paso recomendado
 
-Desplegar y revisar en producción `https://aplaudia.com/casos/cronoras`, `https://aplaudia.com/casos/arik-custom` y `https://aplaudia.com/casos/aventuras-pixeladas` con Carlos en móvil real y escritorio. Si Carlos valida esta base, el siguiente foco debería ser contenido legal/contacto antes de retirar el aviso de construcción.
+Revisar con Carlos en móvil real y escritorio `https://aplaudia.com/casos/cronoras`, `https://aplaudia.com/casos/arik-custom` y `https://aplaudia.com/casos/aventuras-pixeladas`. Si Carlos valida esta base, el siguiente foco debería ser contenido legal/contacto antes de retirar el aviso de construcción.
