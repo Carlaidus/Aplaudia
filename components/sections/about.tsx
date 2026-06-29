@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { useRef, useState } from "react"
 import { useTranslations } from "@/i18n"
+import { siteConfig } from "@/content/site"
 
 function StatCard({ value, label, index }: { value: string; label: string; index: number }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -117,7 +118,7 @@ export function About() {
                   <span className="text-lg font-bold text-foreground">A</span>
                 </motion.div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">Aplaudia</p>
+                  <p className="text-sm font-semibold text-foreground">{siteConfig.name}</p>
                   <p className="text-xs text-muted-foreground">{t("tagline")}</p>
                 </div>
               </div>

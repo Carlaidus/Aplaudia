@@ -13,7 +13,7 @@
 - `main` debe mantenerse desplegable.
 - Railway despliega desde GitHub `main`.
 - Para arreglos urgentes de lanzamiento, se puede integrar a `main` cuando el cambio sea pequeno, reversible y este documentado.
-- `LAST_CODEX_REPORT.md` se reemplaza en cada tarea importante.
+- `LAST_REPORT.md` se reemplaza o actualiza en cada tarea importante.
 
 ## Dominio
 
@@ -39,8 +39,8 @@
   - `DECISIONS.md`
   - `WORKFLOW.md`
   - `NEXT_TASK.md`
-  - `LAST_CODEX_REPORT.md`
-- Al terminar, actualizar `LAST_CODEX_REPORT.md` y, si cambia el foco, `NEXT_TASK.md`.
+  - `LAST_REPORT.md`
+- Al terminar, actualizar `LAST_REPORT.md` y, si cambia el foco, `NEXT_TASK.md`.
 
 ## Decisiones tecnicas vigentes
 
@@ -48,3 +48,5 @@
 - Forzar Node `22.x` para Railway mediante `package.json` y `.nvmrc`.
 - No anadir backend ni base de datos hasta que exista una necesidad clara.
 - No complicar Aplaudia como Aventuras Pixeladas: memoria ligera, accion rapida, documentacion compacta.
+- El JSON-LD puede incluir `Organization`, `WebSite`, `Service` e `ItemList`; no anadir `FAQPage` hasta que existan FAQs reales visibles en la web.
+- `content/site.ts` es la fuente central para marca, dominio canonico, contacto, metadata SEO, servicios, aviso de construccion y rutas futuras recomendadas.

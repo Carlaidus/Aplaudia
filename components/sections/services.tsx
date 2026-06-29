@@ -2,20 +2,17 @@
 
 import { motion, useInView, useScroll, useTransform } from "framer-motion"
 import { useRef, useState } from "react"
-import { Globe, MessageSquare, Image as ImageIcon, ArrowUpRight, Sparkles } from "lucide-react"
+import { Globe, MessageSquare, Image as ImageIcon, ArrowUpRight, Sparkles, type LucideIcon } from "lucide-react"
 import { useTranslations } from "@/i18n"
+import { serviceIds, type ServiceId } from "@/content/services"
 
-type ServiceKey = "web" | "whatsapp" | "visuals"
-
-const serviceKeys: ServiceKey[] = ["web", "whatsapp", "visuals"]
-
-const serviceIcons = {
+const serviceIcons: Record<ServiceId, LucideIcon> = {
   web: Globe,
   whatsapp: MessageSquare,
   visuals: ImageIcon,
 }
 
-const serviceGradients = {
+const serviceGradients: Record<ServiceId, { gradient: string; bg: string }> = {
   web: { gradient: "from-primary to-accent-cyan", bg: "bg-primary/10" },
   whatsapp: { gradient: "from-accent-cyan to-accent-violet", bg: "bg-accent-cyan/10" },
   visuals: { gradient: "from-accent-violet to-accent-magenta", bg: "bg-accent-violet/10" },
@@ -25,7 +22,7 @@ function ServiceCard({
   serviceKey,
   index,
 }: {
-  serviceKey: ServiceKey
+  serviceKey: ServiceId
   index: number
 }) {
   const { t } = useTranslations("services")
@@ -273,7 +270,7 @@ export function Services() {
 
         {/* Services grid */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {serviceKeys.map((key, index) => (
+          {serviceIds.map((key, index) => (
             <ServiceCard key={key} serviceKey={key} index={index} />
           ))}
         </div>

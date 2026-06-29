@@ -6,55 +6,19 @@ import { ArrowUpRight, ExternalLink, Layers } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useTranslations } from "@/i18n"
-
-// Conceptual case studies (demos/examples of what Aplaudia can create)
-const conceptualCases = [
-  {
-    titleKey: "Restaurante Elegante",
-    categoryKey: "Sitio Web + WhatsApp IA",
-    descriptionKey: "Concepto de sitio web para restaurante premium con sistema de reservas y asistente WhatsApp para pedidos.",
-    image: "/placeholder-restaurant.jpg",
-    accent: "from-primary to-accent-cyan",
-  },
-  {
-    titleKey: "Estudio de Yoga",
-    categoryKey: "Sitio Web + Booking",
-    descriptionKey: "Diseño conceptual para estudio de bienestar con agenda de clases integrada y pagos en línea.",
-    image: "/placeholder-yoga.jpg",
-    accent: "from-accent-cyan to-accent-violet",
-  },
-  {
-    titleKey: "Boutique de Moda",
-    categoryKey: "E-commerce + Visuales",
-    descriptionKey: "Tienda en línea conceptual con visuales mejorados en IA y composiciones fotográficas de producto.",
-    image: "/placeholder-fashion.jpg",
-    accent: "from-accent-violet to-accent-magenta",
-  },
-]
-
-// Real projects built by Aplaudia (modular - easy to add more)
-const realProjects = [
-  {
-    name: "Proyecto Demo 1",
-    businessType: "Consultoría",
-    description: "Sitio web corporativo con diseño moderno y sistema de contacto inteligente.",
-    image: "/placeholder-project1.jpg",
-    url: "#",
-  },
-  {
-    name: "Proyecto Demo 2",
-    businessType: "Gastronomía",
-    description: "Presencia digital completa incluyendo menú interactivo y asistente WhatsApp.",
-    image: "/placeholder-project2.jpg",
-    url: "#",
-  },
-]
+import {
+  conceptualCases,
+  realProjects,
+  showcaseLabels,
+  type ConceptualCase,
+  type RealProject,
+} from "@/content/showcase"
 
 function ConceptCard({
   concept,
   index,
 }: {
-  concept: (typeof conceptualCases)[0]
+  concept: ConceptualCase
   index: number
 }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -79,7 +43,7 @@ function ConceptCard({
           animate={isInView ? { x: 0 } : {}}
           transition={{ duration: 0.8, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
         >
-          <span className="text-muted-foreground text-sm">Vista previa conceptual</span>
+          <span className="text-muted-foreground text-sm">{showcaseLabels.conceptualPreview}</span>
         </motion.div>
         
         {/* Gradient overlay on hover */}
@@ -139,7 +103,7 @@ function ProjectCard({
   project,
   index,
 }: {
-  project: (typeof realProjects)[0]
+  project: RealProject
   index: number
 }) {
   const { t } = useTranslations("showcase")
@@ -169,7 +133,7 @@ function ProjectCard({
           animate={{ scale: isHovered ? 1.05 : 1 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="text-muted-foreground text-sm">Imagen del proyecto</span>
+          <span className="text-muted-foreground text-sm">{showcaseLabels.projectImage}</span>
         </motion.div>
         
         {/* Hover overlay with CTA */}
@@ -204,7 +168,7 @@ function ProjectCard({
             className="text-xs text-muted-foreground bg-card-elevated px-2 py-0.5 rounded-full"
             animate={{ opacity: isHovered ? 1 : 0.6 }}
           >
-            Proyecto real
+            {showcaseLabels.projectStatus}
           </motion.span>
         </div>
         
@@ -226,7 +190,7 @@ function ProjectCard({
             rel="noopener noreferrer"
             className="text-sm font-medium flex items-center gap-1"
           >
-            Ver proyecto
+            {showcaseLabels.projectLink}
             <motion.span
               animate={{ rotate: isHovered ? 45 : 0 }}
               transition={{ duration: 0.2 }}
@@ -258,7 +222,7 @@ export function Showcase() {
   const decorY = useTransform(scrollYProgress, [0, 1], [100, -100])
 
   return (
-    <section ref={sectionRef} id="portafolio" className="relative py-24 lg:py-32 bg-card overflow-hidden">
+    <section ref={sectionRef} id="portfolio" className="relative py-24 lg:py-32 bg-card overflow-hidden">
       {/* Decorative elements */}
       <motion.div
         className="absolute -top-32 -right-32 w-64 h-64 border border-border/20 rounded-full"
@@ -390,7 +354,7 @@ export function Showcase() {
                   {t("portfolio.comingSoon")}
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground/60">
-                  Tu proyecto podría estar aquí
+                  {showcaseLabels.emptyProject}
                 </p>
               </div>
             </motion.div>

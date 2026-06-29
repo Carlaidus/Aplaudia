@@ -4,11 +4,13 @@ import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 import Link from "next/link"
 import { useTranslations } from "@/i18n"
+import { siteConfig } from "@/content/site"
 
 export function Footer() {
   const { t } = useTranslations("footer")
   const footerRef = useRef<HTMLElement>(null)
   const isInView = useInView(footerRef, { once: true, margin: "-50px" })
+  const whatsappHref = siteConfig.contact.whatsappHref ?? "#whatsapp"
 
   const footerLinks = {
     servicios: [
@@ -18,12 +20,12 @@ export function Footer() {
     ],
     empresa: [
       { labelKey: "company.process", href: "#proceso" },
-      { labelKey: "company.portfolio", href: "#portafolio" },
+      { labelKey: "company.portfolio", href: "#portfolio" },
       { labelKey: "company.about", href: "#nosotros" },
     ],
     contacto: [
-      { labelKey: "contact.email", href: "mailto:carlosvfx@gmail.com", value: "carlosvfx@gmail.com" },
-      { labelKey: "contact.whatsapp", href: "https://wa.me/521234567890", value: "WhatsApp" },
+      { labelKey: "contact.email", href: `mailto:${siteConfig.contact.email}`, value: siteConfig.contact.email },
+      { labelKey: "contact.whatsapp", href: whatsappHref, value: "WhatsApp" },
     ],
   }
 
@@ -58,7 +60,7 @@ export function Footer() {
               >
                 <span className="text-lg font-bold text-foreground">A</span>
               </motion.span>
-              <span className="group-hover:text-primary transition-colors">Aplaudia</span>
+              <span className="group-hover:text-primary transition-colors">{siteConfig.name}</span>
             </Link>
             
             <p className="mt-5 text-sm text-muted-foreground leading-relaxed max-w-xs">
@@ -191,7 +193,7 @@ export function Footer() {
         >
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} Aplaudia. {t("rights")}
+              &copy; {new Date().getFullYear()} {siteConfig.name}. {t("rights")}
             </p>
             <motion.p 
               className="text-sm text-muted-foreground flex items-center gap-2"

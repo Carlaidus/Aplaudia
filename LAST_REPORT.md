@@ -2,47 +2,85 @@
 
 Fecha: 2026-06-29
 
-## Tarea reciente
+## Objetivo de la tarea
 
-Refuerzo no visual de Aplaudia para SEO, buscadores, IAs y futuras ampliaciones.
+Cerrar la preparacion de lanzamiento de Aplaudia: validar despliegue, dominio previsto, SEO tecnico, descubrimiento por IAs y estructura futura, sin tocar el diseno visual actual.
 
 ## Cambios aplicados
 
-- Corregidos textos visibles a espanol de Espana.
-- Anadio `content/site.ts` como fuente central de marca, dominio, idioma, keywords, servicios y rutas futuras.
-- `app/layout.tsx` reutiliza `siteConfig` para metadata, Open Graph y Twitter card.
-- Anadio `app/robots.ts`.
-- Anadio ruta `/llms.txt`.
-- Anadio `components/seo/structured-data.tsx`.
-- Ampliado JSON-LD con Organization, WebSite e ItemList de servicios.
-- Actualizado `NEXT_TASK.md` con el siguiente trabajo recomendado para Codex.
+- Revisada la memoria operativa antes de tocar codigo: `README.md`, `PROJECT_STATE.md`, `DECISIONS.md`, `WORKFLOW.md`, `NEXT_TASK.md` y `LAST_REPORT.md`.
+- Confirmado con `railway deployment list` que Railway estaba en verde antes del push de cierre: deployment `c3ff522c-510e-4967-bf17-88e752e5be39`, `SUCCESS`, 2026-06-29 10:33:28 +02:00.
+- Revisados `app/layout.tsx`, `app/robots.ts`, `public/sitemap.xml`, `app/llms.txt/route.ts` y `components/seo/structured-data.tsx`.
+- Corregido `app/robots.ts` para que el campo `Host` use `aplaudia.com` y no una URL con esquema.
+- Mantenidos metadata, canonical, Open Graph, Twitter card, locale `es_ES` y JSON-LD desde `siteConfig`.
+- Mantenido JSON-LD no visual con `Organization`, `WebSite`, `ItemList` y `Service` por cada servicio.
+- Retirado el numero placeholder de WhatsApp de `siteConfig`; hasta que Carlos confirme un WhatsApp real, los enlaces visibles de WhatsApp apuntan a la demo interna `#whatsapp`.
+- Confirmado que no se han anadido direccion, telefono, CIF, clientes reales, backend, base de datos, auth ni pagos.
+- Confirmado que `public/sitemap.xml`, `/robots.txt` y `/llms.txt` apuntan a `https://aplaudia.com`.
+- Actualizada la documentacion de dominio y siguientes pasos sin inventar registros DNS.
 
-## Archivos modificados relevantes
+## Archivos modificados
 
-- `content/site.ts`
 - `app/layout.tsx`
 - `app/robots.ts`
 - `app/llms.txt/route.ts`
 - `components/seo/structured-data.tsx`
+- `components/sections/about.tsx`
+- `components/sections/construction-notice.tsx`
+- `components/sections/final-cta.tsx`
+- `components/sections/footer.tsx`
+- `components/sections/header.tsx`
+- `components/sections/hero.tsx`
+- `components/sections/services.tsx`
+- `components/sections/showcase.tsx`
 - `components/sections/whatsapp-demo.tsx`
+- `content/site.ts`
+- `content/routes.ts`
+- `content/services.ts`
+- `content/brand.ts`
+- `content/seo.ts`
+- `content/showcase.ts`
+- `content/whatsapp-demo.ts`
 - `i18n/messages/es.json`
 - `public/sitemap.xml`
+- `PROJECT_STATE.md`
 - `NEXT_TASK.md`
+- `DECISIONS.md`
+- `WORKFLOW.md`
+- `LAST_REPORT.md`
 
-## Validaciones
+## Validaciones ejecutadas
 
-- Railway estaba en verde antes de esta tanda.
-- Commits previos de espanol de Espana, canonical, sitemap y JSON-LD basico: success.
-- Commit de JSON-LD ampliado: success.
-- Ultimo commit de documentacion SEO: success.
+- `npm install --no-audit --fund=false --loglevel=error` en copia temporal local: correcto.
+- `npm run build` en `T:\20-PROYECTOS\APLAUDIA`: falla por normalizacion local UNC de Turbopack (`\\?\UNC` fuera de root), no por error del codigo.
+- `npm run build` en copia temporal local `C:\Users\CARLAI~1\AppData\Local\Temp\aplaudia-launch-close`: correcto.
+- `npm run lint`: no ejecutable actualmente porque el script llama a `eslint .`, pero `eslint` no esta instalado en el repo.
+- `npx tsc --noEmit`: sigue exponiendo deuda previa en `components/ui/calendar.tsx` y desalineacion previa de traducciones CA/EN; no procede corregirlo en esta tarea porque no es el error de build/despliegue.
+- Barrido `rg` de terminos no ES-ES visibles: sin usos pendientes de `reservacion`, `agendar`, `capacitar`, horarios AM/PM ni `portafolio`.
+- Servidor local temporal sobre ese build: home `200`, `/robots.txt` `200`, `/llms.txt` `200`, canonical `https://aplaudia.com`, aviso de construccion presente, `Host: aplaudia.com` y sitemap `https://aplaudia.com/sitemap.xml`.
+- DNS local: `aplaudia.com` solo devuelve SOA de Cloudflare, `www.aplaudia.com` no resuelve y `https://aplaudia.com` no carga todavia.
 
-## Estado actual
+## Estado de Railway
 
-- Railway/GitHub: success.
-- Dominio oficial preparado en codigo: `https://aplaudia.com`.
-- Pendiente conectar dominio en Railway y Cloudflare.
+- Railway estaba en verde antes del push de cierre: `c3ff522c-510e-4967-bf17-88e752e5be39`, `SUCCESS`.
+- El push de cierre debe generar un deployment nuevo desde `main`; el ID exacto se comprobara despues del push porque Railway lo crea a posteriori.
+
+## Estado de `aplaudia.com`
+
+- No se han tocado Cloudflare ni DNS reales.
+- No hay acceso operativo a Cloudflare desde este entorno: no estan disponibles `wrangler`, `cloudflared` ni un conector Cloudflare.
+- `https://aplaudia.com` y `https://www.aplaudia.com` no responden todavia porque falta configurar DNS.
+
+## Pasos exactos para Carlos en dominio
+
+1. En Railway, abrir el servicio `Aplaudia` en el entorno `production`.
+2. Anadir `aplaudia.com` como custom domain.
+3. Copiar exactamente los registros DNS que Railway muestre.
+4. En Cloudflare, crear exactamente esos registros para `aplaudia.com`.
+5. Anadir `www.aplaudia.com` en Railway o crear en Cloudflare una redireccion de `https://www.aplaudia.com/*` a `https://aplaudia.com/$1`, segun indique Railway.
+6. Esperar propagacion y comprobar `https://aplaudia.com`, `/robots.txt`, `/llms.txt` y `/sitemap.xml`.
+7. Mantener el aviso de construccion hasta validacion final de Carlos.
 
 ## Siguiente paso recomendado
 
-- Conectar `aplaudia.com` y `www.aplaudia.com` en Railway/Cloudflare usando exactamente los registros que Railway indique.
-- Despues, pedir a Codex extraer datos hardcodeados de secciones a `content/` sin tocar visual.
+Hacer push del cierre, esperar Railway `SUCCESS`, comprobar la URL temporal de Railway y, cuando Carlos tenga Cloudflare abierto, conectar `aplaudia.com` con los registros exactos que Railway indique.

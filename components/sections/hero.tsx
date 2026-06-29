@@ -226,7 +226,7 @@ export function Hero() {
                 size="lg"
                 className="text-muted-foreground hover:text-foreground border border-border hover:border-border-accent/50 px-8 py-6 text-base font-semibold rounded-xl"
               >
-                <Link href="#portafolio">{t("ctaSecondary")}</Link>
+                <Link href="#portfolio">{t("ctaSecondary")}</Link>
               </Button>
             </motion.div>
           </motion.div>

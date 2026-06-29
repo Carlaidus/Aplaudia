@@ -6,6 +6,7 @@ import { ArrowRight, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useTranslations } from "@/i18n"
+import { siteConfig } from "@/content/site"
 
 export function FinalCTA() {
   const { t } = useTranslations("finalCta")
@@ -14,6 +15,8 @@ export function FinalCTA() {
   const isInView = useInView(contentRef, { once: true, margin: "-100px" })
   const [isPrimaryHovered, setIsPrimaryHovered] = useState(false)
   const [isSecondaryHovered, setIsSecondaryHovered] = useState(false)
+  const secondaryContactHref = siteConfig.contact.whatsappHref ?? "#whatsapp"
+  const isSecondaryContactExternal = secondaryContactHref.startsWith("http")
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -130,7 +133,7 @@ export function FinalCTA() {
                 size="lg"
                 className="relative bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base font-semibold rounded-xl"
               >
-                <Link href="mailto:carlosvfx@gmail.com" className="flex items-center gap-2">
+                <Link href={`mailto:${siteConfig.contact.email}`} className="flex items-center gap-2">
                   {t("cta")}
                   <motion.span
                     animate={{ x: isPrimaryHovered ? [0, 5, 0] : 0 }}
@@ -155,9 +158,9 @@ export function FinalCTA() {
                 className="relative border-border text-foreground hover:bg-card px-8 py-6 text-base font-semibold rounded-xl overflow-hidden"
               >
                 <Link
-                  href="https://wa.me/521234567890"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={secondaryContactHref}
+                  target={isSecondaryContactExternal ? "_blank" : undefined}
+                  rel={isSecondaryContactExternal ? "noopener noreferrer" : undefined}
                   className="flex items-center gap-2"
                 >
                   {/* Animated background fill */}

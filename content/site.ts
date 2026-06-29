@@ -1,49 +1,52 @@
+import { futureRoutes } from "./routes"
+import { services } from "./services"
+
 export const siteConfig = {
   name: "Aplaudia",
-  url: "https://aplaudia.com",
+  legalName: "Aplaudia",
+  officialDomain: "aplaudia.com",
+  canonicalUrl: "https://aplaudia.com",
+  productionUrl: "https://aplaudia.com",
+  railwayUrl: "https://aplaudia-production.up.railway.app",
+  primaryLanguage: "es-ES",
   locale: "es_ES",
-  language: "es-ES",
-  title: "Aplaudia | Estudio Digital para Negocios",
+  businessCategory: "Estudio digital",
   description:
-    "Creamos páginas web premium, agentes IA para WhatsApp y visuales mejorados con IA para negocios que quieren destacar.",
-  keywords: [
-    "diseño web",
-    "páginas web premium",
-    "agentes IA para WhatsApp",
-    "automatización con IA",
-    "contenido visual con IA",
-    "SEO técnico",
-    "presencia digital",
-    "Barcelona",
-    "España",
-  ],
-  services: [
-    {
-      slug: "paginas-web",
-      name: "Páginas web premium",
-      description:
-        "Diseño y desarrollo de webs modernas, rápidas, responsive y orientadas a negocio.",
-    },
-    {
-      slug: "agentes-ia-whatsapp",
-      name: "Agentes IA para WhatsApp",
-      description:
-        "Automatización conversacional para responder clientes, captar contactos y mejorar la atención.",
-    },
-    {
-      slug: "visuales-ia",
-      name: "Visuales mejorados con IA",
-      description:
-        "Mejora de imágenes, fondos, composiciones de producto y contenido visual para web, redes y pantallas.",
-    },
-  ],
-  futureRoutes: [
-    "/servicios/paginas-web",
-    "/servicios/agentes-ia-whatsapp",
-    "/servicios/visuales-ia",
-    "/casos",
-    "/sobre-aplaudia",
-    "/contacto",
-    "/recursos",
-  ],
+    "Estudio digital boutique para crear páginas web premium, agentes IA para WhatsApp y visuales mejorados con IA.",
+  audience:
+    "Negocios pequeños, profesionales independientes y marcas que quieren mejorar su presencia digital sin montar un equipo técnico interno.",
+  contactCta:
+    "Solicitar una conversación desde la sección de contacto de la web.",
+  contact: {
+    email: "carlosvfx@gmail.com",
+    whatsappHref: null,
+  },
+  seo: {
+    title: "Aplaudia | Estudio digital para negocios",
+    description:
+      "Creamos páginas web premium, agentes IA para WhatsApp y visuales mejorados con IA para negocios que quieren destacar y vender mejor online.",
+    keywords: [
+      "diseño web",
+      "páginas web premium",
+      "agentes IA WhatsApp",
+      "automatización WhatsApp",
+      "visuales con IA",
+      "presencia digital",
+      "negocios pequeños",
+      "Barcelona",
+      "España",
+    ],
+  },
+  constructionNotice: {
+    dateLabel: "29 junio 2026",
+    status: "En construcción",
+    title: "Aplaudia está en construcción",
+    body:
+      "Estamos terminando la web y conectando el dominio oficial aplaudia.com desde Cloudflare y Railway. La activaremos en breve con todo revisado.",
+    detail: "Dominio comprado en Cloudflare · Producción prevista en Railway",
+  },
+  services,
+  futureRoutes,
 } as const
+
+export type SiteConfig = typeof siteConfig

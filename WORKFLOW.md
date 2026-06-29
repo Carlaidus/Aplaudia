@@ -16,7 +16,7 @@ Sistema de trabajo copiado y simplificado desde Aventuras Pixeladas, Cronoras y 
 - Crea ramas cuando la tarea sea grande o pueda romper el despliegue.
 - Prueba antes de cerrar.
 - Hace commit y push.
-- Actualiza `LAST_CODEX_REPORT.md` al terminar.
+- Actualiza `LAST_REPORT.md` al terminar.
 - Actualiza `NEXT_TASK.md` si cambia la prioridad.
 
 ## GitHub
@@ -24,7 +24,7 @@ Sistema de trabajo copiado y simplificado desde Aventuras Pixeladas, Cronoras y 
 - Repo principal y memoria tecnica ligera: `Carlaidus/Aplaudia`.
 - Los `.md` de control viven en la raiz del repo para mantener Aplaudia simple.
 - El historial detallado queda en Git.
-- `LAST_CODEX_REPORT.md` se sobrescribe en cada tarea.
+- `LAST_REPORT.md` se sobrescribe o actualiza en cada tarea.
 
 ## Railway
 
@@ -83,7 +83,7 @@ Sistema de trabajo copiado y simplificado desde Aventuras Pixeladas, Cronoras y 
 
 ## Cierre de tarea
 
-1. Actualizar `LAST_CODEX_REPORT.md`.
+1. Actualizar `LAST_REPORT.md`.
 2. Actualizar `NEXT_TASK.md` si cambia el foco.
 3. Mantener ambos compactos.
 4. Hacer commit.

@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useTranslations } from "@/i18n"
+import { siteConfig } from "@/content/site"
 
 export function Header() {
   const { t } = useTranslations("header")
@@ -16,7 +17,7 @@ export function Header() {
   const navLinks = [
     { href: "#servicios", label: t("services") },
     { href: "#proceso", label: t("process") },
-    { href: "#portafolio", label: t("portfolio") },
+    { href: "#portfolio", label: t("portfolio") },
     { href: "#whatsapp", label: t("whatsapp") },
     { href: "#nosotros", label: t("about") },
   ]
@@ -47,7 +48,7 @@ export function Header() {
             className="text-xl font-bold tracking-tight text-foreground"
             whileHover={{ scale: 1.02 }}
           >
-            Aplaudia
+            {siteConfig.name}
           </motion.span>
         </Link>
 

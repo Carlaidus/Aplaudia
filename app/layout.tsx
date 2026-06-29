@@ -1,31 +1,38 @@
 import type { Metadata, Viewport } from 'next'
+import { I18nProvider } from '@/i18n'
 import { siteConfig } from '@/content/site'
 import { StructuredData } from '@/components/seo/structured-data'
-import { I18nProvider } from '@/i18n'
 import './globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
-  title: siteConfig.title,
-  description: siteConfig.description,
+  metadataBase: new URL(siteConfig.canonicalUrl),
+  title: siteConfig.seo.title,
+  description: siteConfig.seo.description,
+  applicationName: siteConfig.name,
   generator: siteConfig.name,
-  keywords: [...siteConfig.keywords],
+  keywords: [...siteConfig.seo.keywords],
   authors: [{ name: siteConfig.name }],
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: siteConfig.title,
-    description: siteConfig.description,
-    url: siteConfig.url,
+    title: siteConfig.seo.title,
+    description: siteConfig.seo.description,
+    url: '/',
     siteName: siteConfig.name,
     type: 'website',
     locale: siteConfig.locale,
   },
   twitter: {
-    card: 'summary_large_image',
-    title: siteConfig.title,
-    description: siteConfig.description,
+    card: 'summary',
+    title: siteConfig.seo.title,
+    description: siteConfig.seo.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 
@@ -41,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className="bg-background" suppressHydrationWarning>
+    <html lang={siteConfig.primaryLanguage} className="bg-background" suppressHydrationWarning>
       <body className="font-sans antialiased">
         <StructuredData />
         <I18nProvider>
