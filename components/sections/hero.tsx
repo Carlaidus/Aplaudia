@@ -19,22 +19,24 @@ function AnimatedText({ text, delay = 0, className = "" }: { text: string; delay
           characterOffset += word.length + 1
 
           return (
-            <span key={`${word}-${wordIndex}`} className="inline-block whitespace-nowrap">
-              {word.split("").map((char, charIndex) => (
-                <motion.span
-                  key={`${char}-${charIndex}`}
-                  initial={{ opacity: 0, y: 50, rotateX: -90 }}
-                  animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: delay + (startIndex + charIndex) * 0.025,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                  style={{ display: "inline-block", transformOrigin: "bottom" }}
-                >
-                  {char}
-                </motion.span>
-              ))}
+            <span key={`${word}-${wordIndex}`}>
+              <span className="inline-block whitespace-nowrap">
+                {word.split("").map((char, charIndex) => (
+                  <motion.span
+                    key={`${char}-${charIndex}`}
+                    initial={{ opacity: 0, y: 50, rotateX: -90 }}
+                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                    transition={{
+                      duration: 0.5,
+                      delay: delay + (startIndex + charIndex) * 0.025,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    style={{ display: "inline-block", transformOrigin: "bottom" }}
+                  >
+                    {char}
+                  </motion.span>
+                ))}
+              </span>
               {wordIndex < words.length - 1 ? " " : null}
             </span>
           )

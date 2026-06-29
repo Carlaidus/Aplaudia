@@ -23,13 +23,13 @@ export function ConstructionNotice() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         onClick={() => setIsMinimized(false)}
-        className="fixed right-4 top-20 z-[60] inline-flex max-w-[calc(100vw-2rem)] items-center gap-1.5 rounded-full border border-white/10 bg-card/90 px-3 py-2.5 text-sm font-medium text-foreground shadow-2xl shadow-primary/20 backdrop-blur-2xl transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background min-[901px]:bottom-4 min-[901px]:top-auto"
+        className="fixed right-4 top-20 z-[60] inline-flex max-w-[calc(100vw-2rem)] items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-card/90 px-3 py-2.5 text-sm font-medium text-foreground shadow-2xl shadow-primary/20 backdrop-blur-2xl transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-3.5 min-[901px]:bottom-4 min-[901px]:top-auto"
         aria-label="Mostrar aviso de construcción"
       >
         <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
-        <span className="truncate">{constructionNotice.status}</span>
-        <span className="text-muted-foreground" aria-hidden="true">·</span>
-        <span className="shrink-0 text-xs text-muted-foreground">{constructionNotice.dateLabel}</span>
+        <span className="shrink-0">{constructionNotice.status}</span>
+        <span className="hidden shrink-0 px-0.5 text-muted-foreground sm:inline" aria-hidden="true">-</span>
+        <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">{constructionNotice.dateLabel}</span>
         <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
       </motion.button>
     )
