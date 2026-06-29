@@ -95,10 +95,10 @@ No se han guardado capturas RAW, perfiles temporales de Chrome, secretos ni dato
   - Servicio: `Aplaudia`.
   - Environment: `production`.
   - Dominio mostrado: `aplaudia.com`.
-  - Deployment activo: `Improve real portfolio case studies`.
-  - Commit desplegado: `d1cd38c`.
-  - Estado mostrado: `Online`.
-  - Resultado mostrado: `Deployment successful`.
+  - Deployment de codigo `Improve real portfolio case studies` (`d1cd38c`): `Deployment successful`.
+  - Deployment documental posterior `docs: record portfolio case study deployment`: `Deployment successful`.
+  - Estado final mostrado al cierre: `Online`.
+  - Resultado final mostrado al cierre: `Deployment successful`.
   - Runtime mostrado: `node@22.23.1`.
   - Region mostrada: `EU West`.
 
