@@ -1,24 +1,30 @@
 import type { Metadata, Viewport } from 'next'
+import { siteConfig } from '@/content/site'
 import { I18nProvider } from '@/i18n'
 import './globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://aplaudia.com'),
-  title: 'Aplaudia | Estudio Digital para Negocios',
-  description: 'Creamos webs premium, agentes IA para WhatsApp y visuales mejorados con IA para negocios que quieren destacar.',
-  generator: 'Aplaudia',
-  keywords: ['web design', 'AI WhatsApp', 'digital studio', 'small business', 'Barcelona', 'España'],
-  authors: [{ name: 'Aplaudia' }],
+  metadataBase: new URL(siteConfig.url),
+  title: siteConfig.title,
+  description: siteConfig.description,
+  generator: siteConfig.name,
+  keywords: [...siteConfig.keywords],
+  authors: [{ name: siteConfig.name }],
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Aplaudia | Estudio Digital para Negocios',
-    description: 'Creamos webs premium, agentes IA para WhatsApp y visuales mejorados con IA para negocios que quieren destacar.',
-    url: 'https://aplaudia.com',
-    siteName: 'Aplaudia',
+    title: siteConfig.title,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    siteName: siteConfig.name,
     type: 'website',
-    locale: 'es_ES',
+    locale: siteConfig.locale,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteConfig.title,
+    description: siteConfig.description,
   },
 }
 
