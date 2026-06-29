@@ -1,12 +1,16 @@
-const llmsText = `# Aplaudia
+import { siteConfig } from "@/content/site"
 
-Aplaudia es un estudio digital boutique en España especializado en páginas web premium, agentes IA para WhatsApp y contenido visual mejorado con inteligencia artificial para negocios que quieren mejorar su presencia digital.
+const serviceList = siteConfig.services
+  .map((service) => `- ${service.name}: ${service.description}`)
+  .join("\n")
+
+const llmsText = `# ${siteConfig.name}
+
+${siteConfig.name} es un estudio digital boutique en España especializado en páginas web premium, agentes IA para WhatsApp y contenido visual mejorado con inteligencia artificial para negocios que quieren mejorar su presencia digital.
 
 ## Servicios principales
 
-- Páginas web premium: diseño y desarrollo de webs modernas, rápidas, responsive y orientadas a negocio.
-- Agentes IA para WhatsApp: automatización conversacional para responder clientes, captar contactos y mejorar la atención.
-- Visuales mejorados con IA: mejora de imágenes, fondos, composiciones de producto y contenido visual para web, redes y pantallas.
+${serviceList}
 
 ## Idiomas
 
@@ -15,7 +19,7 @@ Aplaudia es un estudio digital boutique en España especializado en páginas web
 
 ## Dominio oficial
 
-https://aplaudia.com
+${siteConfig.url}
 `
 
 export function GET() {
