@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next"
+import { siteConfig } from "@/content/site"
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -6,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://aplaudia.com/sitemap.xml",
-    host: "https://aplaudia.com",
+    sitemap: `${siteConfig.url}/sitemap.xml`,
+    host: siteConfig.url,
   }
 }
