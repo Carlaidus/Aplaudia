@@ -18,8 +18,9 @@ Revisar lanzamiento final antes de quitar el aviso de construccion, con `aplaudi
 
 ## Revisar al desplegar
 
-- Railway ya esta en verde: ultimo deployment `8d6a06bf-8b80-4123-b58f-8b9f566076eb`, `SUCCESS`, 2026-06-29 11:07:00 +02:00.
-- Commit desplegado: `b868871db4e123ed91405a83c43edb410c0ed9f1`.
+- Railway ya esta en verde; durante el cierre de dominio se verifico `SUCCESS` antes y despues del commit documental.
+- Deployment observado tras documentar la conexion de dominio: `4d07185c-cd3d-4ac4-8c29-0808c8839e79`, `SUCCESS`, 2026-06-29 11:43:49 +02:00.
+- Commit documental verificado en Railway durante la tarea: `a8588d358c006b1877c5f0e708fc13cd0c1f7ff3`.
 - Dominio operativo validado el 2026-06-29:
   - `https://aplaudia.com/` responde `200`.
   - `https://www.aplaudia.com/` redirige con `301` a `https://aplaudia.com/`.

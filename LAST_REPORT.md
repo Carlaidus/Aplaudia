@@ -34,7 +34,9 @@ Conectar definitivamente `aplaudia.com` a la app de Aplaudia desplegada en Railw
 ## Estado de Railway
 
 - Railway sigue en verde.
-- Ultimo deployment: `8d6a06bf-8b80-4123-b58f-8b9f566076eb`, `SUCCESS`, 2026-06-29 11:07:00 +02:00.
+- Deployments verificados durante la tarea:
+  - `8d6a06bf-8b80-4123-b58f-8b9f566076eb`, `SUCCESS`, antes del commit documental de conexion de dominio, 2026-06-29 11:07:00 +02:00.
+  - `4d07185c-cd3d-4ac4-8c29-0808c8839e79`, `SUCCESS`, tras el commit documental de conexion de dominio, 2026-06-29 11:43:49 +02:00.
 - `railway status --json` confirma `aplaudia.com` en `customDomains`, target port `8080`.
 - Panel Railway ya no muestra `Waiting for DNS update`; muestra `aplaudia.com`, `Port 8080` y boton `DNS records`.
 
@@ -50,6 +52,7 @@ Conectar definitivamente `aplaudia.com` a la app de Aplaudia desplegada en Railw
 - `Resolve-DnsName aplaudia.com`: devuelve A/AAAA de Cloudflare.
 - `Resolve-DnsName _railway-verify.aplaudia.com -Type TXT`: devuelve el TXT de Railway.
 - `Resolve-DnsName www.aplaudia.com -Server 1.1.1.1`: devuelve A/AAAA de Cloudflare.
+- `railway deployment list`: Railway en `SUCCESS` tras el commit documental de conexion de dominio.
 - `https://aplaudia.com/`: `200`.
 - `https://aplaudia.com/`: aviso de construccion visible, canonical `https://aplaudia.com` y JSON-LD presentes.
 - `https://www.aplaudia.com/`: `301` a `https://aplaudia.com/`.

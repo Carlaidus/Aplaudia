@@ -52,9 +52,12 @@ Ultima actualizacion: 2026-06-29
 - El fallo real confirmado en Railway fue `npm ETARGET`: `@radix-ui/react-switch@1.3.3` no existe en npm.
 - Railway/Railpack ya estaba usando Node `22.23.1`; Node 18 no era la causa del fallo final.
 - Correccion aplicada previamente: `@radix-ui/react-switch` bajado a `1.3.1` y `package-lock.json` generado.
-- Estado consultado con `railway deployment list` el 2026-06-29: ultimo deployment `8d6a06bf-8b80-4123-b58f-8b9f566076eb` en `SUCCESS` a las `11:07:00 +02:00`.
+- Estado consultado con `railway deployment list` el 2026-06-29: Railway en `SUCCESS` antes y despues de conectar el dominio.
+  - Deployment previo al commit documental de dominio: `8d6a06bf-8b80-4123-b58f-8b9f566076eb`, `SUCCESS`, `11:07:00 +02:00`.
+  - Deployment tras el commit documental de dominio: `4d07185c-cd3d-4ac4-8c29-0808c8839e79`, `SUCCESS`, `11:43:49 +02:00`.
 - URL temporal comprobada tras el push de cierre: `https://aplaudia-production.up.railway.app` responde `200`, mantiene el aviso de construccion, sirve JSON-LD, `/robots.txt`, `/llms.txt` y `/sitemap.xml`.
-- Commit desplegado: `b868871db4e123ed91405a83c43edb410c0ed9f1`.
+- Commit de app comprobado antes de conectar dominio: `b868871db4e123ed91405a83c43edb410c0ed9f1`.
+- Commit documental de conexion de dominio comprobado en Railway: `a8588d358c006b1877c5f0e708fc13cd0c1f7ff3`.
 
 ## Dominio y DNS
 
