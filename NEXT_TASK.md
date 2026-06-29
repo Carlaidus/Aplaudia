@@ -1,12 +1,12 @@
 # NEXT TASK - Aplaudia
 
-Prioridad: Media-Alta
+Prioridad: Alta
 Modelo recomendado: GPT-5.5
 Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Objetivo inmediato
 
-Validar con Carlos la experiencia movil real de `https://aplaudia.com` y decidir el cierre de lanzamiento: mantener, suavizar o retirar el aviso de construccion cuando Carlos confirme que la web puede hacerse publica.
+Auditar y optimizar el rendimiento percibido de `https://aplaudia.com` en movil y escritorio. Carlos confirma que, aunque la revision movil anterior corrigio titulares y aviso, la pagina se percibe lenta y algunas animaciones se cortan o dan tirones.
 
 ## Repo
 
@@ -22,14 +22,14 @@ Validar con Carlos la experiencia movil real de `https://aplaudia.com` y decidir
 - `https://www.aplaudia.com/` redirige con `301` a `https://aplaudia.com/`.
 - `/robots.txt`, `/llms.txt` y `/sitemap.xml` responden `200` en `aplaudia.com`.
 - Railway esta en verde.
-- Deployment funcional validado: `5546e2bc-0061-4a45-a383-d62a3c0d546d`, `SUCCESS`, 2026-06-29 13:11:39 +02:00.
-- Commit funcional validado: `76ee74bf5a3cc9e6e0f2a3aa5df938b87cb02369`.
+- Deployment funcional validado en la tarea anterior: `5546e2bc-0061-4a45-a383-d62a3c0d546d`, `SUCCESS`, 2026-06-29 13:11:39 +02:00.
+- Commit funcional validado de la revision movil anterior: `76ee74bf5a3cc9e6e0f2a3aa5df938b87cb02369`.
 - La home mantiene aviso de construccion.
 - En movil y tablet, el aviso arranca como pastilla compacta bajo el header y puede abrirse/minimizarse.
 - En desktop, el aviso se muestra completo por defecto.
 - No tocar backend, base de datos, auth ni pagos.
 
-## Estado de la ultima tarea
+## Estado de la ultima tarea movil
 
 Ya se corrigio la revision movil detectada por Carlos:
 
@@ -40,62 +40,102 @@ Ya se corrigio la revision movil detectada por Carlos:
 - `npm run build` pasa con `next build --webpack`.
 - `npm run lint` no esta disponible porque el repo define `eslint .`, pero `eslint` no esta instalado como dependencia.
 
-## Tarea para Carlos / proxima sesion
+## Problema nuevo detectado por Carlos
 
-1. Revisar `https://aplaudia.com` en movil real:
-   - iPhone pequeno o equivalente a 360 px.
-   - iPhone medio o equivalente a 390 px.
-   - movil grande o equivalente a 430 px.
-   - tablet.
-   - desktop.
+- En movil, la pagina se percibe lenta.
+- En escritorio tambien se percibe pesada al ejecutarla.
+- A veces las animaciones se cortan o dan tirones.
+- Hay que revisar toda la home, no solo el hero.
 
-2. Confirmar visualmente:
-   - Hero centrado, legible y sin palabras partidas.
-   - Scroll story legible y natural.
-   - Titulares de secciones equilibrados.
-   - Pastilla de construccion visible sin tapar CTAs.
-   - La pastilla abre el aviso completo.
-   - El aviso completo se puede minimizar.
+## Sospechas tecnicas a revisar
 
-3. Decidir el estado del aviso de construccion:
-   - mantenerlo como esta;
-   - suavizarlo;
-   - retirarlo cuando Carlos valide lanzamiento.
+- Exceso de componentes `motion` animando a la vez.
+- Demasiados `useInView` en tarjetas o secciones.
+- Animaciones ligadas al scroll/parallax.
+- Loops infinitos innecesarios.
+- Blur/glow/backdrop-blur caros en movil.
+- Sombras grandes o fondos animados que repintan demasiado.
+- Animaciones de escala/rotacion en muchas tarjetas.
+- Efectos hover o whileInView innecesarios en dispositivos tactiles.
+- Re-renderizados por estado local de hover o inView.
+- Falta de `prefers-reduced-motion` o modo movil simplificado.
 
-4. Antes del lanzamiento publico, cerrar pendientes de negocio:
-   - contacto real o canal definitivo de WhatsApp;
-   - textos finales en CA/EN si se mantienen idiomas secundarios;
-   - legales basicos si Carlos quiere activar la web como pagina comercial definitiva;
-   - revisar si hace falta configurar analitica.
+## Tarea para Codex
 
-5. Deuda tecnica opcional:
-   - instalar/configurar ESLint para que `npm run lint` sea una validacion real;
-   - decidir si se mantiene `next build --webpack` mientras el workspace local siga en unidad de red mapeada.
+1. Auditar rendimiento real:
+   - Probar en 360 px, 390 px, 430 px, tablet y desktop.
+   - Usar Performance/Lighthouse/DevTools si esta disponible.
+   - Identificar animaciones con jank, dropped frames, alto scripting, repaints caros o layout shifts.
+   - Revisar consola por warnings/errores.
 
-## Validaciones recomendadas en la proxima sesion
+2. Optimizar sin redisenar:
+   - Mantener identidad visual premium.
+   - Mantener orden de secciones.
+   - Reducir animaciones simultaneas.
+   - Desactivar o simplificar animaciones caras en movil.
+   - Reducir loops infinitos que no aporten mucho.
+   - Usar `transform` y `opacity` cuando haya animaciones.
+   - Evitar animar propiedades caras.
+   - Reducir blur/glow/backdrop pesado en movil.
+   - Eliminar hover animation en dispositivos tactiles si genera coste.
+   - Aplicar `prefers-reduced-motion` o un hook/utility para suavizar animaciones.
+   - Evitar re-renderizados innecesarios.
 
-- `npm run build`.
-- `npm run lint` solo si se instala/configura ESLint.
-- Revisar `https://aplaudia.com`.
-- Revisar `https://www.aplaudia.com`.
-- Revisar `https://aplaudia.com/robots.txt`.
-- Revisar `https://aplaudia.com/llms.txt`.
-- Revisar `https://aplaudia.com/sitemap.xml`.
-- Confirmar Railway en verde tras cualquier commit nuevo.
+3. Revisar secciones concretas:
+   - `components/sections/hero.tsx`
+   - `components/sections/scroll-story.tsx`
+   - `components/sections/services.tsx`
+   - `components/sections/showcase.tsx`
+   - `components/sections/visual-gallery.tsx`
+   - `components/sections/benefits.tsx`
+   - `components/sections/about.tsx`
+   - `components/sections/final-cta.tsx`
+   - `components/sections/construction-notice.tsx`
+   - `components/sections/header.tsx`
+
+4. Mantener lo ya corregido:
+   - No volver a romper los titulares moviles.
+   - No volver a hacer intrusivo el aviso de construccion.
+   - Mantener la pastilla/minimizado en movil y tablet.
+   - Mantener canonical, robots, sitemap, `/llms.txt` y JSON-LD.
+
+5. Validaciones obligatorias:
+   - `npm install` si hace falta.
+   - `npm run build`.
+   - `npm run lint` si esta disponible.
+   - Probar home en movil y escritorio.
+   - Comprobar que no hay errores de consola relevantes.
+   - Probar `https://aplaudia.com` tras deploy.
+   - Confirmar que `/robots.txt`, `/llms.txt` y `/sitemap.xml` siguen funcionando.
+   - Confirmar Railway en verde.
+
+6. Documentacion:
+   - Actualizar `LAST_REPORT.md` con:
+     - problema detectado;
+     - causa probable o causa confirmada;
+     - animaciones/efectos optimizados;
+     - archivos tocados;
+     - validaciones ejecutadas;
+     - estado final de Railway;
+     - estado final de `https://aplaudia.com`.
+   - Actualizar `NEXT_TASK.md` con el siguiente foco.
 
 ## Restricciones
 
 - No redisenar la web.
 - No cambiar identidad visual.
 - No cambiar el orden de secciones salvo necesidad justificada.
+- No sustituir la landing por una version simplificada.
 - No tocar dominio, DNS ni Cloudflare salvo que Carlos lo pida explicitamente.
 - No anadir backend, base de datos, auth ni pagos.
 - No guardar secretos.
 - No inventar datos legales, direccion, telefono, CIF ni clientes reales.
 
-## Cierre esperado de la proxima sesion
+## Cierre esperado
 
-- Decision clara sobre el aviso de construccion.
-- Estado de lanzamiento documentado en `LAST_REPORT.md`.
+- Commit claro.
 - Railway en verde.
-- `https://aplaudia.com` validada en dispositivo real.
+- `https://aplaudia.com` revisada en movil y escritorio.
+- Animaciones mas fluidas, sin tirones evidentes.
+- Mismos contenidos y misma identidad visual, pero menos pesada.
+- `LAST_REPORT.md` actualizado con el resultado real.
