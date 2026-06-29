@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { useRef, useState } from "react"
 import { Wand2, Image as ImageIcon, RefreshCw, Tv, Sparkles } from "lucide-react"
 import { useTranslations } from "@/i18n"
+import { useLightweightMotion } from "@/components/motion-performance-provider"
 
 type CategoryKey = "category1" | "category2" | "category3" | "category4"
 
@@ -30,7 +31,15 @@ const galleryItems = [
   { id: 5, aspect: "aspect-video", span: "md:col-span-2", gradient: "from-primary/10 via-accent-cyan/10 to-accent-violet/10" },
 ]
 
-function CategoryCard({ categoryKey, index }: { categoryKey: CategoryKey; index: number }) {
+function CategoryCard({
+  categoryKey,
+  index,
+  lightweightMotion,
+}: {
+  categoryKey: CategoryKey
+  index: number
+  lightweightMotion: boolean
+}) {
   const { t } = useTranslations("visualGallery")
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-50px" })
@@ -60,8 +69,8 @@ function CategoryCard({ categoryKey, index }: { categoryKey: CategoryKey; index:
         delay: index * 0.1,
         ease: [0.22, 1, 0.36, 1],
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
+      onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
       className="group relative"
     >
       {/* Floating background glow */}
@@ -75,11 +84,11 @@ function CategoryCard({ categoryKey, index }: { categoryKey: CategoryKey; index:
         {/* Icon with 3D rotation on hover */}
         <motion.div 
           className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${accent} text-foreground mb-4`}
-          animate={{ 
+          animate={lightweightMotion ? undefined : {
             rotateY: isHovered ? 180 : 0,
             scale: isHovered ? 1.1 : 1,
           }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          transition={lightweightMotion ? undefined : { duration: 0.5, ease: "easeOut" }}
           style={{ transformStyle: "preserve-3d" }}
         >
           <Icon className="h-7 w-7" style={{ backfaceVisibility: "hidden" }} />
@@ -104,7 +113,15 @@ function CategoryCard({ categoryKey, index }: { categoryKey: CategoryKey; index:
   )
 }
 
-function GalleryItem({ item, index }: { item: typeof galleryItems[0]; index: number }) {
+function GalleryItem({
+  item,
+  index,
+  lightweightMotion,
+}: {
+  item: typeof galleryItems[0]
+  index: number
+  lightweightMotion: boolean
+}) {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-50px" })
   const [isHovered, setIsHovered] = useState(false)
@@ -132,17 +149,17 @@ function GalleryItem({ item, index }: { item: typeof galleryItems[0]; index: num
         stiffness: 80,
         damping: 15,
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
+      onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
       className={`${item.span} ${item.aspect} rounded-2xl overflow-hidden group relative cursor-pointer`}
     >
       {/* Animated gradient background */}
       <motion.div 
         className={`absolute inset-0 bg-gradient-to-br ${item.gradient}`}
-        animate={{
+        animate={lightweightMotion ? undefined : {
           backgroundPosition: isHovered ? ["0% 0%", "100% 100%"] : "0% 0%",
         }}
-        transition={{ duration: 2, repeat: isHovered ? Infinity : 0 }}
+        transition={lightweightMotion ? undefined : { duration: 2, repeat: isHovered ? Infinity : 0 }}
         style={{ backgroundSize: "200% 200%" }}
       />
       
@@ -152,11 +169,11 @@ function GalleryItem({ item, index }: { item: typeof galleryItems[0]; index: num
       {/* Content */}
       <div className="relative h-full flex flex-col items-center justify-center p-6">
         <motion.div
-          animate={{ 
+          animate={lightweightMotion ? undefined : {
             rotate: isHovered ? [0, 360] : 0,
             scale: isHovered ? 1.2 : 1,
           }}
-          transition={{ duration: isHovered ? 20 : 0.3, ease: "linear", repeat: isHovered ? Infinity : 0 }}
+          transition={lightweightMotion ? undefined : { duration: isHovered ? 20 : 0.3, ease: "linear", repeat: isHovered ? Infinity : 0 }}
         >
           <Sparkles className="w-10 h-10 text-foreground/60" />
         </motion.div>
@@ -186,6 +203,7 @@ export function VisualGallery() {
   const sectionRef = useRef<HTMLElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const isHeaderInView = useInView(headerRef, { once: true, margin: "-100px" })
+  const lightweightMotion = useLightweightMotion()
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -204,24 +222,20 @@ export function VisualGallery() {
       {/* Animated floating decorative elements */}
       <motion.div
         className="absolute top-20 -right-20 w-80 h-80 border border-primary/10 rounded-full"
-        style={{ y: decorY1, rotate: decorRotate }}
+        style={lightweightMotion ? undefined : { y: decorY1, rotate: decorRotate }}
       />
       <motion.div
         className="absolute bottom-40 -left-32 w-64 h-64 border border-accent-cyan/10 rounded-full"
-        style={{ y: decorY2 }}
+        style={lightweightMotion ? undefined : { y: decorY2 }}
       />
       
       {/* Background orbs */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-1/4 right-1/4 w-96 h-96 bg-accent-cyan rounded-full mix-blend-screen opacity-5 blur-[150px]"
-          animate={{ y: [0, 50, 0], x: [0, -30, 0] }}
-          transition={{ duration: 15, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-1/3 left-1/4 w-80 h-80 bg-accent-violet rounded-full mix-blend-screen opacity-5 blur-[120px]"
-          animate={{ y: [0, -40, 0], x: [0, 40, 0] }}
-          transition={{ duration: 18, repeat: Infinity }}
         />
       </div>
 
@@ -281,7 +295,7 @@ export function VisualGallery() {
         {/* Categories with corner entrances */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-20">
           {categoryKeys.map((key, index) => (
-            <CategoryCard key={key} categoryKey={key} index={index} />
+            <CategoryCard key={key} categoryKey={key} index={index} lightweightMotion={lightweightMotion} />
           ))}
         </div>
 
@@ -300,12 +314,9 @@ export function VisualGallery() {
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
             style={{ transformOrigin: "left" }}
           />
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-          >
+          <div>
             <Sparkles className="w-5 h-5 text-primary" />
-          </motion.div>
+          </div>
           <motion.div 
             className="h-px flex-1 bg-gradient-to-l from-border to-transparent"
             initial={{ scaleX: 0 }}
@@ -319,7 +330,7 @@ export function VisualGallery() {
         {/* Gallery grid with masonry-style reveals */}
         <div className="grid gap-6 md:grid-cols-3 md:grid-rows-3">
           {galleryItems.map((item, index) => (
-            <GalleryItem key={item.id} item={item} index={index} />
+            <GalleryItem key={item.id} item={item} index={index} lightweightMotion={lightweightMotion} />
           ))}
         </div>
       </div>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { I18nProvider } from '@/i18n'
 import { siteConfig } from '@/content/site'
 import { StructuredData } from '@/components/seo/structured-data'
+import { MotionPerformanceProvider } from '@/components/motion-performance-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -52,7 +53,9 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <StructuredData />
         <I18nProvider>
-          {children}
+          <MotionPerformanceProvider>
+            {children}
+          </MotionPerformanceProvider>
         </I18nProvider>
       </body>
     </html>

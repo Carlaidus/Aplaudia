@@ -4,6 +4,7 @@ import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 import { Check, CheckCheck, Clock, MessageSquare, Zap, Users, BarChart3 } from "lucide-react"
 import { useTranslations } from "@/i18n"
+import { useLightweightMotion } from "@/components/motion-performance-provider"
 import {
   whatsappConversationMessages,
   whatsappSuggestedPrompts,
@@ -77,8 +78,6 @@ function WhatsAppMockup({ t }: { t: (key: string) => string }) {
           <div className="bg-secondary px-4 py-3 flex items-center gap-3 border-b border-border">
             <motion.div
               className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent-cyan flex items-center justify-center"
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
             >
               <span className="text-foreground text-sm font-bold">A</span>
             </motion.div>
@@ -89,8 +88,6 @@ function WhatsAppMockup({ t }: { t: (key: string) => string }) {
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <motion.span
                   className="h-1.5 w-1.5 rounded-full bg-green-500"
-                  animate={{ opacity: [1, 0.5, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
                 />
                 {t("chatOnline")}
               </p>
@@ -155,6 +152,7 @@ function WhatsAppMockup({ t }: { t: (key: string) => string }) {
 
 export function WhatsAppDemo() {
   const { t } = useTranslations("whatsappDemo")
+  const lightweightMotion = useLightweightMotion()
   const headerRef = useRef(null)
   const isHeaderInView = useInView(headerRef, { once: true, margin: "-100px" })
 
@@ -172,15 +170,11 @@ export function WhatsAppDemo() {
     <section id="whatsapp" className="relative py-32 lg:py-40 overflow-hidden">
       {/* Animated background */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-[150px]"
-          animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-1/4 -right-32 w-80 h-80 bg-accent-cyan/10 rounded-full blur-[120px]"
-          animate={{ x: [0, -30, 0], y: [0, 20, 0] }}
-          transition={{ duration: 12, repeat: Infinity }}
         />
       </div>
 
@@ -239,7 +233,7 @@ export function WhatsAppDemo() {
                   initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40, y: 20 }}
                   animate={isBenefitsInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: index % 2 === 0 ? -40 : 40, y: 20 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+                  whileHover={lightweightMotion ? undefined : { scale: 1.03, transition: { duration: 0.2 } }}
                   className="flex items-start gap-4 p-5 rounded-xl bg-card/50 backdrop-blur border border-border hover:border-primary/30 transition-colors"
                 >
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent-cyan text-foreground">

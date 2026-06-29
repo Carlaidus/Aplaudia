@@ -5,6 +5,7 @@ import { useRef, useState } from "react"
 import { Globe, MessageSquare, Image as ImageIcon, ArrowUpRight, Sparkles, type LucideIcon } from "lucide-react"
 import { useTranslations } from "@/i18n"
 import { serviceIds, type ServiceId } from "@/content/services"
+import { useLightweightMotion } from "@/components/motion-performance-provider"
 
 const serviceIcons: Record<ServiceId, LucideIcon> = {
   web: Globe,
@@ -21,9 +22,11 @@ const serviceGradients: Record<ServiceId, { gradient: string; bg: string }> = {
 function ServiceCard({
   serviceKey,
   index,
+  lightweightMotion,
 }: {
   serviceKey: ServiceId
   index: number
+  lightweightMotion: boolean
 }) {
   const { t } = useTranslations("services")
   const ref = useRef<HTMLDivElement>(null)
@@ -60,8 +63,8 @@ function ServiceCard({
         delay: index * 0.15,
         ease: [0.22, 1, 0.36, 1],
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
+      onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
       className="group relative flex flex-col rounded-2xl bg-card/50 backdrop-blur border border-border overflow-hidden h-full"
       style={{ perspective: "1000px" }}
     >
@@ -170,6 +173,7 @@ export function Services() {
   const sectionRef = useRef<HTMLElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const isHeaderInView = useInView(headerRef, { once: true, margin: "-100px" })
+  const lightweightMotion = useLightweightMotion()
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -186,11 +190,11 @@ export function Services() {
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
           className="absolute top-1/4 -left-24 w-96 h-96 bg-primary rounded-full mix-blend-screen opacity-5 blur-[100px]"
-          style={{ y: floatY1 }}
+          style={lightweightMotion ? undefined : { y: floatY1 }}
         />
         <motion.div
           className="absolute bottom-1/4 -right-24 w-80 h-80 bg-accent-cyan rounded-full mix-blend-screen opacity-5 blur-[100px]"
-          style={{ y: floatY2 }}
+          style={lightweightMotion ? undefined : { y: floatY2 }}
         />
         
         {/* Grid pattern overlay */}
@@ -231,6 +235,7 @@ export function Services() {
           {/* Title with word-by-word reveal */}
           <motion.h2 
             className="text-[2.25rem] sm:text-4xl md:text-5xl font-bold tracking-normal leading-tight text-foreground text-balance mb-6"
+            aria-label={`${t("title")} ${t("titleHighlight")} ${t("titleEnd")}`}
           >
             <motion.span
               initial={{ opacity: 0, y: 30 }}
@@ -238,8 +243,9 @@ export function Services() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="inline-block"
             >
-              {t("title")}{" "}
+              {t("title")}
             </motion.span>
+            {" "}
             <motion.span
               initial={{ opacity: 0, scale: 0.8 }}
               animate={isHeaderInView ? { opacity: 1, scale: 1 } : {}}
@@ -248,13 +254,14 @@ export function Services() {
             >
               {t("titleHighlight")}
             </motion.span>
+            {" "}
             <motion.span
               initial={{ opacity: 0, y: -30 }}
               animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.7 }}
               className="inline-block"
             >
-              {" "}{t("titleEnd")}
+              {t("titleEnd")}
             </motion.span>
           </motion.h2>
 
@@ -271,7 +278,7 @@ export function Services() {
         {/* Services grid */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {serviceIds.map((key, index) => (
-            <ServiceCard key={key} serviceKey={key} index={index} />
+            <ServiceCard key={key} serviceKey={key} index={index} lightweightMotion={lightweightMotion} />
           ))}
         </div>
       </div>

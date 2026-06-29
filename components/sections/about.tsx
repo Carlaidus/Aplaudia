@@ -4,8 +4,19 @@ import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { useRef, useState } from "react"
 import { useTranslations } from "@/i18n"
 import { siteConfig } from "@/content/site"
+import { useLightweightMotion } from "@/components/motion-performance-provider"
 
-function StatCard({ value, label, index }: { value: string; label: string; index: number }) {
+function StatCard({
+  value,
+  label,
+  index,
+  lightweightMotion,
+}: {
+  value: string
+  label: string
+  index: number
+  lightweightMotion: boolean
+}) {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-50px" })
   const [isHovered, setIsHovered] = useState(false)
@@ -20,8 +31,8 @@ function StatCard({ value, label, index }: { value: string; label: string; index
         delay: 0.4 + index * 0.1,
         ease: [0.22, 1, 0.36, 1],
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
+      onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
       className="relative text-center group"
     >
       {/* Background glow on hover */}
@@ -51,6 +62,7 @@ export function About() {
   const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const lightweightMotion = useLightweightMotion()
   
   const isImageInView = useInView(imageRef, { once: true, margin: "-100px" })
   const isContentInView = useInView(contentRef, { once: true, margin: "-100px" })
@@ -82,7 +94,7 @@ export function About() {
           <motion.div
             ref={imageRef}
             className="relative"
-            style={{ y: imageY }}
+            style={lightweightMotion ? undefined : { y: imageY }}
           >
             {/* Main image container with clip-path reveal */}
             <motion.div
@@ -90,7 +102,7 @@ export function About() {
               animate={isImageInView ? { clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" } : {}}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
               className="relative aspect-[4/3] rounded-2xl bg-secondary border border-border overflow-hidden"
-              style={{ rotate: imageRotate }}
+              style={lightweightMotion ? undefined : { rotate: imageRotate }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-muted-foreground text-sm">
@@ -112,8 +124,6 @@ export function About() {
               <div className="flex items-center gap-3">
                 <motion.div 
                   className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent-cyan flex items-center justify-center"
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                 >
                   <span className="text-lg font-bold text-foreground">A</span>
                 </motion.div>
@@ -144,7 +154,7 @@ export function About() {
           {/* Content with staggered reveals */}
           <motion.div
             ref={contentRef}
-            style={{ y: contentY }}
+            style={lightweightMotion ? undefined : { y: contentY }}
           >
             {/* Badge */}
             <motion.span 
@@ -186,7 +196,13 @@ export function About() {
             {/* Stats with individual animations */}
             <div className="mt-10 grid grid-cols-3 gap-6">
               {stats.map((stat, index) => (
-                <StatCard key={stat.value} value={stat.value} label={stat.label} index={index} />
+                <StatCard
+                  key={stat.value}
+                  value={stat.value}
+                  label={stat.label}
+                  index={index}
+                  lightweightMotion={lightweightMotion}
+                />
               ))}
             </div>
           </motion.div>

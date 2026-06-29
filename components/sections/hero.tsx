@@ -6,10 +6,25 @@ import { ArrowRight, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useTranslations } from "@/i18n"
+import { useLightweightMotion } from "@/components/motion-performance-provider"
 
 // Character reveal animation for text
-function AnimatedText({ text, delay = 0, className = "" }: { text: string; delay?: number; className?: string }) {
+function AnimatedText({
+  text,
+  delay = 0,
+  className = "",
+  disabled = false,
+}: {
+  text: string
+  delay?: number
+  className?: string
+  disabled?: boolean
+}) {
   let characterOffset = 0
+
+  if (disabled) {
+    return <span className={className}>{text}</span>
+  }
   
   return (
     <span className={className} aria-label={text}>
@@ -47,7 +62,19 @@ function AnimatedText({ text, delay = 0, className = "" }: { text: string; delay
 }
 
 // Word reveal with clip-path mask
-function MaskedWord({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+function MaskedWord({
+  children,
+  delay = 0,
+  disabled = false,
+}: {
+  children: React.ReactNode
+  delay?: number
+  disabled?: boolean
+}) {
+  if (disabled) {
+    return <span className="inline-block">{children}</span>
+  }
+
   return (
     <span className="relative inline-block overflow-hidden">
       <motion.span
@@ -69,6 +96,7 @@ function MaskedWord({ children, delay = 0 }: { children: React.ReactNode; delay?
 export function Hero() {
   const { t } = useTranslations("hero")
   const containerRef = useRef<HTMLDivElement>(null)
+  const lightweightMotion = useLightweightMotion()
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -90,39 +118,22 @@ export function Hero() {
         {/* Deep background layer with parallax */}
         <motion.div 
           className="absolute inset-0"
-          style={{ y: backgroundY }}
+          style={lightweightMotion ? undefined : { y: backgroundY }}
         >
           {/* Radial gradient base */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-card via-background to-background" />
           
           {/* Animated gradient orbs with different motion patterns */}
-          <motion.div
+          <div
             className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full mix-blend-screen blur-[120px]"
-            animate={{
-              scale: [1, 1.2, 1],
-              x: [0, 50, 0],
-              y: [0, -30, 0],
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
           />
           
-          <motion.div
+          <div
             className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-accent-cyan/15 rounded-full mix-blend-screen blur-[100px]"
-            animate={{
-              scale: [1.2, 1, 1.2],
-              x: [0, -40, 0],
-              y: [0, 40, 0],
-            }}
-            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
           />
           
-          <motion.div
+          <div
             className="absolute top-1/3 right-1/3 w-[400px] h-[400px] bg-accent-violet/10 rounded-full mix-blend-screen blur-[80px]"
-            animate={{
-              rotate: [0, 180, 360],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
           />
         </motion.div>
 
@@ -133,7 +144,7 @@ export function Hero() {
       {/* Main content with scroll-based opacity and scale */}
       <motion.div 
         className="relative z-10 mx-auto max-w-7xl px-6 py-32 lg:px-8 w-full"
-        style={{ opacity: textOpacity, y: textY, scale: scaleDown }}
+        style={lightweightMotion ? undefined : { opacity: textOpacity, y: textY, scale: scaleDown }}
       >
         <div className="flex flex-col items-center text-center">
           {/* Animated badge with shimmer effect */}
@@ -144,17 +155,11 @@ export function Hero() {
             className="relative mb-8"
           >
             <div className="relative overflow-hidden rounded-full bg-card/80 backdrop-blur-sm border border-border-accent/30 px-5 py-2">
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent"
-                animate={{ x: ["-100%", "100%"] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              />
+              {!lightweightMotion && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
+              )}
               <span className="relative flex items-center gap-2 text-sm font-medium text-foreground">
-                <motion.span 
-                  className="w-2 h-2 bg-primary rounded-full"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
+                <span className="w-2 h-2 bg-primary rounded-full" />
                 {t("badge")}
               </span>
             </div>
@@ -166,22 +171,22 @@ export function Hero() {
               className="text-[2.75rem] font-bold tracking-normal text-foreground leading-[1.06] text-balance sm:text-5xl sm:leading-[1.1] md:text-7xl lg:text-8xl"
               aria-label={`${t("title")} ${t("titleHighlight")} ${t("titleEnd")}`}
             >
-              <MaskedWord delay={0.3}>
-                <AnimatedText text={t("title")} delay={0.3} />
+              <MaskedWord delay={0.3} disabled={lightweightMotion}>
+                <AnimatedText text={t("title")} delay={0.3} disabled={lightweightMotion} />
               </MaskedWord>
               <br />
-              <MaskedWord delay={0.6}>
+              <MaskedWord delay={0.6} disabled={lightweightMotion}>
                 <motion.span
                   className="inline-block bg-gradient-to-r from-primary via-accent-cyan to-primary bg-[length:200%_100%] bg-clip-text text-transparent"
-                  animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  animate={lightweightMotion ? undefined : { backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+                  transition={lightweightMotion ? undefined : { duration: 4, repeat: Infinity, ease: "linear" }}
                 >
                   {t("titleHighlight")}
                 </motion.span>
               </MaskedWord>
               <br />
-              <MaskedWord delay={0.9}>
-                <AnimatedText text={t("titleEnd")} delay={0.9} />
+              <MaskedWord delay={0.9} disabled={lightweightMotion}>
+                <AnimatedText text={t("titleEnd")} delay={0.9} disabled={lightweightMotion} />
               </MaskedWord>
             </h1>
           </div>
@@ -209,12 +214,12 @@ export function Hero() {
               transition={{ duration: 0.6, delay: 1.5, ease: [0.22, 1, 0.36, 1] }}
               className="group relative"
             >
-              <motion.div
-                className="absolute -inset-1 bg-gradient-to-r from-primary via-accent-cyan to-primary rounded-xl opacity-0 group-hover:opacity-70 blur transition-opacity duration-500"
-                animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                style={{ backgroundSize: "200% 200%" }}
-              />
+              {!lightweightMotion && (
+                <div
+                  className="absolute -inset-1 bg-gradient-to-r from-primary via-accent-cyan to-primary rounded-xl opacity-0 group-hover:opacity-70 blur transition-opacity duration-500"
+                  style={{ backgroundSize: "200% 200%" }}
+                />
+              )}
               <Button
                 asChild
                 size="lg"
@@ -222,12 +227,9 @@ export function Hero() {
               >
                 <Link href="#contacto" className="flex items-center gap-2">
                   {t("cta")}
-                  <motion.span
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
+                  <span>
                     <ArrowRight className="h-5 w-5" />
-                  </motion.span>
+                  </span>
                 </Link>
               </Button>
             </motion.div>
@@ -278,11 +280,7 @@ export function Hero() {
                   whileHover={{ scale: 1.05, y: -2 }}
                   className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/60 backdrop-blur border border-border/50 hover:border-primary/30 transition-colors"
                 >
-                  <motion.span 
-                    className="w-1.5 h-1.5 bg-primary rounded-full"
-                    animate={{ scale: [1, 1.3, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
-                  />
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full" />
                   <span className="text-sm font-medium text-foreground/80">{tech}</span>
                 </motion.div>
               ))}
@@ -301,14 +299,10 @@ export function Hero() {
       >
         <motion.span 
           className="text-xs text-muted-foreground font-medium uppercase tracking-widest"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
         >
           {t("scroll")}
         </motion.span>
         <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           className="p-2 rounded-full border border-border/50 bg-card/30 backdrop-blur-sm"
         >
           <ChevronDown className="w-5 h-5 text-muted-foreground" />

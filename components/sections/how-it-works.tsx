@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { useRef, useState } from "react"
 import { MessageCircle, Lightbulb, Rocket, Sparkles } from "lucide-react"
 import { useTranslations } from "@/i18n"
+import { useLightweightMotion } from "@/components/motion-performance-provider"
 
 type StepKey = "step1" | "step2" | "step3" | "step4"
 
@@ -14,7 +15,17 @@ const stepIcons = {
   step4: Rocket,
 }
 
-function StepCard({ stepKey, index, totalSteps }: { stepKey: StepKey; index: number; totalSteps: number }) {
+function StepCard({
+  stepKey,
+  index,
+  totalSteps,
+  lightweightMotion,
+}: {
+  stepKey: StepKey
+  index: number
+  totalSteps: number
+  lightweightMotion: boolean
+}) {
   const { t } = useTranslations("howItWorks")
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-50px" })
@@ -57,8 +68,8 @@ function StepCard({ stepKey, index, totalSteps }: { stepKey: StepKey; index: num
           delay: index * 0.15,
           ease: [0.22, 1, 0.36, 1],
         }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
+        onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
         className="relative flex flex-col items-center text-center"
         style={{ perspective: "1000px" }}
       >
@@ -142,6 +153,7 @@ export function HowItWorks() {
   const sectionRef = useRef<HTMLElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const isHeaderInView = useInView(headerRef, { once: true, margin: "-100px" })
+  const lightweightMotion = useLightweightMotion()
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -158,7 +170,7 @@ export function HowItWorks() {
       {/* Subtle background pattern */}
       <motion.div 
         className="absolute inset-0 bg-[linear-gradient(to_right,transparent_49.9%,rgba(255,255,255,0.02)_50%,transparent_50.1%),linear-gradient(to_bottom,transparent_49.9%,rgba(255,255,255,0.02)_50%,transparent_50.1%)] bg-[length:100px_100px]"
-        style={{ y: bgY }}
+        style={lightweightMotion ? undefined : { y: bgY }}
       />
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
@@ -216,6 +228,7 @@ export function HowItWorks() {
               stepKey={key} 
               index={index} 
               totalSteps={stepKeys.length} 
+              lightweightMotion={lightweightMotion}
             />
           ))}
         </div>

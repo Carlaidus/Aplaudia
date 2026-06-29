@@ -76,8 +76,6 @@ export function Footer() {
             >
               <motion.span 
                 className="w-2 h-2 bg-green-500 rounded-full"
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
               />
               <span className="text-xs text-muted-foreground">{t("tagline")}</span>
             </motion.div>
@@ -201,8 +199,6 @@ export function Footer() {
             >
               <span>{t("madeWith")}</span>
               <motion.span
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 1, repeat: Infinity }}
                 className="text-primary"
               >
                 ♥

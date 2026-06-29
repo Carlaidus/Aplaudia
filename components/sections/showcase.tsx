@@ -6,6 +6,7 @@ import { ArrowUpRight, ExternalLink, Layers } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useTranslations } from "@/i18n"
+import { useLightweightMotion } from "@/components/motion-performance-provider"
 import {
   conceptualCases,
   realProjects,
@@ -17,9 +18,11 @@ import {
 function ConceptCard({
   concept,
   index,
+  lightweightMotion,
 }: {
   concept: ConceptualCase
   index: number
+  lightweightMotion: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-50px" })
@@ -31,8 +34,8 @@ function ConceptCard({
   return (
     <motion.div
       ref={ref}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
+      onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
       className="group relative overflow-hidden rounded-2xl bg-card border border-border hover:border-primary/30 transition-colors"
     >
       {/* Image with reveal animation */}
@@ -102,9 +105,11 @@ function ConceptCard({
 function ProjectCard({
   project,
   index,
+  lightweightMotion,
 }: {
   project: RealProject
   index: number
+  lightweightMotion: boolean
 }) {
   const { t } = useTranslations("showcase")
   const ref = useRef<HTMLDivElement>(null)
@@ -115,8 +120,8 @@ function ProjectCard({
   return (
     <motion.div
       ref={ref}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
+      onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={isInView ? { opacity: 1, scale: 1 } : {}}
       transition={{ 
@@ -209,6 +214,7 @@ export function Showcase() {
   const sectionRef = useRef<HTMLElement>(null)
   const conceptualRef = useRef<HTMLDivElement>(null)
   const portfolioRef = useRef<HTMLDivElement>(null)
+  const lightweightMotion = useLightweightMotion()
   
   const isConceptualInView = useInView(conceptualRef, { once: true, margin: "-100px" })
   const isPortfolioInView = useInView(portfolioRef, { once: true, margin: "-100px" })
@@ -226,11 +232,11 @@ export function Showcase() {
       {/* Decorative elements */}
       <motion.div
         className="absolute -top-32 -right-32 w-64 h-64 border border-border/20 rounded-full"
-        style={{ y: decorY }}
+        style={lightweightMotion ? undefined : { y: decorY }}
       />
       <motion.div
         className="absolute -bottom-48 -left-48 w-96 h-96 border border-border/10 rounded-full"
-        style={{ y: decorY }}
+        style={lightweightMotion ? undefined : { y: decorY }}
       />
       
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
@@ -275,7 +281,7 @@ export function Showcase() {
         {/* Conceptual cases grid */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-24">
           {conceptualCases.map((concept, index) => (
-            <ConceptCard key={concept.titleKey} concept={concept} index={index} />
+            <ConceptCard key={concept.titleKey} concept={concept} index={index} lightweightMotion={lightweightMotion} />
           ))}
         </div>
 
@@ -287,11 +293,7 @@ export function Showcase() {
           viewport={{ once: true }}
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
         >
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-primary via-accent-cyan to-primary"
-            animate={{ x: ["-100%", "100%"] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-accent-cyan/40 to-primary/40" />
         </motion.div>
 
         {/* Real Projects Section */}
@@ -330,7 +332,7 @@ export function Showcase() {
         {/* Real projects grid */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {realProjects.map((project, index) => (
-            <ProjectCard key={project.name} project={project} index={index} />
+            <ProjectCard key={project.name} project={project} index={index} lightweightMotion={lightweightMotion} />
           ))}
           
           {/* Placeholder card */}
@@ -345,8 +347,6 @@ export function Showcase() {
               <div>
                 <motion.div
                   className="w-12 h-12 mx-auto mb-4 rounded-full bg-card-elevated flex items-center justify-center"
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 4, repeat: Infinity }}
                 >
                   <Layers className="w-6 h-6 text-muted-foreground" />
                 </motion.div>

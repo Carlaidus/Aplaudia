@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { useRef, useState } from "react"
 import { Zap, Shield, HeartHandshake, Sparkles, Clock, Headphones } from "lucide-react"
 import { useTranslations } from "@/i18n"
+import { useLightweightMotion } from "@/components/motion-performance-provider"
 
 type BenefitKey = "benefit1" | "benefit2" | "benefit3" | "benefit4" | "benefit5" | "benefit6"
 
@@ -25,7 +26,15 @@ const benefitGradients: Record<BenefitKey, string> = {
   benefit6: "from-accent-cyan to-accent-violet",
 }
 
-function BenefitCard({ benefitKey, index }: { benefitKey: BenefitKey; index: number }) {
+function BenefitCard({
+  benefitKey,
+  index,
+  lightweightMotion,
+}: {
+  benefitKey: BenefitKey
+  index: number
+  lightweightMotion: boolean
+}) {
   const { t } = useTranslations("benefits")
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-50px" })
@@ -60,8 +69,8 @@ function BenefitCard({ benefitKey, index }: { benefitKey: BenefitKey; index: num
         delay: index * 0.08,
         ease: [0.22, 1, 0.36, 1],
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
+      onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
       className="group relative"
     >
       {/* Background glow */}
@@ -86,11 +95,11 @@ function BenefitCard({ benefitKey, index }: { benefitKey: BenefitKey; index: num
         {/* Icon with rotation and scale */}
         <motion.div 
           className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-foreground mb-5`}
-          animate={{ 
+          animate={lightweightMotion ? undefined : {
             rotate: isHovered ? [0, -10, 10, 0] : 0,
             scale: isHovered ? 1.1 : 1,
           }}
-          transition={{ duration: 0.4 }}
+          transition={lightweightMotion ? undefined : { duration: 0.4 }}
         >
           <Icon className="h-7 w-7" />
         </motion.div>
@@ -125,6 +134,7 @@ export function Benefits() {
   const sectionRef = useRef<HTMLElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const isHeaderInView = useInView(headerRef, { once: true, margin: "-100px" })
+  const lightweightMotion = useLightweightMotion()
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -142,24 +152,20 @@ export function Benefits() {
       {/* Decorative rotating elements */}
       <motion.div
         className="absolute -top-32 -left-32 w-64 h-64 border border-primary/10 rounded-full"
-        style={{ y: decorY, rotate: decorRotate }}
+        style={lightweightMotion ? undefined : { y: decorY, rotate: decorRotate }}
       />
       <motion.div
         className="absolute -bottom-48 -right-48 w-96 h-96 border border-accent-violet/10 rounded-full"
-        style={{ y: decorY, rotate: decorRotate }}
+        style={lightweightMotion ? undefined : { y: decorY, rotate: decorRotate }}
       />
       
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute -top-96 -left-96 w-[600px] h-[600px] bg-primary rounded-full mix-blend-screen opacity-5 blur-[200px]"
-          animate={{ y: [0, 60, 0] }}
-          transition={{ duration: 14, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute -bottom-96 -right-96 w-[500px] h-[500px] bg-accent-violet rounded-full mix-blend-screen opacity-5 blur-[180px]"
-          animate={{ y: [0, -60, 0] }}
-          transition={{ duration: 16, repeat: Infinity }}
         />
       </div>
 
@@ -178,8 +184,6 @@ export function Benefits() {
           >
             <motion.span 
               className="w-2 h-2 bg-primary rounded-full"
-              animate={{ scale: [1, 1.3, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
             />
             <span className="text-xs font-semibold text-primary uppercase tracking-widest">
               {t("badge")}
@@ -212,7 +216,7 @@ export function Benefits() {
         {/* Benefits grid */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {benefitKeys.map((key, index) => (
-            <BenefitCard key={key} benefitKey={key} index={index} />
+            <BenefitCard key={key} benefitKey={key} index={index} lightweightMotion={lightweightMotion} />
           ))}
         </div>
       </div>

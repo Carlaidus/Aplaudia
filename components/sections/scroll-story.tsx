@@ -3,9 +3,22 @@
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 import { useTranslations } from "@/i18n"
+import { useLightweightMotion } from "@/components/motion-performance-provider"
 
 // Word-by-word reveal with 3D perspective and blur effect
-function RevealWord({ children, index }: { children: React.ReactNode; index: number }) {
+function RevealWord({
+  children,
+  index,
+  lightweightMotion,
+}: {
+  children: React.ReactNode
+  index: number
+  lightweightMotion: boolean
+}) {
+  if (lightweightMotion) {
+    return <span className="inline-block mr-[0.3em]">{children}</span>
+  }
+
   return (
     <motion.span
       className="inline-block mr-[0.3em]"
@@ -29,6 +42,7 @@ export function ScrollStory() {
   const { t } = useTranslations("scrollStory")
   const containerRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(containerRef, { once: true, margin: "-100px" })
+  const lightweightMotion = useLightweightMotion()
   
   const benefits = [
     { label: t("benefit1"), desc: t("benefit1Desc") },
@@ -49,32 +63,15 @@ export function ScrollStory() {
     >
       {/* Animated background with parallax depth and scan line */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
+        <div
           className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-primary/8 rounded-full blur-[150px]"
-          animate={{
-            x: [0, 80, 0],
-            y: [0, 50, 0],
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
-        <motion.div
+        <div
           className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-accent-violet/8 rounded-full blur-[120px]"
-          animate={{
-            x: [0, -60, 0],
-            y: [0, -40, 0],
-          }}
-          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
         />
         
         {/* Horizontal scan line effect */}
-        <motion.div 
-          className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
-          animate={{ 
-            top: ["20%", "80%"],
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
+        <div className="absolute left-0 right-0 top-1/2 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-40" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-8 text-center">
@@ -93,7 +90,7 @@ export function ScrollStory() {
             {/* Line 1 */}
             <div className="block mb-2">
               {line1Words.map((word, i) => (
-                <RevealWord key={`${word}-${i}`} index={i}>
+                <RevealWord key={`${word}-${i}`} index={i} lightweightMotion={lightweightMotion}>
                   {word}
                 </RevealWord>
               ))}
@@ -102,7 +99,7 @@ export function ScrollStory() {
             {/* Line 2 */}
             <div className="block mb-2">
               {line2Words.map((word, i) => (
-                <RevealWord key={`${word}-${i}`} index={line1Words.length + i}>
+                <RevealWord key={`${word}-${i}`} index={line1Words.length + i} lightweightMotion={lightweightMotion}>
                   {word}
                 </RevealWord>
               ))}
@@ -111,7 +108,7 @@ export function ScrollStory() {
             {/* Line 3 with rotating highlight and glow */}
             <div className="block">
               {line3Words.map((word, i) => (
-                <RevealWord key={`${word}-${i}`} index={line1Words.length + line2Words.length + i}>
+                <RevealWord key={`${word}-${i}`} index={line1Words.length + line2Words.length + i} lightweightMotion={lightweightMotion}>
                   {word}
                 </RevealWord>
               ))}
@@ -126,10 +123,6 @@ export function ScrollStory() {
                 {/* Animated gradient text */}
                 <motion.span
                   className="relative z-10 font-bold"
-                  animate={{
-                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                  }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   style={{
                     backgroundImage: "linear-gradient(90deg, var(--primary), var(--accent-cyan), var(--primary))",
                     backgroundSize: "200% 100%",
@@ -143,11 +136,6 @@ export function ScrollStory() {
                 {/* Rotating glow behind highlight */}
                 <motion.span
                   className="absolute inset-0 bg-gradient-to-r from-primary via-accent-cyan to-primary rounded-lg blur-2xl -z-10"
-                  animate={{
-                    opacity: [0.2, 0.4, 0.2],
-                    scale: [0.95, 1.05, 0.95],
-                  }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 />
               </motion.span>
             </div>

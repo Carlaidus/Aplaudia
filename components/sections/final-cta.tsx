@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useTranslations } from "@/i18n"
 import { siteConfig } from "@/content/site"
+import { useLightweightMotion } from "@/components/motion-performance-provider"
 
 export function FinalCTA() {
   const { t } = useTranslations("finalCta")
   const sectionRef = useRef<HTMLElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(contentRef, { once: true, margin: "-100px" })
+  const lightweightMotion = useLightweightMotion()
   const [isPrimaryHovered, setIsPrimaryHovered] = useState(false)
   const [isSecondaryHovered, setIsSecondaryHovered] = useState(false)
   const secondaryContactHref = siteConfig.contact.whatsappHref ?? "#whatsapp"
@@ -36,28 +38,16 @@ export function FinalCTA() {
       {/* Animated gradient background */}
       <motion.div 
         className="absolute inset-0"
-        style={{ scale: bgScale, opacity: bgOpacity }}
+        style={lightweightMotion ? undefined : { scale: bgScale, opacity: bgOpacity }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-primary/10 via-transparent to-transparent" />
         
         {/* Animated orbs */}
-        <motion.div
+        <div
           className="absolute top-1/3 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[150px]"
-          animate={{
-            y: [0, -30, 0],
-            x: [0, 20, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ duration: 10, repeat: Infinity }}
         />
-        <motion.div
+        <div
           className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent-cyan/15 rounded-full blur-[120px]"
-          animate={{
-            y: [0, 30, 0],
-            x: [0, -20, 0],
-            scale: [1.1, 1, 1.1],
-          }}
-          transition={{ duration: 12, repeat: Infinity }}
         />
       </motion.div>
 
@@ -113,8 +103,8 @@ export function FinalCTA() {
           >
             {/* Primary CTA */}
             <motion.div
-              onMouseEnter={() => setIsPrimaryHovered(true)}
-              onMouseLeave={() => setIsPrimaryHovered(false)}
+              onMouseEnter={lightweightMotion ? undefined : () => setIsPrimaryHovered(true)}
+              onMouseLeave={lightweightMotion ? undefined : () => setIsPrimaryHovered(false)}
               className="relative group"
             >
               {/* Glow effect */}
@@ -147,8 +137,8 @@ export function FinalCTA() {
 
             {/* Secondary CTA */}
             <motion.div
-              onMouseEnter={() => setIsSecondaryHovered(true)}
-              onMouseLeave={() => setIsSecondaryHovered(false)}
+              onMouseEnter={lightweightMotion ? undefined : () => setIsSecondaryHovered(true)}
+              onMouseLeave={lightweightMotion ? undefined : () => setIsSecondaryHovered(false)}
               className="relative"
             >
               <Button
@@ -193,8 +183,6 @@ export function FinalCTA() {
           >
             <motion.span 
               className="w-2 h-2 bg-green-500 rounded-full"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
             />
             <p className="text-sm text-muted-foreground">
               {t("trustNote")}
