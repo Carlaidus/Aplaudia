@@ -2,11 +2,11 @@
 
 Prioridad: Alta
 Modelo recomendado: GPT-5.5
-Razonamiento recomendado: Alto
+Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Objetivo inmediato
 
-Revisar lanzamiento final antes de quitar el aviso de construccion, con `aplaudia.com` ya conectado y `www.aplaudia.com` redirigiendo a raiz.
+Corregir la experiencia movil de `https://aplaudia.com` antes de quitar el aviso de construccion. El dominio ya esta conectado y Railway esta en verde, pero Carlos ha detectado problemas visuales en movil.
 
 ## Repo
 
@@ -16,47 +16,84 @@ Revisar lanzamiento final antes de quitar el aviso de construccion, con `aplaudi
 
 `main`
 
-## Revisar al desplegar
+## Contexto confirmado
 
-- Railway ya esta en verde; durante el cierre de dominio se verifico `SUCCESS` antes y despues del commit documental.
-- Deployment observado tras documentar la conexion de dominio: `4d07185c-cd3d-4ac4-8c29-0808c8839e79`, `SUCCESS`, 2026-06-29 11:43:49 +02:00.
-- Commit documental verificado en Railway durante la tarea: `a8588d358c006b1877c5f0e708fc13cd0c1f7ff3`.
-- Dominio operativo validado el 2026-06-29:
-  - `https://aplaudia.com/` responde `200`.
-  - `https://www.aplaudia.com/` redirige con `301` a `https://aplaudia.com/`.
-  - `/robots.txt`, `/llms.txt` y `/sitemap.xml` responden `200` en `aplaudia.com`.
-- La home debe cargar sin errores.
-- Debe mantenerse visible el aviso flotante de construccion con fecha 29 junio 2026.
-- El aviso debe indicar que Aplaudia esta en construccion y que se esta preparando la activacion del dominio `aplaudia.com`.
-- El aviso no debe tapar navegacion ni CTA de forma grave en mobile.
-- `app/layout.tsx` debe conservar `metadataBase`, canonical, Open Graph, Twitter card, locale `es_ES` y `StructuredData`.
-- `app/robots.ts`, `/llms.txt` y `public/sitemap.xml` deben estar servidos correctamente y apuntar a `https://aplaudia.com`.
-- `content/site.ts` debe seguir siendo la fuente central de marca, URL, contacto, SEO, servicios y rutas futuras.
-- `siteConfig.contact.whatsappHref` esta pendiente porque no hay numero real confirmado; los enlaces visibles de WhatsApp apuntan a la demo interna `#whatsapp` hasta que Carlos confirme un canal real.
+- `https://aplaudia.com/` responde `200`.
+- `https://www.aplaudia.com/` redirige con `301` a `https://aplaudia.com/`.
+- `/robots.txt`, `/llms.txt` y `/sitemap.xml` responden `200` en `aplaudia.com`.
+- Railway esta en verde.
+- La home mantiene aviso de construccion.
+- No tocar backend, base de datos, auth ni pagos.
 
-## Siguiente paso de lanzamiento
+## Problemas detectados por Carlos en movil
 
-- Mantener el aviso de construccion hasta que Carlos valide el lanzamiento.
-- Revisar contenido comercial, contacto real y textos CA/EN.
-- Preparar legales basicos si se va a captar contacto.
-- Cuando Carlos apruebe, retirar o ajustar el aviso de construccion.
+- Algunos titulos no se leen bien en movil.
+- En el hero, `Presencia digital que impulsa tu negocio` rompe mal: una letra de `digital` queda sola en otra linea.
+- En la seccion de scroll story, el texto `Tu negocio merece una presencia digital que realmente impacte` se percibe raro y mal compuesto en movil.
+- Hay titulos que no parecen centrados o no quedan bien equilibrados en pantalla pequena.
+- El aviso flotante de construccion esta bien, pero tapa demasiado contenido en movil. Debe poder minimizarse, ocultarse o convertirse en una pastilla pequena para seguir viendo la pagina.
 
-## Rutas futuras recomendadas
+## Tarea para Codex
 
-No activarlas todavia salvo que Carlos apruebe nuevas paginas:
+1. Revisar visualmente la home completa en movil real/simulado:
+   - 360 px de ancho.
+   - 390 px de ancho.
+   - 430 px de ancho.
+   - Tambien comprobar tablet y desktop para no romperlos.
 
-- `/servicios/paginas-web`
-- `/servicios/agentes-ia-whatsapp`
-- `/servicios/visuales-ia`
-- `/casos`
-- `/sobre-aplaudia`
-- `/contacto`
-- `/recursos`
+2. Corregir sin cambiar la identidad visual:
+   - centrado de titulos;
+   - saltos de linea raros;
+   - palabras partidas o letras sueltas;
+   - exceso de tamano en titulares moviles;
+   - max-width y line-height en titulos largos;
+   - `text-balance`, `break-words`, `hyphens`, `leading`, `tracking` o clases responsive si hace falta.
 
-## Importante
+3. Revisar especificamente:
+   - `components/sections/hero.tsx`;
+   - `components/sections/scroll-story.tsx`;
+   - `components/sections/construction-notice.tsx`;
+   - cualquier otra seccion donde los titulos se vean raros en movil.
 
-- No inventar registros de dominio.
-- No guardar claves privadas.
-- No anadir backend todavia.
-- Mantener la memoria `.md` compacta.
-- Al cerrar, actualizar `LAST_REPORT.md` con el resultado real del deploy o indicar que no se ha generado deployment nuevo.
+4. Copy movil:
+   - Si el texto `Tu negocio merece una presencia digital que realmente impacte` sigue quedando raro, ajustar el texto a una frase mas natural, por ejemplo `Tu negocio merece una presencia digital que impacte` o equivalente.
+   - Mantener espanol de Espana.
+   - Si se cambia copy, actualizar i18n ES/CA/EN de forma coherente.
+
+5. Aviso de construccion:
+   - Mantenerlo visible por defecto.
+   - Anadir una accion clara para minimizarlo o esconderlo.
+   - Cuando este minimizado, mostrar una pastilla/boton pequeno que permita volver a abrirlo.
+   - En movil no debe tapar navegacion, CTAs ni impedir revisar la pagina.
+   - Debe ser accesible: botones con aria-label y foco correcto.
+   - Puede persistir el estado con localStorage o sessionStorage si es razonable, pero no es obligatorio.
+
+6. Validaciones obligatorias:
+   - `npm install` si hace falta.
+   - `npm run build`.
+   - `npm run lint` si esta disponible.
+   - Probar home en movil.
+   - Probar `https://aplaudia.com` tras deploy.
+   - Confirmar que `/robots.txt`, `/llms.txt` y `/sitemap.xml` siguen funcionando.
+   - Confirmar Railway en verde.
+
+7. Documentacion:
+   - Actualizar `LAST_REPORT.md` con cambios, archivos tocados, validaciones y estado final.
+   - Actualizar `NEXT_TASK.md` si cambia el siguiente foco.
+
+## Restricciones
+
+- No redisenar la web.
+- No cambiar identidad visual.
+- No cambiar el orden de secciones salvo necesidad justificada.
+- No tocar dominio, DNS ni Cloudflare.
+- No anadir backend, base de datos, auth ni pagos.
+- No guardar secretos.
+
+## Cierre esperado
+
+- Commit claro.
+- Railway en verde.
+- `https://aplaudia.com` revisada en movil.
+- Aviso de construccion minimizable o no intrusivo.
+- Titulares moviles sin saltos de linea raros ni letras sueltas.
