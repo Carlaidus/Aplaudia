@@ -1,12 +1,12 @@
 # NEXT TASK - Aplaudia
 
-Prioridad: Media-Alta
+Prioridad: Alta
 Modelo recomendado: GPT-5.5
 Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Objetivo inmediato
 
-Validar con Carlos la sensacion real de fluidez de `https://aplaudia.com` en dispositivos reales y decidir el cierre de lanzamiento.
+Validar con Carlos en dispositivos reales que la version movil de `https://aplaudia.com` ya se ve seria, sin solapes ni palabras montadas, y decidir si se puede cerrar lanzamiento manteniendo o ajustando el aviso de construccion.
 
 ## Repo
 
@@ -21,26 +21,33 @@ Validar con Carlos la sensacion real de fluidez de `https://aplaudia.com` en dis
 - `https://aplaudia.com/` responde `200`.
 - `https://www.aplaudia.com/` redirige con `301` a `https://aplaudia.com/`.
 - `/robots.txt`, `/llms.txt` y `/sitemap.xml` responden `200` en `aplaudia.com`.
-- Railway esta en verde.
-- Deployment funcional optimizado: `7d5dff89-9d40-4ae9-8d98-e1a5bd22b73e`, `SUCCESS`, 2026-06-29 15:00:37 +02:00.
-- Commit funcional optimizado: `85c31ac6b63c54e0e44dd4c09e3fc58ae3d39ac6`.
+- Railway esta en verde tras el arreglo visual movil.
+- Deployment funcional validado: `a648beb1-d9d0-4ed8-b729-330048918857`, `SUCCESS`, 2026-06-29 19:26:09 +02:00.
+- Commit funcional validado: `79e820aca589764c002f4078ba6cf6d368897fb6`.
 - La home mantiene aviso de construccion.
-- En movil y tablet, el aviso arranca como pastilla compacta y puede abrirse/minimizarse.
+- En movil, el aviso se muestra como pastilla en el inicio y como boton compacto al hacer scroll.
 - En desktop, el aviso se muestra completo por defecto.
 - No tocar backend, base de datos, auth ni pagos.
 
 ## Estado de la ultima tarea
 
-Ya se optimizo el rendimiento percibido sin redisenar:
+Ya se corrigio la rotura visual movil sin redisenar:
 
-- Movimiento reducido global en movil/tactil y con `prefers-reduced-motion`.
-- Animacion letra a letra del hero desactivada en modo ligero.
-- Glows y fondos de bucle continuo convertidos en estaticos.
-- Hover complejo desactivado en dispositivos tactiles.
-- `repeat: Infinity` reducido de 34 apariciones en secciones a 1 loop principal del hero en escritorio.
+- Hero movil sin solape entre `impulsa` y `tu negocio`.
+- Titular de servicios sin palabras montadas en `brillar en digital`.
+- Pastilla de construccion no tapa etiquetas superiores de seccion al hacer scroll.
+- Aviso de construccion sigue visible y se puede abrir/minimizar.
 - Validado `npm run build`.
 - `npm run lint` sigue sin estar disponible porque `eslint` no esta instalado.
 - Produccion revisada sin errores relevantes de consola.
+
+Se mantiene el contexto anterior:
+
+- Movimiento reducido global en movil/tactil y con `prefers-reduced-motion`.
+- Glows y fondos de bucle continuo convertidos en estaticos.
+- Hover complejo desactivado en dispositivos tactiles.
+- `repeat: Infinity` reducido previamente de 34 apariciones a 1 loop principal del hero en escritorio.
+- SEO tecnico, robots, sitemap, `/llms.txt` y JSON-LD siguen apuntando a `https://aplaudia.com`.
 
 ## Tarea para Carlos / proxima sesion
 
@@ -51,13 +58,13 @@ Ya se optimizo el rendimiento percibido sin redisenar:
    - tablet;
    - escritorio.
 
-2. Confirmar sensacion real:
-   - scroll fluido;
-   - animaciones sin cortes evidentes;
-   - hero serio y legible;
+2. Confirmar experiencia real:
+   - hero serio y legible desde la primera carga;
    - titulares sin palabras pegadas;
-   - aviso de construccion no intrusivo;
-   - pastilla de construccion abre y minimiza.
+   - sin solapes con el aviso de construccion;
+   - scroll fluido;
+   - pastilla/boton de construccion abre y minimiza;
+   - CTA y textos finales se leen correctamente.
 
 3. Decidir si la web esta lista para lanzamiento publico:
    - mantener aviso de construccion;

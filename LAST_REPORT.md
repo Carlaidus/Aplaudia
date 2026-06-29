@@ -4,92 +4,64 @@ Fecha: 2026-06-29
 
 ## Objetivo de la tarea
 
-Auditar y optimizar el rendimiento percibido de `https://aplaudia.com` en movil y escritorio sin redisenar la landing, sin cambiar el orden de secciones y manteniendo el aviso de construccion.
+Corregir la rotura visual en movil de Aplaudia sin redisenar la web, manteniendo layout, contenido, secciones, SEO tecnico y aviso de construccion.
 
-## Problema detectado
+## Problema real encontrado
 
-Carlos indico que la pagina se percibia lenta, tambien en escritorio, y que algunas animaciones se cortaban o daban tirones.
+En produccion movil, el hero cargaba con el titular roto:
+
+- `impulsa` quedaba desplazado y se montaba visualmente sobre `tu negocio`.
+- En anclas internas, la pastilla fija de construccion tapaba etiquetas de seccion como `CASOS DE ESTUDIO`.
+- El titular de servicios podia verse con palabras montadas durante la entrada animada del ancla.
 
 ## Causa confirmada
 
-La causa principal era acumulacion de animaciones simultaneas:
+La causa no era contenido ni layout general. Era una combinacion de animaciones de entrada en el primer render movil:
 
-- 34 apariciones de `repeat: Infinity` en secciones antes de la optimizacion.
-- Fondos con glows grandes, `blur` alto y movimiento continuo.
-- Animacion letra a letra del hero tambien en movil.
-- Parallax y hover 3D activos en dispositivos tactiles.
-- Multiples efectos decorativos animandose aunque no aportaban informacion.
-
-La medicion inicial en produccion movil mostro `filter: 36`, `backdrop: 27`, `shadow: 15` y `transform: 332` elementos detectados en una lectura DOM simple.
+- `MaskedWord` cambiaba de estructura cuando entraba el modo ligero y podia dejar un `translateY(100%)` activo en spans del hero.
+- Los spans animados del H2 de servicios arrancaban con `opacity`, `scale` o `translate` antes de estabilizarse en movil.
+- La pastilla compacta de construccion estaba fija arriba a la derecha tambien al hacer scroll, por lo que podia cubrir encabezados de seccion.
 
 ## Cambios aplicados
 
-- Anadido `MotionPerformanceProvider`:
-  - respeta `prefers-reduced-motion`;
-  - activa modo ligero en `max-width: 900px` o `pointer: coarse`;
-  - fuerza `MotionConfig` con movimiento reducido en movil/tactil.
 - Hero:
-  - en modo ligero ya no usa animacion letra a letra;
-  - los glows de fondo pasan a ser estaticos;
-  - se eliminan loops de badge, flecha, dots, scroll indicator y glow de CTA;
-  - queda solo el gradiente principal del titular en escritorio.
-- Scroll story:
-  - en modo ligero muestra palabras sin blur/3D;
-  - fondos y scan line pasan a estaticos;
-  - se elimina el loop del destacado.
-- WhatsApp demo:
-  - fondos animados pasan a estaticos;
-  - se eliminan pulsos continuos del mockup.
+  - `MaskedWord` mantiene estructura estable.
+  - En movil y `prefers-reduced-motion`, los spans animados fuerzan `transform: none` y `opacity: 1`.
+  - Se evita que `impulsa` y `tu negocio` se solapen en la carga inicial.
+- Motion performance:
+  - La deteccion de modo ligero usa efecto de layout isomorfico para activarse antes en cliente.
 - Servicios:
-  - parallax decorativo desactivado en modo ligero;
-  - hover tactil desactivado;
-  - corregidos espacios reales del H2 para evitar lecturas tipo `parabrillaren`.
-- Showcase, visual gallery, benefits, about, how-it-works y final CTA:
-  - parallax decorativo desactivado en modo ligero;
-  - glows/fondos de bucle continuo convertidos en estaticos;
-  - hover complejo desactivado en dispositivos tactiles;
-  - loops decorativos secundarios retirados.
-- Footer:
-  - pulsos decorativos convertidos en estaticos.
+  - Los spans del H2 fuerzan estado visible y sin transform en movil/reduced motion.
+  - Se mantiene el mismo texto y resultado visual final.
+- Aviso de construccion:
+  - Arriba a la derecha solo cerca del inicio del hero.
+  - Al hacer scroll pasa a la esquina inferior derecha.
+  - En movil estrecho, cuando esta abajo, queda como boton compacto de icono para no tapar texto.
 
 ## Archivos modificados
 
-- `app/layout.tsx`
 - `components/motion-performance-provider.tsx`
 - `components/sections/hero.tsx`
-- `components/sections/scroll-story.tsx`
-- `components/sections/whatsapp-demo.tsx`
 - `components/sections/services.tsx`
-- `components/sections/how-it-works.tsx`
-- `components/sections/showcase.tsx`
-- `components/sections/visual-gallery.tsx`
-- `components/sections/benefits.tsx`
-- `components/sections/about.tsx`
-- `components/sections/final-cta.tsx`
-- `components/sections/footer.tsx`
+- `components/sections/construction-notice.tsx`
 - `LAST_REPORT.md`
 - `NEXT_TASK.md`
 
 ## Validaciones ejecutadas
 
-- `npm install`: no necesario; `node_modules` y `package-lock.json` ya estaban presentes.
+- `npm install`: no necesario; `node_modules` ya estaba presente.
 - `npm run build`: OK con `next build --webpack`.
-- `npm run lint`: no ejecutable; el repo define `eslint .`, pero `eslint` no esta instalado como dependencia.
+- `npm run lint`: no ejecutable; el script llama a `eslint .`, pero `eslint` no esta instalado como dependencia.
 - Local con `next start`:
-  - 360 px, 390 px, 430 px, tablet y desktop revisados.
-  - Sin errores ni warnings relevantes en consola.
-  - H1 y H2 sin overflow.
-  - Hero mantiene `Presencia digital que impulsa tu negocio`.
-  - Servicios mantiene `Todo lo que tu negocio necesita para brillar en digital` con espacios correctos.
-  - Aviso de construccion abre y minimiza correctamente.
-- Produccion en `https://aplaudia.com`:
-  - 360 px, 390 px, 430 px, tablet y desktop revisados.
-  - Sin errores ni warnings relevantes en consola.
-  - `filter` en movil baja de 36 a 28 elementos detectados.
-  - `transform` en movil baja de 332 a 264 elementos detectados.
-  - `parabrillaren` ya no aparece en el texto de la pagina.
-  - Aviso de construccion sigue visible como pastilla en movil y completo en desktop.
-- Endpoints:
+  - Revisado en 360 px, 390 px, 430 px y 768 px.
+  - Hero sin solape entre `impulsa` y `tu negocio`.
+  - Servicios sin palabras montadas en `brillar en digital`.
+  - Anclas `#servicios`, `#portfolio`, `#whatsapp` y `#contacto` sin overflow horizontal real.
+  - Aviso de construccion visible y no intrusivo en titulares.
+- Produccion en `https://aplaudia.com` tras push:
+  - Revisado `#inicio`, `#servicios`, `#portfolio` y `#contacto` en 390 px.
+  - Sin errores ni warnings relevantes de consola.
+  - Aviso de construccion sigue visible.
   - `https://aplaudia.com/`: `200`.
   - `https://www.aplaudia.com/`: `301` a `https://aplaudia.com/`.
   - `https://aplaudia.com/robots.txt`: `200`.
@@ -98,15 +70,28 @@ La medicion inicial en produccion movil mostro `filter: 36`, `backdrop: 27`, `sh
 
 ## Estado de Railway
 
-- Railway en verde tras el commit funcional de rendimiento.
-- Deployment funcional validado: `7d5dff89-9d40-4ae9-8d98-e1a5bd22b73e`, `SUCCESS`, 2026-06-29 15:00:37 +02:00.
-- Commit funcional validado: `85c31ac6b63c54e0e44dd4c09e3fc58ae3d39ac6`.
-- Servicio: `Aplaudia`, environment `production`, custom domain `aplaudia.com`, target port `8080`.
+- Railway en verde tras el commit funcional `79e820aca589764c002f4078ba6cf6d368897fb6`.
+- Deployment funcional validado: `a648beb1-d9d0-4ed8-b729-330048918857`, `SUCCESS`, 2026-06-29 19:26:09 +02:00.
+- Proyecto: `Aplaudia`.
+- Environment: `production`.
+- Service: `Aplaudia`.
 
 ## Estado final
 
-`aplaudia.com` carga correctamente, mantiene SEO/IA tecnico, conserva el aviso de construccion y reduce de forma clara el coste de animaciones. No se ha tocado dominio, DNS, Cloudflare, backend, base de datos, auth ni pagos.
+`https://aplaudia.com` carga correctamente. El hero movil ya no junta palabras, el titular de servicios queda limpio, los anclajes principales no quedan tapados por la pastilla de construccion y el aviso de construccion sigue disponible. No se ha tocado dominio, DNS, Cloudflare, backend, base de datos, auth ni pagos.
+
+## Contexto heredado de rendimiento
+
+Se mantiene como contexto confirmado de la tarea anterior:
+
+- `MotionPerformanceProvider` sigue activo.
+- `prefers-reduced-motion`, `max-width: 900px` y `pointer: coarse` siguen activando modo ligero.
+- Glows y fondos de bucle continuo ya se habian convertido mayoritariamente en estaticos.
+- Hover complejo sigue desactivado en dispositivos tactiles.
+- `repeat: Infinity` ya habia sido reducido de 34 apariciones a 1 loop principal del hero en escritorio.
+- La medicion anterior en produccion movil habia bajado de `filter: 36` a `filter: 28` y de `transform: 332` a `transform: 264`.
+- SEO tecnico, `robots.txt`, `sitemap.xml`, `/llms.txt` y JSON-LD no se tocaron en esta tarea.
 
 ## Siguiente paso recomendado
 
-Carlos debe revisar la web en movil real y escritorio real para confirmar sensacion de fluidez. Si la valida, el siguiente foco es decision de lanzamiento: mantener, suavizar o retirar el aviso de construccion, cerrar contacto/copy/legal basico y, como deuda tecnica, instalar/configurar ESLint para que `npm run lint` sea una validacion real.
+Carlos debe revisar la web en movil real pequeno, movil medio, tablet y escritorio real. Si confirma que la experiencia ya se ve seria y fluida, el siguiente paso es decidir lanzamiento: mantener el aviso de construccion, suavizarlo o retirarlo cuando valide contenido, contacto y legales basicos.
