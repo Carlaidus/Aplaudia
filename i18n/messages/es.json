@@ -6,19 +6,19 @@
   "header": {
     "services": "Servicios",
     "process": "Proceso",
-    "portfolio": "Portafolio",
+    "portfolio": "Portfolio",
     "whatsapp": "WhatsApp IA",
     "about": "Nosotros",
     "cta": "Hablemos"
   },
   "hero": {
-    "badge": "Estudio Digital Boutique",
-    "title": "Presencia Digital que",
-    "titleHighlight": "Impulsa",
+    "badge": "Estudio digital boutique",
+    "title": "Presencia digital que",
+    "titleHighlight": "impulsa",
     "titleEnd": "tu negocio",
     "subtitle": "Webs premium, agentes IA para WhatsApp y visuales mejorados con IA que hacen que tu negocio destaque. Tecnología avanzada con diseño que convierte.",
-    "cta": "Comienza tu proyecto",
-    "ctaSecondary": "Ver portafolio",
+    "cta": "Empieza tu proyecto",
+    "ctaSecondary": "Ver portfolio",
     "techLabel": "Potenciado con tecnologías avanzadas",
     "scroll": "Desplázate"
   },
@@ -27,11 +27,11 @@
     "line2": "una presencia digital",
     "line3": "que realmente",
     "highlight": "impacte",
-    "benefit1": "Diseño Premium",
+    "benefit1": "Diseño premium",
     "benefit1Desc": "Interfaces que convierten",
     "benefit2": "Tecnología IA",
     "benefit2Desc": "Automatización inteligente",
-    "benefit3": "Visuales Mejorados",
+    "benefit3": "Visuales mejorados",
     "benefit3Desc": "Contenido que destaca"
   },
   "services": {
@@ -39,26 +39,26 @@
     "title": "Todo lo que tu negocio necesita para",
     "titleHighlight": "brillar",
     "titleEnd": "en digital",
-    "subtitle": "Combinamos tecnología de punta con diseño excepcional para crear experiencias digitales que conectan con tus clientes y generan resultados.",
+    "subtitle": "Combinamos tecnología avanzada con diseño cuidado para crear experiencias digitales que conectan con tus clientes y generan resultados.",
     "explore": "Explorar servicio",
     "web": {
-      "title": "Sitios Web Premium",
-      "description": "Diseño moderno, velocidad extrema y experiencia de usuario excepcional. Cada sitio es una obra única que representa tu marca.",
+      "title": "Páginas web premium",
+      "description": "Diseño moderno, velocidad y una experiencia de usuario cuidada. Cada web es una pieza única que representa tu marca.",
       "feature1": "Diseño personalizado",
       "feature2": "SEO optimizado",
-      "feature3": "Rendimiento ultra-rápido",
-      "feature4": "Responsive perfecto"
+      "feature3": "Rendimiento ultrarrápido",
+      "feature4": "Adaptada a todos los dispositivos"
     },
     "whatsapp": {
       "title": "Agentes IA para WhatsApp",
-      "description": "Asistentes inteligentes que atienden a tus clientes 24/7 con conversaciones naturales en español.",
+      "description": "Asistentes inteligentes que atienden a tus clientes 24/7 con conversaciones naturales en español de España.",
       "feature1": "Respuestas instantáneas",
       "feature2": "Lenguaje natural",
       "feature3": "Integración con tu negocio",
-      "feature4": "Captura de leads"
+      "feature4": "Captación de contactos"
     },
     "visuals": {
-      "title": "Visuales Mejorados con IA",
+      "title": "Visuales mejorados con IA",
       "description": "Mejora de imágenes con IA, fondos generados, animaciones y contenido visual para web, redes y espacios físicos.",
       "feature1": "Mejora de imágenes",
       "feature2": "Fondos animados para web",
@@ -70,36 +70,36 @@
     "badge": "Proceso",
     "title": "De la idea al lanzamiento,",
     "titleHighlight": "sin complicaciones",
-    "subtitle": "Un proceso claro y colaborativo diseñado para que tengas control total sobre tu proyecto en cada etapa.",
+    "subtitle": "Un proceso claro y colaborativo pensado para que tengas control total sobre tu proyecto en cada etapa.",
     "step1": {
       "title": "Conversación",
-      "description": "Empezamos con una llamada para entender tu negocio, objetivos y visión. Sin compromisos, solo una conversación honesta."
+      "description": "Empezamos con una llamada para entender tu negocio, objetivos y visión. Sin compromiso, solo una conversación clara."
     },
     "step2": {
       "title": "Estrategia",
-      "description": "Diseñamos una propuesta personalizada con alcance, tecnologías y timeline. Tú apruebas antes de avanzar."
+      "description": "Diseñamos una propuesta personalizada con alcance, tecnologías y plazos. Tú apruebas antes de avanzar."
     },
     "step3": {
       "title": "Creación",
-      "description": "Desarrollamos tu proyecto con iteraciones constantes. Ves el progreso en tiempo real y das feedback directo."
+      "description": "Desarrollamos tu proyecto con iteraciones constantes. Ves el progreso en tiempo real y nos das tus comentarios directamente."
     },
     "step4": {
       "title": "Lanzamiento",
-      "description": "Publicamos, optimizamos y te capacitamos. Tu presencia digital está lista para impactar."
+      "description": "Publicamos, optimizamos y te enseñamos a gestionarlo. Tu presencia digital queda lista para impactar."
     }
   },
   "showcase": {
     "conceptual": {
-      "badge": "Casos de Estudio",
+      "badge": "Casos de estudio",
       "title": "Conceptos que demuestran nuestras",
       "titleHighlight": "capacidades",
       "subtitle": "Ejemplos de lo que podemos crear para diferentes tipos de negocio. Cada proyecto se personaliza completamente a tu marca."
     },
     "portfolio": {
-      "badge": "Portafolio Real",
+      "badge": "Portfolio real",
       "title": "Proyectos que hemos",
       "titleHighlight": "construido",
-      "subtitle": "Trabajos reales entregados a clientes. Cada sitio web está en vivo y funcionando.",
+      "subtitle": "Trabajos reales entregados a clientes. Cada web está en vivo y funcionando.",
       "viewSite": "Ver web",
       "comingSoon": "Más proyectos próximamente"
     }
@@ -107,12 +107,12 @@
   "whatsappDemo": {
     "badge": "WhatsApp IA",
     "title": "Asistente WhatsApp con",
-    "titleHighlight": "Inteligencia Artificial",
-    "subtitle": "Responde a tus clientes de forma natural, 24/7, mientras tú te enfocas en lo importante.",
+    "titleHighlight": "inteligencia artificial",
+    "subtitle": "Responde a tus clientes de forma natural, 24/7, mientras tú te centras en lo importante.",
     "comingSoon": "Demo interactiva próximamente",
-    "benefit1": "Conversación natural en español",
+    "benefit1": "Conversación natural en español de España",
     "benefit2": "Respuestas instantáneas 24/7",
-    "benefit3": "Captura de leads automática",
+    "benefit3": "Captación automática de contactos",
     "benefit4": "Integración con tu negocio",
     "chatHeader": "Asistente IA",
     "chatOnline": "En línea",
@@ -120,26 +120,26 @@
     "suggestionsLabel": "Preguntas frecuentes"
   },
   "visualGallery": {
-    "badge": "Visuales para Digital",
+    "badge": "Visuales para digital",
     "title": "Contenido visual que",
     "titleHighlight": "destaca",
     "titleEnd": "tu marca",
-    "subtitle": "Imágenes mejoradas con IA, fondos animados, composiciones premium y contenido visual para tu sitio web, redes y espacios físicos.",
+    "subtitle": "Imágenes mejoradas con IA, fondos animados, composiciones premium y contenido visual para tu web, redes y espacios físicos.",
     "category1": {
-      "title": "Mejora de Imágenes con IA",
+      "title": "Mejora de imágenes con IA",
       "description": "Optimización inteligente de tus imágenes existentes para una presentación premium."
     },
     "category2": {
-      "title": "Fondos y Composiciones",
+      "title": "Fondos y composiciones",
       "description": "Fondos generados y composiciones visuales para tus secciones web."
     },
     "category3": {
-      "title": "Animaciones Web",
+      "title": "Animaciones web",
       "description": "Loops animados y efectos visuales que enriquecen la experiencia digital."
     },
     "category4": {
-      "title": "Contenido para Pantallas",
-      "description": "Material visual para tiendas, exhibiciones y espacios comerciales."
+      "title": "Contenido para pantallas",
+      "description": "Material visual para tiendas, exposiciones y espacios comerciales."
     }
   },
   "benefits": {
@@ -153,11 +153,11 @@
     },
     "benefit2": {
       "title": "Tecnología moderna",
-      "description": "Usamos las herramientas más avanzadas: Next.js, Vercel, Claude AI para resultados excepcionales."
+      "description": "Usamos herramientas avanzadas como Next.js y Claude AI para conseguir resultados sólidos y actuales."
     },
     "benefit3": {
       "title": "Entrega rápida",
-      "description": "Procesos eficientes que te permiten ver resultados en semanas, no meses."
+      "description": "Procesos eficientes que te permiten ver resultados en semanas, no en meses."
     },
     "benefit4": {
       "title": "Colaboración directa",
@@ -173,14 +173,14 @@
     }
   },
   "about": {
-    "badge": "Sobre Nosotros",
+    "badge": "Sobre nosotros",
     "title": "Tecnología y creatividad al servicio de",
     "titleHighlight": "tu negocio",
     "imageAlt": "Foto del equipo / estudio",
-    "tagline": "Estudio Digital Premium",
+    "tagline": "Estudio digital premium",
     "paragraph1": "Aplaudia nació de una convicción simple: los negocios pequeños merecen la misma calidad digital que las grandes marcas.",
-    "paragraph2": "Combinamos tecnología de punta (inteligencia artificial, desarrollo web moderno, automatización) con un diseño excepcional para crear experiencias digitales que realmente funcionan.",
-    "paragraph3": "No creemos en las soluciones genéricas. Cada proyecto que tomamos recibe atención personalizada, diseño único y una ejecución técnica impecable.",
+    "paragraph2": "Combinamos tecnología avanzada, inteligencia artificial, desarrollo web moderno y automatización con un diseño cuidado para crear experiencias digitales que realmente funcionan.",
+    "paragraph3": "No creemos en las soluciones genéricas. Cada proyecto recibe atención personalizada, diseño único y una ejecución técnica impecable.",
     "stat1": "Proyectos únicos",
     "stat2": "IA disponible",
     "stat3": "BCN Studio"
@@ -188,8 +188,8 @@
   "finalCta": {
     "title": "Listo para llevar tu negocio al",
     "titleHighlight": "siguiente nivel",
-    "subtitle": "Agenda una llamada sin compromiso. Hablamos de tu proyecto, tus metas y cómo podemos ayudarte a crecer digitalmente.",
-    "cta": "Agendar llamada",
+    "subtitle": "Reserva una llamada sin compromiso. Hablamos de tu proyecto, tus objetivos y cómo podemos ayudarte a crecer digitalmente.",
+    "cta": "Reservar llamada",
     "ctaSecondary": "WhatsApp",
     "trustNote": "Respuesta garantizada en menos de 24 horas"
   },
@@ -200,13 +200,13 @@
     "companyTitle": "Empresa",
     "contactTitle": "Contacto",
     "services": {
-      "websites": "Sitios Web",
+      "websites": "Páginas web",
       "whatsapp": "WhatsApp IA",
       "visuals": "Visuales"
     },
     "company": {
       "process": "Proceso",
-      "portfolio": "Portafolio",
+      "portfolio": "Portfolio",
       "about": "Nosotros"
     },
     "contact": {
