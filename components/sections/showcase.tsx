@@ -2,25 +2,24 @@
 
 import { motion, useInView, useScroll, useTransform } from "framer-motion"
 import { useRef, useState } from "react"
-import { ArrowUpRight, ExternalLink, Layers } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import Image from "next/image"
 import Link from "next/link"
+import { ArrowUpRight, CheckCircle2, ExternalLink, Layers } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { useTranslations } from "@/i18n"
 import { useLightweightMotion } from "@/components/motion-performance-provider"
 import {
-  conceptualCases,
-  realProjects,
+  portfolioProjects,
   showcaseLabels,
-  type ConceptualCase,
-  type RealProject,
+  type PortfolioProject,
 } from "@/content/showcase"
 
-function ConceptCard({
-  concept,
+function ProjectCaseCard({
+  project,
   index,
   lightweightMotion,
 }: {
-  concept: ConceptualCase
+  project: PortfolioProject
   index: number
   lightweightMotion: boolean
 }) {
@@ -28,337 +27,162 @@ function ConceptCard({
   const isInView = useInView(ref, { once: true, margin: "-50px" })
   const [isHovered, setIsHovered] = useState(false)
 
-  // Split reveal: image slides from one direction, content from another
-  const imageDirection = index % 2 === 0 ? -1 : 1
-
   return (
-    <motion.div
+    <motion.article
       ref={ref}
       onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
       onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
-      className="group relative overflow-hidden rounded-2xl bg-card border border-border hover:border-primary/30 transition-colors"
+      initial={{ opacity: 0, y: 32 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{
+        duration: 0.65,
+        delay: index * 0.12,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/30"
     >
-      {/* Image with reveal animation */}
-      <div className="aspect-[16/10] bg-secondary overflow-hidden relative">
-        <motion.div
-          className="absolute inset-0 bg-secondary flex items-center justify-center"
-          initial={{ x: `${imageDirection * 100}%` }}
-          animate={isInView ? { x: 0 } : {}}
-          transition={{ duration: 0.8, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <span className="text-muted-foreground text-sm">{showcaseLabels.conceptualPreview}</span>
-        </motion.div>
-        
-        {/* Gradient overlay on hover */}
-        <motion.div
-          className={`absolute inset-0 bg-gradient-to-t ${concept.accent} opacity-0`}
-          animate={{ opacity: isHovered ? 0.2 : 0 }}
-          transition={{ duration: 0.3 }}
+      <div className="relative aspect-[16/10] overflow-hidden bg-secondary">
+        <Image
+          src={project.image}
+          alt={project.imageAlt}
+          fill
+          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
         />
-        
-        {/* Reveal mask */}
-        <motion.div
-          className="absolute inset-0 bg-card"
-          initial={{ x: 0 }}
-          animate={isInView ? { x: `${-imageDirection * 100}%` } : {}}
-          transition={{ duration: 0.8, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-        />
-      </div>
 
-      {/* Content with slide-up animation */}
-      <motion.div 
-        className="p-6 relative"
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
-      >
-        {/* Category badge */}
-        <motion.span 
-          className={`inline-block text-xs font-medium uppercase tracking-wider bg-gradient-to-r ${concept.accent} bg-clip-text text-transparent`}
-          initial={{ opacity: 0, x: -20 }}
-          animate={isInView ? { opacity: 1, x: 0 } : {}}
-          transition={{ delay: 0.4 + index * 0.1 }}
-        >
-          {concept.categoryKey}
-        </motion.span>
-        
-        <h3 className="mt-2 text-lg font-semibold text-foreground">
-          {concept.titleKey}
-        </h3>
-        <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-          {concept.descriptionKey}
-        </p>
-        
-        {/* Animated underline */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+
         <motion.div
-          className={`absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r ${concept.accent}`}
+          className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r ${project.accent}`}
           initial={{ scaleX: 0 }}
           animate={{ scaleX: isHovered ? 1 : 0 }}
           transition={{ duration: 0.3 }}
           style={{ transformOrigin: "left" }}
         />
-      </motion.div>
-    </motion.div>
-  )
-}
-
-function ProjectCard({
-  project,
-  index,
-  lightweightMotion,
-}: {
-  project: RealProject
-  index: number
-  lightweightMotion: boolean
-}) {
-  const { t } = useTranslations("showcase")
-  const ref = useRef<HTMLDivElement>(null)
-  const isInView = useInView(ref, { once: true, margin: "-50px" })
-  const [isHovered, setIsHovered] = useState(false)
-
-  // Zoom and fade entrance
-  return (
-    <motion.div
-      ref={ref}
-      onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
-      onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ 
-        duration: 0.6, 
-        delay: index * 0.15,
-        ease: [0.22, 1, 0.36, 1],
-      }}
-      className="group relative overflow-hidden rounded-2xl bg-card border border-border hover:border-primary/30 transition-colors"
-    >
-      {/* Image with zoom effect */}
-      <div className="aspect-[16/10] bg-secondary overflow-hidden relative">
-        <motion.div
-          className="absolute inset-0 bg-secondary flex items-center justify-center"
-          animate={{ scale: isHovered ? 1.05 : 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <span className="text-muted-foreground text-sm">{showcaseLabels.projectImage}</span>
-        </motion.div>
-        
-        {/* Hover overlay with CTA */}
-        <motion.div 
-          className="absolute inset-0 bg-background/90 flex items-center justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isHovered ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: isHovered ? 1 : 0.8, opacity: isHovered ? 1 : 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Button asChild variant="secondary" size="sm">
-              <Link href={project.url} target="_blank" rel="noopener noreferrer">
-                {t("portfolio.viewSite")}
-                <ExternalLink className="ml-2 h-3 w-3" />
-              </Link>
-            </Button>
-          </motion.div>
-        </motion.div>
       </div>
 
-      {/* Content */}
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-primary uppercase tracking-wider">
+      <div className="flex flex-1 flex-col p-6">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <span className={`bg-gradient-to-r ${project.accent} bg-clip-text text-xs font-medium uppercase tracking-wider text-transparent`}>
             {project.businessType}
           </span>
-          <motion.span 
-            className="text-xs text-muted-foreground bg-card-elevated px-2 py-0.5 rounded-full"
-            animate={{ opacity: isHovered ? 1 : 0.6 }}
-          >
+          <span className="rounded-full bg-card-elevated px-2 py-0.5 text-xs text-muted-foreground">
             {showcaseLabels.projectStatus}
-          </motion.span>
+          </span>
         </div>
-        
-        <h3 className="text-lg font-semibold text-foreground">
+
+        <h3 className="text-xl font-semibold leading-tight text-foreground">
           {project.name}
         </h3>
-        <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-          {project.description}
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          {project.shortDescription}
         </p>
-        
-        {/* Link with arrow animation */}
-        <motion.div 
-          className="mt-4 flex items-center gap-2 text-primary"
-          animate={{ x: isHovered ? 4 : 0 }}
-        >
-          <Link 
-            href={project.url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-sm font-medium flex items-center gap-1"
-          >
-            {showcaseLabels.projectLink}
-            <motion.span
-              animate={{ rotate: isHovered ? 45 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
+
+        <div className="mt-5">
+          <p className="text-xs font-medium uppercase tracking-wider text-foreground/70">
+            {showcaseLabels.evidenceLabel}
+          </p>
+          <ul className="mt-3 grid gap-2 text-sm leading-relaxed text-muted-foreground">
+            {project.highlights.map((highlight) => (
+              <li key={highlight} className="flex gap-2">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>{highlight}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <Button asChild size="sm" className="w-full sm:w-auto">
+            <Link href={project.caseHref}>
+              {showcaseLabels.caseLink}
               <ArrowUpRight className="h-4 w-4" />
-            </motion.span>
-          </Link>
-        </motion.div>
+            </Link>
+          </Button>
+
+          <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
+            <Link href={project.url} target="_blank" rel="noopener noreferrer">
+              {project.visitLabel}
+              <ExternalLink className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
       </div>
-    </motion.div>
+    </motion.article>
   )
 }
 
 export function Showcase() {
   const { t } = useTranslations("showcase")
   const sectionRef = useRef<HTMLElement>(null)
-  const conceptualRef = useRef<HTMLDivElement>(null)
-  const portfolioRef = useRef<HTMLDivElement>(null)
+  const headingRef = useRef<HTMLDivElement>(null)
   const lightweightMotion = useLightweightMotion()
-  
-  const isConceptualInView = useInView(conceptualRef, { once: true, margin: "-100px" })
-  const isPortfolioInView = useInView(portfolioRef, { once: true, margin: "-100px" })
-  
+
+  const isHeadingInView = useInView(headingRef, { once: true, margin: "-100px" })
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
   })
-  
-  // Parallax for decorative elements
+
   const decorY = useTransform(scrollYProgress, [0, 1], [100, -100])
 
   return (
-    <section ref={sectionRef} id="portfolio" className="relative py-24 lg:py-32 bg-card overflow-hidden">
-      {/* Decorative elements */}
+    <section ref={sectionRef} id="portfolio" className="relative overflow-hidden bg-card py-24 lg:py-32">
       <motion.div
-        className="absolute -top-32 -right-32 w-64 h-64 border border-border/20 rounded-full"
+        className="absolute -right-32 -top-32 h-64 w-64 rounded-full border border-border/20"
         style={lightweightMotion ? undefined : { y: decorY }}
       />
       <motion.div
-        className="absolute -bottom-48 -left-48 w-96 h-96 border border-border/10 rounded-full"
+        className="absolute -bottom-48 -left-48 h-96 w-96 rounded-full border border-border/10"
         style={lightweightMotion ? undefined : { y: decorY }}
       />
-      
+
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Conceptual Cases Section */}
         <motion.div
-          ref={conceptualRef}
-          className="mx-auto max-w-2xl text-center mb-16"
+          ref={headingRef}
+          className="mx-auto mb-16 max-w-2xl text-center"
         >
-          {/* Animated badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
-            animate={isConceptualInView ? { opacity: 1, scale: 1 } : {}}
+            animate={isHeadingInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.5, type: "spring" }}
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary uppercase tracking-wider mb-4"
+            className="mb-4 inline-flex items-center gap-2 text-sm font-medium uppercase tracking-wider text-primary"
           >
-            <Layers className="w-4 h-4" />
+            <Layers className="h-4 w-4" />
             {t("conceptual.badge")}
           </motion.div>
-          
-          {/* Title with perspective animation */}
-          <motion.h2 
-            className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl text-balance"
+
+          <motion.h2
+            className="text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
             initial={{ opacity: 0, rotateX: -15 }}
-            animate={isConceptualInView ? { opacity: 1, rotateX: 0 } : {}}
+            animate={isHeadingInView ? { opacity: 1, rotateX: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.1 }}
             style={{ perspective: "1000px" }}
           >
             {t("conceptual.title")}{" "}
             <span className="text-gradient-blue-cyan">{t("conceptual.titleHighlight")}</span>
           </motion.h2>
-          
-          <motion.p 
-            className="mt-4 text-muted-foreground text-pretty"
+
+          <motion.p
+            className="mt-4 text-pretty text-muted-foreground"
             initial={{ opacity: 0, y: 20 }}
-            animate={isConceptualInView ? { opacity: 1, y: 0 } : {}}
+            animate={isHeadingInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             {t("conceptual.subtitle")}
           </motion.p>
         </motion.div>
 
-        {/* Conceptual cases grid */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-24">
-          {conceptualCases.map((concept, index) => (
-            <ConceptCard key={concept.titleKey} concept={concept} index={index} lightweightMotion={lightweightMotion} />
-          ))}
-        </div>
-
-        {/* Animated divider */}
-        <motion.div
-          className="relative h-px bg-border mb-24 overflow-hidden"
-          initial={{ scaleX: 0 }}
-          whileInView={{ scaleX: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-accent-cyan/40 to-primary/40" />
-        </motion.div>
-
-        {/* Real Projects Section */}
-        <motion.div
-          ref={portfolioRef}
-          className="mx-auto max-w-2xl text-center mb-16"
-        >
-          <motion.span 
-            className="text-sm font-medium text-primary uppercase tracking-wider"
-            initial={{ opacity: 0, y: -10 }}
-            animate={isPortfolioInView ? { opacity: 1, y: 0 } : {}}
-          >
-            {t("portfolio.badge")}
-          </motion.span>
-          
-          <motion.h2 
-            className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl text-balance"
-            initial={{ opacity: 0 }}
-            animate={isPortfolioInView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.1 }}
-          >
-            {t("portfolio.title")}{" "}
-            <span className="text-gradient-violet-magenta">{t("portfolio.titleHighlight")}</span>
-          </motion.h2>
-          
-          <motion.p 
-            className="mt-4 text-muted-foreground text-pretty"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isPortfolioInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.2 }}
-          >
-            {t("portfolio.subtitle")}
-          </motion.p>
-        </motion.div>
-
-        {/* Real projects grid */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {realProjects.map((project, index) => (
-            <ProjectCard key={project.name} project={project} index={index} lightweightMotion={lightweightMotion} />
+          {portfolioProjects.map((project, index) => (
+            <ProjectCaseCard
+              key={project.slug}
+              project={project}
+              index={index}
+              lightweightMotion={lightweightMotion}
+            />
           ))}
-          
-          {/* Placeholder card */}
-          {realProjects.length < 3 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex items-center justify-center rounded-2xl border-2 border-dashed border-border p-8 text-center min-h-[300px]"
-            >
-              <div>
-                <motion.div
-                  className="w-12 h-12 mx-auto mb-4 rounded-full bg-card-elevated flex items-center justify-center"
-                >
-                  <Layers className="w-6 h-6 text-muted-foreground" />
-                </motion.div>
-                <p className="text-muted-foreground text-sm font-medium">
-                  {t("portfolio.comingSoon")}
-                </p>
-                <p className="mt-2 text-xs text-muted-foreground/60">
-                  {showcaseLabels.emptyProject}
-                </p>
-              </div>
-            </motion.div>
-          )}
         </div>
       </div>
     </section>
