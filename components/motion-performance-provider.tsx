@@ -1,15 +1,17 @@
 "use client"
 
 import { MotionConfig, useReducedMotion } from "framer-motion"
-import { useEffect, useState, type ReactNode } from "react"
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react"
 
 const lightweightMotionQuery = "(max-width: 900px), (pointer: coarse)"
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect
 
 export function useLightweightMotion() {
   const prefersReducedMotion = useReducedMotion()
   const [matchesLightweightDevice, setMatchesLightweightDevice] = useState(false)
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const mediaQuery = window.matchMedia(lightweightMotionQuery)
     const update = () => setMatchesLightweightDevice(mediaQuery.matches)
 

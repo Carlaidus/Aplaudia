@@ -46,6 +46,7 @@ function AnimatedText({
                       delay: delay + (startIndex + charIndex) * 0.025,
                       ease: [0.22, 1, 0.36, 1],
                     }}
+                    className="max-[900px]:!transform-none max-[900px]:!opacity-100 motion-reduce:!transform-none motion-reduce:!opacity-100"
                     style={{ display: "inline-block", transformOrigin: "bottom" }}
                   >
                     {char}
@@ -71,21 +72,17 @@ function MaskedWord({
   delay?: number
   disabled?: boolean
 }) {
-  if (disabled) {
-    return <span className="inline-block">{children}</span>
-  }
-
   return (
     <span className="relative inline-block overflow-hidden">
       <motion.span
-        initial={{ y: "100%" }}
+        initial={disabled ? false : { y: "100%" }}
         animate={{ y: 0 }}
         transition={{
-          duration: 0.8,
-          delay,
+          duration: disabled ? 0 : 0.8,
+          delay: disabled ? 0 : delay,
           ease: [0.22, 1, 0.36, 1],
         }}
-        className="inline-block"
+        className="inline-block max-[900px]:!transform-none motion-reduce:!transform-none"
       >
         {children}
       </motion.span>

@@ -241,7 +241,7 @@ export function Services() {
               initial={{ opacity: 0, y: 30 }}
               animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="inline-block"
+              className="inline-block max-[900px]:!transform-none max-[900px]:!opacity-100 motion-reduce:!transform-none motion-reduce:!opacity-100"
             >
               {t("title")}
             </motion.span>
@@ -250,7 +250,7 @@ export function Services() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={isHeaderInView ? { opacity: 1, scale: 1 } : {}}
               transition={{ duration: 0.6, delay: 0.5, type: "spring" }}
-              className="inline-block text-gradient-blue-cyan"
+              className="inline-block text-gradient-blue-cyan max-[900px]:!transform-none max-[900px]:!opacity-100 motion-reduce:!transform-none motion-reduce:!opacity-100"
             >
               {t("titleHighlight")}
             </motion.span>
@@ -259,7 +259,7 @@ export function Services() {
               initial={{ opacity: 0, y: -30 }}
               animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="inline-block"
+              className="inline-block max-[900px]:!transform-none max-[900px]:!opacity-100 motion-reduce:!transform-none motion-reduce:!opacity-100"
             >
               {t("titleEnd")}
             </motion.span>
