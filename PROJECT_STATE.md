@@ -52,21 +52,23 @@ Ultima actualizacion: 2026-06-29
 - El fallo real confirmado en Railway fue `npm ETARGET`: `@radix-ui/react-switch@1.3.3` no existe en npm.
 - Railway/Railpack ya estaba usando Node `22.23.1`; Node 18 no era la causa del fallo final.
 - Correccion aplicada previamente: `@radix-ui/react-switch` bajado a `1.3.1` y `package-lock.json` generado.
-- Estado consultado con `railway deployment list` el 2026-06-29: deployment de cierre funcional `19fb8c54-8e77-4301-b431-59a8d8a90083` en `SUCCESS` a las `11:04:03 +02:00`.
+- Estado consultado con `railway deployment list` el 2026-06-29: ultimo deployment `8d6a06bf-8b80-4123-b58f-8b9f566076eb` en `SUCCESS` a las `11:07:00 +02:00`.
 - URL temporal comprobada tras el push de cierre: `https://aplaudia-production.up.railway.app` responde `200`, mantiene el aviso de construccion, sirve JSON-LD, `/robots.txt`, `/llms.txt` y `/sitemap.xml`.
-- Commit de cierre funcional desplegado: `aaea86c8af863cf139251ce8f8bb7b35406537b3`.
+- Commit desplegado: `b868871db4e123ed91405a83c43edb410c0ed9f1`.
 
 ## Dominio y DNS
 
 - `aplaudia.com` comprado en Cloudflare el 2026-06-29.
-- Pendiente conectar dominio personalizado en Railway.
-- Pendiente anadir en Cloudflare los registros que Railway indique: normalmente CNAME y TXT de verificacion.
-- Comprobacion DNS local el 2026-06-29: `aplaudia.com` solo devuelve SOA y `www.aplaudia.com` no resuelve; `https://aplaudia.com` y `https://www.aplaudia.com` no cargan todavia.
-- No hay `wrangler`, `cloudflared` ni conector Cloudflare disponible en este entorno; no se han tocado DNS reales.
-- Pendiente decidir redireccion canonica:
+- Dominio personalizado `aplaudia.com` conectado en Railway el 2026-06-29.
+- Registros DNS de Railway aplicados en Cloudflare mediante Domain Connect:
+  - `CNAME` `aplaudia.com` -> `c619o9we.up.railway.app`, proxied.
+  - `TXT` `_railway-verify.aplaudia.com` -> verificacion Railway, solo DNS.
+- `www.aplaudia.com` configurado en Cloudflare:
+  - `CNAME` `www.aplaudia.com` -> `aplaudia.com`, proxied.
+  - Regla activa `301` de `https://www.*` a `https://${1}`.
+- Canonico operativo:
   - `https://aplaudia.com` como dominio principal.
-  - `https://www.aplaudia.com` redirigido a raiz.
-  - Dominio temporal de Railway redirigido a `https://aplaudia.com` cuando todo este verificado.
+  - `https://www.aplaudia.com` redirige a raiz.
 
 ## Rutas futuras recomendadas
 
@@ -85,13 +87,11 @@ No estan activadas todavia para evitar cambios visuales o paginas vacias. Rutas 
 Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 
 1. Mantener Railway en verde.
-2. Conectar el dominio `aplaudia.com` cuando Carlos pueda crear los DNS exactos en Cloudflare.
-3. Mantener el aviso de construccion visible hasta validacion final de Carlos.
-4. Documentacion tecnica al dia para que Codex y ChatGPT puedan continuar sin perder contexto.
+2. Mantener el aviso de construccion visible hasta validacion final de Carlos.
+3. Documentacion tecnica al dia para que Codex y ChatGPT puedan continuar sin perder contexto.
 
 ## Pendiente
 
-- Conectar `aplaudia.com` y `www.aplaudia.com`.
 - Revisar contenido comercial antes de lanzar.
 - Revisar textos ES / CA / EN.
 - Crear legal basico: aviso legal, privacidad y cookies si se va a captar contacto.
