@@ -23,7 +23,7 @@ export function ConstructionNotice() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-4 right-4 z-[60] inline-flex max-w-[calc(100vw-2rem)] items-center gap-1.5 rounded-full border border-white/10 bg-card/90 px-3 py-2.5 text-sm font-medium text-foreground shadow-2xl shadow-primary/20 backdrop-blur-2xl transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="fixed right-4 top-20 z-[60] inline-flex max-w-[calc(100vw-2rem)] items-center gap-1.5 rounded-full border border-white/10 bg-card/90 px-3 py-2.5 text-sm font-medium text-foreground shadow-2xl shadow-primary/20 backdrop-blur-2xl transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background min-[901px]:bottom-4 min-[901px]:top-auto"
         aria-label="Mostrar aviso de construcción"
       >
         <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
