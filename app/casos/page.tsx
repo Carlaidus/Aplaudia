@@ -7,7 +7,7 @@ import { ConstructionNotice } from "@/components/sections/construction-notice"
 import { Footer } from "@/components/sections/footer"
 import { Header } from "@/components/sections/header"
 import { siteConfig } from "@/content/site"
-import { portfolioProjects } from "@/content/showcase"
+import { portfolioProjects, showcaseLabels } from "@/content/showcase"
 
 export const metadata: Metadata = {
   title: `Casos reales | ${siteConfig.name}`,
@@ -65,6 +65,14 @@ export default function CasesPage() {
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                     {project.shortDescription}
                   </p>
+                  <div className="mt-4 border-l border-primary/50 pl-4">
+                    <p className="text-xs font-medium uppercase tracking-wider text-foreground/70">
+                      {showcaseLabels.takeawayLabel}
+                    </p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {project.cardTakeaway}
+                    </p>
+                  </div>
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                     <Button asChild size="sm" className="w-full sm:w-auto">
                       <Link href={project.caseHref}>

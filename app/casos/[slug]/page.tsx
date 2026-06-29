@@ -8,7 +8,7 @@ import { ConstructionNotice } from "@/components/sections/construction-notice"
 import { Footer } from "@/components/sections/footer"
 import { Header } from "@/components/sections/header"
 import { siteConfig } from "@/content/site"
-import { caseStudies, getCaseStudy } from "@/content/showcase"
+import { caseStudies, getCaseStudy, showcaseLabels } from "@/content/showcase"
 
 type CasePageProps = {
   params: Promise<{
@@ -111,6 +111,51 @@ export default async function CasePage({ params }: CasePageProps) {
           </div>
         </section>
 
+        {project.gallery.length > 0 && (
+          <section className="border-b border-border/60 py-16">
+            <div className="mx-auto max-w-7xl px-6 lg:px-8">
+              <div className="max-w-2xl">
+                <p className="text-sm font-medium uppercase tracking-wider text-primary">
+                  {showcaseLabels.galleryLabel}
+                </p>
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+                  Lo que se ve en este proyecto
+                </h2>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  Capturas seleccionadas para explicar mejor la experiencia real, no solo para decorar el portfolio.
+                </p>
+              </div>
+
+              <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {project.gallery.map((image) => (
+                  <article
+                    key={image.src}
+                    className="overflow-hidden rounded-2xl border border-border bg-card"
+                  >
+                    <div className="relative aspect-[16/10] bg-secondary">
+                      <Image
+                        src={image.src}
+                        alt={image.alt}
+                        fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-5">
+                      <h3 className="text-base font-semibold tracking-tight">
+                        {image.title}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {image.description}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         <section className="py-16">
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-3 lg:px-8">
             <article className="rounded-2xl border border-border bg-card p-6">
@@ -139,6 +184,28 @@ export default async function CasePage({ params }: CasePageProps) {
                 {project.whyItWorks}
               </p>
             </article>
+          </div>
+        </section>
+
+        <section className="pb-16">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
+              <p className="text-sm font-medium uppercase tracking-wider text-primary">
+                {showcaseLabels.proofLabel}
+              </p>
+              <div className="mt-6 grid gap-6 lg:grid-cols-3">
+                {project.proofPoints.map((point) => (
+                  <div key={point.title} className="border-l border-primary/50 pl-4">
+                    <h2 className="text-lg font-semibold tracking-tight">
+                      {point.title}
+                    </h2>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {point.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 

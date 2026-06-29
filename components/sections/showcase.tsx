@@ -78,6 +78,15 @@ function ProjectCaseCard({
           {project.shortDescription}
         </p>
 
+        <div className="mt-4 border-l border-primary/50 pl-4">
+          <p className="text-xs font-medium uppercase tracking-wider text-foreground/70">
+            {showcaseLabels.takeawayLabel}
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            {project.cardTakeaway}
+          </p>
+        </div>
+
         <div className="mt-5">
           <p className="text-xs font-medium uppercase tracking-wider text-foreground/70">
             {showcaseLabels.evidenceLabel}

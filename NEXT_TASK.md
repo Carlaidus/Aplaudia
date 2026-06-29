@@ -2,11 +2,11 @@
 
 Prioridad: Alta
 Modelo recomendado: GPT-5.5
-Nivel de inteligencia recomendado: Extremadamente alto
+Nivel de inteligencia recomendado: Alto
 
 ## Objetivo inmediato
 
-Revisar con Carlos si los casos de Cronoras, Arik Custom y Aventuras Pixeladas comunican bien lo que vende Aplaudia y decidir si se amplian antes de retirar el aviso de construccion.
+Revisar en produccion con Carlos la segunda pasada de portfolio/casos y decidir si Aplaudia queda lista para validacion final de lanzamiento o si necesita una ultima capa de contenido comercial.
 
 ## Repo
 
@@ -18,72 +18,79 @@ Revisar con Carlos si los casos de Cronoras, Arik Custom y Aventuras Pixeladas c
 
 ## Contexto confirmado
 
-- `https://aplaudia.com/` funciona y mantiene aviso de construccion.
-- Railway quedo en verde tras desplegar el portfolio real.
-- Deployment verificado en Railway web: `Add real portfolio case studies`, `Deployment successful`.
-- El portfolio ya no debe usar proyectos demo ni placeholders.
-- Se han anadido casos reales basados en trabajos de Carlos:
+- `https://aplaudia.com/` funciona y debe mantener aviso de construccion hasta validacion final de Carlos.
+- Railway estaba en verde antes de esta segunda pasada.
+- El portfolio ya usa trabajos reales:
   - Cronoras.
   - Arik Custom.
   - Aventuras Pixeladas.
-- Se ha elegido una estrategia hibrida:
-  - mini caso dentro de Aplaudia;
-  - enlace a la web/demo real cuando procede.
-- No tocar backend, base de datos, auth, pagos, dominio, DNS ni Cloudflare salvo peticion explicita de Carlos.
+- Se mantiene estrategia hibrida:
+  - resumen potente dentro de Aplaudia;
+  - ficha propia por caso;
+  - enlace externo a web/demo real cuando procede.
+- No tocar backend, base de datos, auth, pagos, dominio, DNS ni Cloudflare salvo peticion explicita.
 
 ## Estado de la ultima tarea
 
-Se preparo una primera estructura real de portfolio/casos:
+Se ha reforzado el portfolio/casos sin redisenar la web:
 
-- Home `#portfolio` con tres tarjetas reales.
-- Imagenes WebP optimizadas en `public/portfolio/`.
-- Rutas nuevas:
-  - `/casos`
-  - `/casos/cronoras`
-  - `/casos/arik-custom`
-  - `/casos/aventuras-pixeladas`
-- Sitemap actualizado con las rutas de casos.
-- Aviso de construccion visible tambien en las rutas nuevas.
-- Build local validado.
-- Produccion validada en `https://aplaudia.com/#portfolio`, `/casos` y las tres fichas.
-- Lint sigue sin estar disponible porque `eslint` no esta instalado.
+- Home `#portfolio`:
+  - mantiene tres tarjetas reales;
+  - anade el bloque `Que ensena` para explicar valor comercial;
+  - conserva orden, estilo y comportamiento visual general.
+- `/casos`:
+  - anade resumen comercial por proyecto.
+- Fichas individuales:
+  - `/casos/cronoras`;
+  - `/casos/arik-custom`;
+  - `/casos/aventuras-pixeladas`;
+  - ahora incluyen galeria de vistas clave y puntos de valor visible.
+- Imagenes WebP nuevas en `public/portfolio/`:
+  - Cronoras: dashboard, proyectos, estadisticas y proyecto en curso.
+  - Arik Custom: home como imagen principal; catalogo como secundaria.
+  - Aventuras Pixeladas: home completa, cartuchos y paneles.
+- Validacion local:
+  - `npm run build` OK desde unidad `T:`;
+  - `npm run lint` sigue sin estar disponible porque `eslint` no esta instalado;
+  - `npx tsc --noEmit` sigue fallando por deuda previa ajena a esta tarea;
+  - mobile 390 px sin overflow horizontal real en home, `/casos` y las tres fichas.
 
 ## Tarea para la proxima sesion
 
-1. Revisar con Carlos en produccion:
-   - `https://aplaudia.com/#portfolio`;
-   - `https://aplaudia.com/casos`;
-   - `https://aplaudia.com/casos/cronoras`;
-   - `https://aplaudia.com/casos/arik-custom`;
-   - `https://aplaudia.com/casos/aventuras-pixeladas`.
+1. Confirmar deployment:
+   - comprobar que Railway esta en verde tras el ultimo push;
+   - abrir `https://aplaudia.com/#portfolio`;
+   - abrir `https://aplaudia.com/casos`;
+   - abrir las tres fichas de caso.
 
-2. Validar en movil real y escritorio:
-   - sin solapes;
-   - sin palabras pegadas;
-   - imagenes bien recortadas;
-   - botones legibles;
-   - aviso de construccion visible;
-   - sin overflow horizontal.
+2. Revisar con Carlos en movil real y escritorio:
+   - si Cronoras se entiende como SaaS/producto real;
+   - si Arik Custom vende mejor con la home como imagen principal;
+   - si Aventuras Pixeladas comunica bien cartuchos, paneles y base editorial;
+   - si el aviso de construccion sigue siendo correcto hasta validacion final.
 
-3. Carlos debe decidir si:
-   - estas tres fichas son suficientes para lanzamiento;
-   - conviene anadir una segunda captura por caso;
-   - conviene ampliar cada ficha con proceso, stack tecnico o resultados;
-   - se mantienen los enlaces a Railway en Arik/Aventuras o se sustituyen por dominios propios cuando existan.
+3. Decidir contenido final antes de lanzamiento:
+   - mantener tal cual;
+   - anadir resultados reales confirmados;
+   - anadir stack tecnico resumido;
+   - anadir proceso de trabajo;
+   - anadir testimonios solo si existen textos reales aprobados.
 
-4. Deuda tecnica opcional:
+4. Deuda tecnica recomendada:
    - instalar/configurar ESLint para que `npm run lint` funcione;
-   - revisar si se mantiene `next build --webpack` mientras el workspace local siga en unidad de red mapeada;
-   - anadir JSON-LD de casos solo si se decide una estructura SEO definitiva para portfolio.
+   - revisar `react-day-picker` y tipos de calendario para que `npx tsc --noEmit` pase;
+   - alinear mensajes i18n de `about` en ES/CA/EN;
+   - mantener `next build --webpack` mientras el workspace local siga en unidad de red.
 
 ## Validaciones recomendadas
 
 - `npm run build`.
-- `npm run lint` solo si se instala/configura ESLint.
-- Revisar Railway solo si se hace un commit nuevo.
+- `npm run lint` solo despues de configurar ESLint.
+- `npx tsc --noEmit` solo despues de resolver deuda de tipos/i18n.
+- Revisar Railway.
 - Revisar `https://aplaudia.com/#portfolio`.
-- Revisar las cuatro rutas de `/casos`.
-- Revisar `https://aplaudia.com/sitemap.xml`.
+- Revisar `https://aplaudia.com/casos`.
+- Revisar las tres rutas de caso en movil y escritorio.
 
 ## Restricciones
 
@@ -99,5 +106,5 @@ Se preparo una primera estructura real de portfolio/casos:
 ## Cierre esperado de la proxima sesion
 
 - Railway en verde tras el ultimo push.
-- Portfolio real validado en produccion.
-- Decision de Carlos sobre si los casos quedan listos para lanzamiento o necesitan una segunda pasada comercial.
+- Portfolio real revisado en produccion.
+- Decision de Carlos sobre si se retira el aviso de construccion o si queda una ultima revision comercial/legal antes del lanzamiento.
