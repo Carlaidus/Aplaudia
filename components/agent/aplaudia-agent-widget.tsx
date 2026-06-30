@@ -262,7 +262,7 @@ export function AplaudiaAgentWidget() {
   return (
     <>
       <div
-        className={`fixed bottom-36 left-3 right-3 z-[55] flex max-h-[calc(100dvh-10rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-background/95 shadow-2xl shadow-primary/20 backdrop-blur-xl transition-all duration-200 sm:bottom-24 sm:left-auto sm:right-6 sm:w-[390px] ${
+        className={`fixed bottom-24 left-2 right-2 z-[55] flex h-[calc(100dvh-7rem)] max-h-[44rem] flex-col overflow-hidden rounded-2xl border border-white/10 bg-background/95 shadow-2xl shadow-primary/20 backdrop-blur-xl transition-all duration-200 sm:bottom-24 sm:left-auto sm:right-6 sm:h-auto sm:max-h-[calc(100dvh-7rem)] sm:w-[390px] ${
           isOpen
             ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
             : "pointer-events-none translate-y-2 scale-95 opacity-0"
@@ -290,7 +290,7 @@ export function AplaudiaAgentWidget() {
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:max-h-[390px]">
+        <div className="min-h-0 flex-1 space-y-3.5 overflow-y-auto px-3.5 py-4 sm:max-h-[390px] sm:px-4">
           {messages.map((message, index) => (
             <div
               key={`${message.role}-${index}`}
@@ -302,7 +302,7 @@ export function AplaudiaAgentWidget() {
                 </div>
               )}
               <p
-                className={`max-w-[82%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                className={`max-w-[88%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-base leading-7 sm:max-w-[82%] sm:text-sm sm:leading-relaxed ${
                   message.role === "user"
                     ? "rounded-br-sm bg-primary text-primary-foreground"
                     : "rounded-bl-sm bg-card text-foreground"
@@ -329,7 +329,7 @@ export function AplaudiaAgentWidget() {
           <div ref={bottomRef} />
         </div>
 
-        <div className="flex items-end gap-2 border-t border-border bg-background/95 p-3">
+        <div className="flex items-end gap-2 border-t border-border bg-background/95 p-2.5 sm:p-3">
           <textarea
             ref={inputRef}
             rows={1}
@@ -342,7 +342,7 @@ export function AplaudiaAgentWidget() {
             onKeyDown={handleKeyDown}
             disabled={isLoading}
             placeholder={isListening ? "Escuchando..." : "Cuéntame qué necesitas..."}
-            className="min-h-11 flex-1 resize-none rounded-xl border border-border bg-card px-3.5 py-2.5 text-base leading-6 text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary disabled:opacity-50 sm:text-sm"
+            className="min-h-12 flex-1 resize-none rounded-xl border border-border bg-card px-3.5 py-2.5 text-base leading-6 text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary disabled:opacity-50 sm:min-h-11 sm:text-sm"
           />
           <button
             type="button"
@@ -357,7 +357,7 @@ export function AplaudiaAgentWidget() {
                   : "Dictado por voz no disponible en este navegador"
             }
             aria-pressed={isListening}
-            className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
+            className={`relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:h-11 sm:w-11 ${
               isListening
                 ? "border-accent-magenta/60 bg-accent-magenta/15 text-accent-magenta shadow-lg shadow-accent-magenta/20"
                 : supportsVoiceInput
@@ -379,7 +379,7 @@ export function AplaudiaAgentWidget() {
             type="button"
             onClick={sendMessage}
             disabled={!hasText || isLoading || !sessionId}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-transform hover:bg-primary/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-transform hover:bg-primary/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:h-11 sm:w-11"
             aria-label="Enviar mensaje"
           >
             {isLoading ? (
@@ -405,7 +405,7 @@ export function AplaudiaAgentWidget() {
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="fixed bottom-20 right-4 z-[55] flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-primary text-primary-foreground shadow-2xl shadow-primary/30 transition-all hover:scale-105 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95 sm:bottom-6 sm:right-6"
+        className="fixed bottom-4 right-4 z-[55] flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-primary text-primary-foreground shadow-2xl shadow-primary/30 transition-all hover:scale-105 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95 sm:bottom-6 sm:right-6"
         aria-label={isOpen ? "Cerrar asistente de Aplaudia" : "Abrir asistente de Aplaudia"}
       >
         {hasUnread && !isOpen && (

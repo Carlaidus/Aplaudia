@@ -6,7 +6,7 @@ Nivel de inteligencia recomendado: Alto
 
 ## Objetivo inmediato
 
-Validar el dictado por voz del chatbot en producción con permiso real de micrófono y revisar respuestas reales del agente tras la ampliación de instrucciones y precios orientativos.
+Validar en móvil real el nuevo tamaño del chatbot abierto, su legibilidad y el dictado por voz con permiso real de micrófono. Revisar también respuestas reales del agente tras la ampliación de instrucciones y precios orientativos.
 
 ## Repo
 
@@ -19,6 +19,7 @@ Validar el dictado por voz del chatbot en producción con permiso real de micró
 - El aviso de construcción queda flotando a la izquierda.
 - El aviso de construcción usa fecha `30 junio 2026`.
 - El chatbot queda flotando a la derecha.
+- El chatbot abierto en móvil se ha ampliado para ocupar casi toda la altura útil, con texto de mensaje a 16 px, textarea más grande y botones de micrófono/enviar de 48 px.
 - El formulario de contacto no muestra `Actualizar mensaje`.
 - `/api/agent` prioriza OpenAI directamente con `OPENAI_API_KEY`.
 - `OPENAI_API_KEY` está activa en producción.
@@ -35,11 +36,17 @@ Validar el dictado por voz del chatbot en producción con permiso real de micró
 
 ## Próxima tarea
 
-1. Probar dictado por voz en producción:
+1. Probar en un móvil real el chatbot abierto en producción:
+   - confirmar que el panel ocupa suficiente altura;
+   - confirmar que el texto se lee cómodo;
+   - confirmar que el textarea, el micrófono y enviar quedan visibles;
+   - confirmar que no hay solapes ni scroll horizontal;
+   - decidir si hace falta llevarlo a modo casi pantalla completa o acortar el saludo inicial.
+2. Probar dictado por voz en producción:
    - Chrome/Edge en escritorio;
    - Android si hay dispositivo disponible;
    - iPhone/Safari si hay dispositivo disponible.
-2. Confirmar:
+3. Confirmar:
    - aparece el botón de micrófono si el navegador lo soporta;
    - pide permiso de micrófono;
    - transcribe al textarea;
@@ -47,26 +54,26 @@ Validar el dictado por voz del chatbot en producción con permiso real de micró
    - permite enviar tras dictado;
    - no se solapa con enviar ni con el texto;
    - no rompe móvil.
-3. Probar respuestas reales del agente sobre:
+4. Probar respuestas reales del agente sobre:
    - precios de webs;
    - agentes IA web;
    - integración con WhatsApp;
    - visuales, imagen y vídeo;
    - mantenimiento;
    - casos Cronoras, Arik Custom y Aventuras Pixeladas.
-4. Verificar que el agente:
+5. Verificar que el agente:
    - usa siempre precios orientativos con `desde`;
    - no da presupuesto cerrado;
    - no inventa plazos;
    - no inventa garantías;
    - no inventa datos legales;
    - no menciona programación con IA.
-5. Ajustar `content/agent/aplaudia-agent.md` solo si las pruebas reales muestran respuestas mejorables.
-6. Continuar con email real del formulario si Carlos ya tiene Resend listo:
+6. Ajustar `content/agent/aplaudia-agent.md` solo si las pruebas reales muestran respuestas mejorables.
+7. Continuar con email real del formulario si Carlos ya tiene Resend listo:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
-7. Revisar legal/contacto antes de retirar el aviso de construcción:
+8. Revisar legal/contacto antes de retirar el aviso de construcción:
    - aviso legal;
    - privacidad;
    - cookies si aplica;

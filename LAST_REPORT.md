@@ -2,6 +2,51 @@
 
 Fecha: 2026-06-30
 
+## Actualización urgente - Chatbot móvil
+
+### Objetivo
+
+Carlos detecta que el chatbot abierto en móvil tiene demasiado texto acumulado, obliga a leer con poco espacio y la letra se percibe pequeña. Se aplica un ajuste de usabilidad sin rediseñar la web.
+
+### Cambios aplicados
+
+- `components/agent/aplaudia-agent-widget.tsx`:
+  - el panel abierto en móvil pasa a ocupar casi toda la altura útil (`h-[calc(100dvh-7rem)]`) y baja su margen inferior a `bottom-24`;
+  - los márgenes laterales del panel en móvil bajan a `left-2 right-2` para ganar anchura real;
+  - el área de mensajes mantiene scroll interno, con más espacio vertical disponible;
+  - las burbujas de mensaje en móvil pasan a `text-base leading-7`;
+  - el textarea mantiene `text-base` en móvil y sube a `min-h-12`;
+  - los botones de micrófono y enviar pasan a `48px` en móvil;
+  - el botón flotante del chat baja a `bottom-4` en móvil para dejar más altura al panel abierto;
+  - escritorio conserva el comportamiento compacto (`sm:w-[390px]`, `sm:text-sm`, `sm:h-auto`).
+
+### Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existía.
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no está instalado como dependencia ejecutable.
+- Browser QA local móvil 390x844:
+  - panel abierto: 704 px de alto;
+  - área de mensajes: 568 px de alto;
+  - mensaje: 16 px / 28 px de línea;
+  - textarea: 16 px / 24 px de línea;
+  - botones micrófono/enviar: 48 x 48 px;
+  - sin scroll horizontal;
+  - sin solapes entre textarea, micrófono y enviar.
+- Browser QA local escritorio 1280x800:
+  - panel compacto a la derecha: 390 px de ancho y 318 px de alto;
+  - texto de mensajes en escritorio se mantiene a 14 px;
+  - sin scroll horizontal.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente de commit, push y comprobación de producción tras el despliegue.
+
+### Siguiente paso recomendado
+
+Revisar el chatbot abierto desde un móvil real en `https://aplaudia.com`. Si Carlos aún lo nota pequeño, el siguiente ajuste recomendado sería modo casi pantalla completa en móvil o acortar el saludo inicial del agente.
+
 ## Objetivo de la tarea
 
 Seguimiento urgente tras la validación móvil de Carlos: el dictado por voz estaba desplegado, pero el botón se ocultaba cuando el navegador no exponía `SpeechRecognition` / `webkitSpeechRecognition`. Se ajusta el chatbot para que el micrófono sea visible también en móviles sin soporte y muestre un aviso discreto.
