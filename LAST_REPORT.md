@@ -88,11 +88,39 @@ Ejecutar la prioridad indicada por Carlos sobre `NEXT_TASK.md`:
 
 ## Estado de Railway
 
-- Railway estaba operativo antes de esta tarea segun el estado documentado previamente.
+- Push a `main` completado y produccion comprobada despues del despliegue.
+- Railway CLI sigue sin sesion valida en este entorno:
+  - `invalid_grant`;
+  - `Unauthorized`;
+  - requiere `railway login` para leer el dashboard.
+- No se pudo confirmar el panel de Railway desde CLI, pero `https://aplaudia.com` ya sirve la version nueva.
 - Falta configurar `OPENAI_API_KEY` en Railway para activar respuestas reales de OpenAI en produccion.
 - No se ha tocado DNS, Cloudflare ni configuracion externa desde el repo.
 - No se han guardado secretos.
-- Pendiente comprobar produccion tras push del commit de esta tarea.
+
+## Validacion de produccion
+
+- `https://aplaudia.com/`: `200`.
+- `https://aplaudia.com/robots.txt`: `200`.
+- `https://aplaudia.com/llms.txt`: `200`.
+- `https://aplaudia.com/sitemap.xml`: `200`.
+- Home en produccion:
+  - muestra `30 junio 2026`;
+  - ya no contiene `29 junio 2026`;
+  - ya no contiene `Actualizar mensaje`;
+  - no expone `OPENAI_API_KEY` en HTML.
+- `POST https://aplaudia.com/api/agent` sin `OPENAI_API_KEY`: OK, devuelve fallback controlado con `unavailable:true`.
+- Browser QA produccion movil 390x844:
+  - aviso visible a la izquierda como `En construccion - 30 junio 2026`;
+  - chatbot a la derecha;
+  - sin scroll horizontal;
+  - sin solape;
+  - sin `Actualizar mensaje`.
+- Browser QA produccion escritorio 1280x800:
+  - aviso a la izquierda;
+  - chatbot a la derecha;
+  - sin solape;
+  - aviso contiene `30 junio 2026`.
 
 ## Estado final esperado
 
