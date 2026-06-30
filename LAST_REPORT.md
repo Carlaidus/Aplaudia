@@ -41,7 +41,17 @@ Carlos detecta que el chatbot abierto en móvil tiene demasiado texto acumulado,
 ### Estado
 
 - Cambio local validado.
-- Pendiente de commit, push y comprobación de producción tras el despliegue.
+- Commit principal: `0278890` (`Improve mobile chatbot readability`).
+- Push a `main`: OK.
+- Producción `https://aplaudia.com`: OK, ya sirve las clases nuevas del chatbot móvil.
+- Browser QA producción móvil 390x844:
+  - panel abierto: 704 px de alto;
+  - mensaje: 16 px / 28 px de línea;
+  - textarea: 16 px / 24 px de línea;
+  - botones micrófono/enviar: 48 x 48 px;
+  - sin scroll horizontal;
+  - sin solapes;
+  - aviso de construcción visible en la esquina inferior izquierda.
 
 ### Siguiente paso recomendado
 
