@@ -91,12 +91,28 @@ Añadir dictado por voz al chatbot de Aplaudia tomando como referencia técnica 
   - pregunta de precios de web comercial y agente IA: OK, respondió con precios orientativos `desde 1.500 €` y `desde 500 €`;
   - pregunta directa sobre si se programa con IA: detectó una respuesta mejorable porque explicaba proceso interno;
   - prompt corregido para bloquear esa explicación interna y redirigir al valor del servicio.
+- API de producción tras el segundo push:
+  - pregunta directa `¿Programáis la web con IA?`: OK, ya no explica herramientas internas ni metodología;
+  - pregunta de precios: OK, mantiene importes orientativos con `desde`;
+  - `/api/agent` responde con `provider:"openai"` y `unavailable:false`.
+- Browser QA producción escritorio 1280x800:
+  - chatbot abre;
+  - micrófono visible con `aria-label="Dictar mensaje por voz"`;
+  - botón enviar visible;
+  - textarea visible;
+  - sin scroll horizontal.
+- Browser QA producción móvil 390x844:
+  - micrófono visible;
+  - botón enviar visible;
+  - textarea visible;
+  - sin solape entre micrófono, enviar y textarea;
+  - sin scroll horizontal.
 
 ## Validaciones pendientes o limitadas
 
 - Dictado con audio real: requiere aceptar permiso de micrófono y hablar desde el navegador del usuario. No se aceptó permiso de micrófono desde Codex.
 - iOS/Safari: Web Speech API puede no estar disponible o comportarse de forma limitada; el botón queda oculto si el navegador no expone `SpeechRecognition` / `webkitSpeechRecognition`.
-- Producción/Railway: pendiente comprobar tras push de esta tarea.
+- Railway CLI sigue sin sesión válida (`invalid_grant` / `Unauthorized`), pero producción en `https://aplaudia.com` sirve el cambio desplegado.
 
 ## Estado final esperado
 
