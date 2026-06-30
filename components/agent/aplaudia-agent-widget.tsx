@@ -181,6 +181,19 @@ export function AplaudiaAgentWidget() {
     input.style.height = `${Math.min(input.scrollHeight, 96)}px`
   }, [])
 
+  const resetInput = useCallback(() => {
+    const input = inputRef.current
+
+    if (input) {
+      input.value = ""
+      input.scrollTop = 0
+      input.style.height = ""
+    }
+
+    voiceBaseTextRef.current = ""
+    setHasText(false)
+  }, [])
+
   const setInputValue = useCallback(
     (value: string) => {
       const input = inputRef.current
@@ -269,19 +282,14 @@ export function AplaudiaAgentWidget() {
 
     recognitionRef.current?.stop()
     setVoiceMessage("")
+    resetInput()
 
     const userMessage: AgentMessage = { role: "user", content: text }
     setMessages((current) => {
       pendingUserAnchorIndexRef.current = current.length
       return [...current, userMessage]
     })
-    setHasText(false)
     setIsLoading(true)
-
-    if (inputRef.current) {
-      inputRef.current.value = ""
-      inputRef.current.style.height = "auto"
-    }
 
     try {
       const res = await fetch("/api/agent", {
@@ -308,7 +316,7 @@ export function AplaudiaAgentWidget() {
     } finally {
       setIsLoading(false)
     }
-  }, [isLoading, isOpen, messages, sessionId])
+  }, [isLoading, isOpen, messages, resetInput, sessionId])
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {

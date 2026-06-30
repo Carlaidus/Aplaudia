@@ -2,6 +2,44 @@
 
 Fecha: 2026-06-30
 
+## Actualización urgente - Reset inmediato del textarea del chatbot
+
+### Objetivo
+
+Al enviar una pregunta en el chatbot, el textarea debe vaciarse inmediatamente y volver a su altura mínima. La pregunta debe quedar solo como burbuja en el historial, sin permanecer duplicada en el editor.
+
+### Cambios aplicados
+
+- `components/agent/aplaudia-agent-widget.tsx`:
+  - se añade `resetInput()` como rutina única de limpieza del textarea;
+  - al enviar, primero se captura el texto y después se limpia el campo antes de esperar a `/api/agent`;
+  - el textarea queda con `value=""`, `scrollTop=0` y sin altura inline;
+  - el estado `hasText` vuelve a `false` inmediatamente;
+  - `voiceBaseTextRef` se limpia para que el dictado no reutilice texto enviado;
+  - se mantiene la pregunta como burbuja de usuario en el historial;
+  - no se toca el diseño visual, el panel grande, el micrófono, el envío ni la lógica del indicador de lectura.
+
+### Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existía.
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no está instalado como dependencia ejecutable.
+- QA local con `next start` en `http://127.0.0.1:3042` y viewport móvil 390x844:
+  - antes de enviar texto multilínea: textarea 96 px de alto, valor presente;
+  - 80 ms después del envío: textarea vacío, altura 48 px, sin altura inline y botón enviar desactivado;
+  - la pregunta aparece una sola vez como burbuja de usuario;
+  - tras comenzar la respuesta del asistente, el textarea sigue vacío y a 48 px;
+  - sin scroll horizontal.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente tras push: comprobar producción en `https://aplaudia.com` y confirmar que el textarea queda vacío y mínimo al enviar.
+
+### Siguiente paso recomendado
+
+Probar desde móvil real con teclado abierto: escribir varias líneas, enviar y confirmar que el campo vuelve a mínimo sin dejar la pregunta duplicada en el editor.
+
 ## Actualización urgente - Espacio superior del hero en móvil
 
 ### Objetivo
