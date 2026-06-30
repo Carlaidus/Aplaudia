@@ -106,12 +106,27 @@ Ejecutar la prioridad indicada por Carlos:
 - Lightbox medido:
   - escritorio 1280x720: modal `1254x691`, area de imagen `1252x564`;
   - movil 390x844: modal `382x810`, area de imagen `380x665`.
+- Produccion `https://aplaudia.com` tras push a `main`:
+  - `/`: 200, formulario visible y WhatsApp real publicado;
+  - `/casos/arik-custom`: 200 con `Ampliar imagen: Panel interno`;
+  - `/casos/cronoras`: 200 con vistas ampliables;
+  - `/casos/aventuras-pixeladas`: 200 con vistas ampliables;
+  - `/api/contacto`: 200 con honeypot, sin disparar email externo;
+  - `/robots.txt`: 200;
+  - `/llms.txt`: 200 y contacto actualizado;
+  - `/sitemap.xml`: 200.
+- Browser QA en produccion:
+  - lightbox Arik Custom: modal `1254x691`, area de imagen `1252x564`;
+  - home: formulario visible, ancho `1024`, sin scroll horizontal;
+  - 4 enlaces `wa.me/34659304487` detectados.
 
 ## Estado de Railway y produccion
 
-Pendiente hasta hacer commit, push a `main` y validacion HTTP de `https://aplaudia.com`.
+Push a `main` completado en `0a0168f`.
 
-Railway CLI sigue requiriendo sesion valida si se necesita leer el dashboard desde terminal.
+La produccion de `https://aplaudia.com` ya sirve la version nueva por HTTP.
+
+Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`), por lo que no se pudo leer el dashboard desde terminal. El estado operativo se verifico por HTTP en el dominio final.
 
 ## Siguiente paso recomendado
 
