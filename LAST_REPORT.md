@@ -530,6 +530,64 @@ Tarea original: añadir dictado por voz al chatbot de Aplaudia tomando como refe
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`;
    - privacidad, cookies y consentimiento definitivo.
+# LAST_REPORT - 2026-06-30 - Prueba de imágenes generadas para huecos visuales
+
+## Objetivo
+
+Probar una primera tanda de imágenes generadas para las zonas de Aplaudia que seguían preparadas con huecos visuales o recursos abstractos, sin rediseñar la web.
+
+## Cambios aplicados
+
+- Se generaron seis imágenes con el flujo integrado de imagegen:
+  - mejora de imagen/producto con estética antes/después;
+  - composición web por capas;
+  - objeto visual para animaciones/loops;
+  - pantalla comercial vertical;
+  - sistema visual aplicado a dispositivos y soportes;
+  - escena de estudio digital para la sección About.
+- Se copiaron y optimizaron como `.webp` en `public/visuals/`.
+- Se sustituyeron los bloques abstractos de `VisualGallery` por imágenes full-bleed manteniendo el mismo grid, animaciones y orden.
+- Se sustituyó el placeholder textual de la sección About por una escena de estudio realista.
+- No se tocaron textos comerciales, orden de secciones, formularios, chatbot, dominio, DNS ni backend.
+
+## Archivos modificados
+
+- `components/sections/visual-gallery.tsx`
+- `components/sections/about.tsx`
+- `public/visuals/ai-image-enhancement.webp`
+- `public/visuals/web-composition-layers.webp`
+- `public/visuals/motion-loop-cube.webp`
+- `public/visuals/commercial-screen-content.webp`
+- `public/visuals/campaign-system-devices.webp`
+- `public/visuals/aplaudia-studio-workspace.webp`
+- `LAST_REPORT.md`
+
+## Validaciones ejecutadas
+
+- `npm run build`: OK.
+- `npm run lint`: falla porque `eslint` no está disponible como ejecutable local.
+- QA local con `npx next dev --webpack -p 3102`:
+  - home carga en `http://localhost:3102`;
+  - 6 imágenes servidas desde `/visuals/`;
+  - escritorio 1440x1000: galería visual carga completa, sin overflow horizontal;
+  - escritorio 1440x1000: About carga la imagen de estudio, sin overflow horizontal;
+  - móvil 390x844: galería visual carga completa, sin overflow horizontal;
+  - móvil 390x844: About carga correctamente, sin overflow horizontal;
+  - consola del navegador sin errores ni warnings graves.
+
+## Estado final
+
+- Primera propuesta visual generada e integrada.
+- Las imágenes son ligeras para web: aproximadamente 40-82 KB cada una.
+- La web conserva el aviso de construcción.
+- No se han guardado secretos.
+
+## Siguiente paso recomendado
+
+1. Revisar visualmente en producción o preview si esta dirección encaja con el gusto de Carlos.
+2. Si alguna pieza parece demasiado abstracta, generar variantes más concretas por sector: restaurante, tienda, profesional independiente, clínica, marca local o evento.
+3. Si se aprueban, crear una pequeña fuente de contenido para estos assets en vez de dejarlos definidos dentro del componente.
+
 # LAST_REPORT - 2026-06-30 - Motor reutilizable de chatbot
 
 ## Objetivo

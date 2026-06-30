@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { useRef, useState } from "react"
 import { useTranslations } from "@/i18n"
@@ -104,14 +105,16 @@ export function About() {
               className="relative aspect-[4/3] rounded-2xl bg-secondary border border-border overflow-hidden"
               style={lightweightMotion ? undefined : { rotate: imageRotate }}
             >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-muted-foreground text-sm">
-                  {t("imageAlt")}
-                </span>
-              </div>
+              <Image
+                src="/visuals/aplaudia-studio-workspace.webp"
+                alt={t("imageAlt")}
+                fill
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover"
+              />
               
               {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-accent-cyan/10" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-background/30 via-transparent to-accent-cyan/20" />
             </motion.div>
             
             {/* Floating accent card */}

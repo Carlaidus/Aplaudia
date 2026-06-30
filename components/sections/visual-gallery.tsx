@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { useRef, useState } from "react"
 import { Wand2, Image as ImageIcon, RefreshCw, Tv, Sparkles } from "lucide-react"
@@ -24,11 +25,46 @@ const categoryAccents: Record<CategoryKey, string> = {
 
 // Gallery items with varied layouts
 const galleryItems = [
-  { id: 1, aspect: "aspect-[4/5]", span: "md:col-span-1 md:row-span-2", gradient: "from-primary/20 to-accent-cyan/20" },
-  { id: 2, aspect: "aspect-video", span: "md:col-span-1", gradient: "from-accent-cyan/20 to-accent-violet/20" },
-  { id: 3, aspect: "aspect-square", span: "md:col-span-1", gradient: "from-accent-violet/20 to-accent-magenta/20" },
-  { id: 4, aspect: "aspect-[3/4]", span: "md:col-span-1 md:row-span-2", gradient: "from-accent-magenta/20 to-primary/20" },
-  { id: 5, aspect: "aspect-video", span: "md:col-span-2", gradient: "from-primary/10 via-accent-cyan/10 to-accent-violet/10" },
+  {
+    id: 1,
+    aspect: "aspect-[4/5]",
+    span: "md:col-span-1 md:row-span-2",
+    gradient: "from-primary/20 to-accent-cyan/20",
+    src: "/visuals/ai-image-enhancement.webp",
+    alt: "Producto fotografiado en estudio con una mejora visual premium aplicada con IA",
+  },
+  {
+    id: 2,
+    aspect: "aspect-video",
+    span: "md:col-span-1",
+    gradient: "from-accent-cyan/20 to-accent-violet/20",
+    src: "/visuals/web-composition-layers.webp",
+    alt: "Capas visuales de composición web en un estudio digital oscuro y cinematográfico",
+  },
+  {
+    id: 3,
+    aspect: "aspect-square",
+    span: "md:col-span-1",
+    gradient: "from-accent-violet/20 to-accent-magenta/20",
+    src: "/visuals/motion-loop-cube.webp",
+    alt: "Objeto de cristal con trazas luminosas que representa animaciones web y loops visuales",
+  },
+  {
+    id: 4,
+    aspect: "aspect-[3/4]",
+    span: "md:col-span-1 md:row-span-2",
+    gradient: "from-accent-magenta/20 to-primary/20",
+    src: "/visuals/commercial-screen-content.webp",
+    alt: "Pantalla vertical con visuales premium en un espacio comercial elegante",
+  },
+  {
+    id: 5,
+    aspect: "aspect-video",
+    span: "md:col-span-2",
+    gradient: "from-primary/10 via-accent-cyan/10 to-accent-violet/10",
+    src: "/visuals/campaign-system-devices.webp",
+    alt: "Sistema visual de campaña aplicado a dispositivos y soportes de marca",
+  },
 ]
 
 function CategoryCard({
@@ -153,39 +189,25 @@ function GalleryItem({
       onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
       className={`${item.span} ${item.aspect} rounded-2xl overflow-hidden group relative cursor-pointer`}
     >
-      {/* Animated gradient background */}
-      <motion.div 
-        className={`absolute inset-0 bg-gradient-to-br ${item.gradient}`}
-        animate={lightweightMotion ? undefined : {
-          backgroundPosition: isHovered ? ["0% 0%", "100% 100%"] : "0% 0%",
-        }}
-        transition={lightweightMotion ? undefined : { duration: 2, repeat: isHovered ? Infinity : 0 }}
-        style={{ backgroundSize: "200% 200%" }}
-      />
-      
-      {/* Overlay pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:20px_20px] opacity-30" />
-      
-      {/* Content */}
-      <div className="relative h-full flex flex-col items-center justify-center p-6">
-        <motion.div
-          animate={lightweightMotion ? undefined : {
-            rotate: isHovered ? [0, 360] : 0,
-            scale: isHovered ? 1.2 : 1,
-          }}
-          transition={lightweightMotion ? undefined : { duration: isHovered ? 20 : 0.3, ease: "linear", repeat: isHovered ? Infinity : 0 }}
-        >
-          <Sparkles className="w-10 h-10 text-foreground/60" />
-        </motion.div>
-        
-        <motion.span 
-          className="mt-3 text-sm font-medium text-foreground/70"
-          animate={{ y: isHovered ? -5 : 0, opacity: isHovered ? 1 : 0.7 }}
-          transition={{ duration: 0.2 }}
-        >
-          Visual {item.id}
-        </motion.span>
-      </div>
+      <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient}`} />
+
+      <motion.div
+        className="absolute inset-0"
+        animate={lightweightMotion ? undefined : { scale: isHovered ? 1.06 : 1 }}
+        transition={lightweightMotion ? undefined : { duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Image
+          src={item.src}
+          alt={item.alt}
+          fill
+          sizes={item.span.includes("md:col-span-2") ? "(min-width: 768px) 66vw, 100vw" : "(min-width: 768px) 33vw, 100vw"}
+          className="object-cover"
+        />
+      </motion.div>
+
+      <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-background/10 to-transparent" />
+      <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-35 mix-blend-screen`} />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[length:22px_22px] opacity-15" />
       
       {/* Hover border effect */}
       <motion.div
