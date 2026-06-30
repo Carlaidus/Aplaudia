@@ -52,6 +52,9 @@ Añadir dictado por voz al chatbot de Aplaudia tomando como referencia técnica 
 - Se añadieron precios orientativos siempre con `desde`.
 - Se reforzó que no debe inventar precios cerrados, plazos, garantías, clientes, dirección física, CIF ni datos legales.
 - Se añadió criterio comercial para hablar de proyectos escalables según presupuesto.
+- Tras una prueba real en producción, se reforzó una regla adicional:
+  - si el usuario pregunta si Aplaudia programa o construye "con IA", el agente no debe explicar herramientas internas ni metodología;
+  - debe redirigir a estrategia, diseño, desarrollo, revisión humana, resultado y siguiente paso.
 
 ### Documentación
 
@@ -84,6 +87,10 @@ Añadir dictado por voz al chatbot de Aplaudia tomando como referencia técnica 
   - móvil 390x844: micrófono visible, enviar visible, textarea visible, sin solape entre micrófono, enviar y textarea, sin scroll horizontal;
   - envío escrito: OK;
   - sin `OPENAI_API_KEY` local, `/api/agent` devuelve fallback controlado.
+- API de producción tras el primer push:
+  - pregunta de precios de web comercial y agente IA: OK, respondió con precios orientativos `desde 1.500 €` y `desde 500 €`;
+  - pregunta directa sobre si se programa con IA: detectó una respuesta mejorable porque explicaba proceso interno;
+  - prompt corregido para bloquear esa explicación interna y redirigir al valor del servicio.
 
 ## Validaciones pendientes o limitadas
 
