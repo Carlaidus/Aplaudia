@@ -30,11 +30,21 @@ Al enviar una pregunta en el chatbot, el textarea debe vaciarse inmediatamente y
   - la pregunta aparece una sola vez como burbuja de usuario;
   - tras comenzar la respuesta del asistente, el textarea sigue vacío y a 48 px;
   - sin scroll horizontal.
+- QA producción en `https://aplaudia.com` con viewport móvil 390x844:
+  - bundle final servido con la rutina de reset;
+  - antes de enviar texto multilínea: textarea 96 px de alto, valor presente;
+  - 100 ms después del envío: textarea vacío, altura 48 px, sin altura inline y botón enviar desactivado;
+  - la pregunta aparece una sola vez como burbuja de usuario;
+  - tras comenzar la respuesta del asistente, el textarea sigue vacío y a 48 px;
+  - el asistente responde correctamente;
+  - sin scroll horizontal.
 
 ### Estado
 
 - Cambio local validado.
-- Pendiente tras push: comprobar producción en `https://aplaudia.com` y confirmar que el textarea queda vacío y mínimo al enviar.
+- Commit principal: `2a27114` (`Reset chatbot input on send`).
+- Producción `https://aplaudia.com`: OK, sirve la versión final.
+- Railway: despliegue efectivo confirmado por producción sirviendo el bundle final.
 
 ### Siguiente paso recomendado
 
