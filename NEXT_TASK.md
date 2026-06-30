@@ -6,7 +6,7 @@ Nivel de inteligencia recomendado: Alto
 
 ## Objetivo inmediato
 
-Validar en móvil real el nuevo tamaño del chatbot abierto, su legibilidad y el dictado por voz con permiso real de micrófono. Revisar también respuestas reales del agente tras la ampliación de instrucciones y precios orientativos.
+Validar en móvil real el chatbot casi a pantalla completa, especialmente con teclado abierto y permiso real de micrófono. Revisar también respuestas reales del agente tras la ampliación de instrucciones y precios orientativos.
 
 ## Repo
 
@@ -19,7 +19,13 @@ Validar en móvil real el nuevo tamaño del chatbot abierto, su legibilidad y el
 - El aviso de construcción queda flotando a la izquierda.
 - El aviso de construcción usa fecha `30 junio 2026`.
 - El chatbot queda flotando a la derecha.
-- El chatbot abierto en móvil se ha ampliado para ocupar casi toda la altura útil, con texto de mensaje a 16 px, textarea más grande y botones de micrófono/enviar de 48 px.
+- El chatbot abierto funciona como panel grande/casi pantalla completa:
+  - sin X flotante inferior redundante;
+  - cierre únicamente con la X superior;
+  - sin icono lateral en mensajes del asistente;
+  - burbuja del asistente a ancho completo;
+  - panel ancho en escritorio, no limitado a 390 px;
+  - mensajes con tipografía mayor e interlineado más compacto.
 - El formulario de contacto no muestra `Actualizar mensaje`.
 - `/api/agent` prioriza OpenAI directamente con `OPENAI_API_KEY`.
 - `OPENAI_API_KEY` está activa en producción.
@@ -41,7 +47,8 @@ Validar en móvil real el nuevo tamaño del chatbot abierto, su legibilidad y el
    - confirmar que el texto se lee cómodo;
    - confirmar que el textarea, el micrófono y enviar quedan visibles;
    - confirmar que no hay solapes ni scroll horizontal;
-   - decidir si hace falta llevarlo a modo casi pantalla completa o acortar el saludo inicial.
+   - confirmar comportamiento con teclado abierto;
+   - decidir si hace falta acortar el saludo inicial.
 2. Probar dictado por voz en producción:
    - Chrome/Edge en escritorio;
    - Android si hay dispositivo disponible;

@@ -261,21 +261,19 @@ export function AplaudiaAgentWidget() {
 
   return (
     <>
-      <div
-        className={`fixed bottom-24 left-2 right-2 z-[55] flex h-[calc(100dvh-7rem)] max-h-[44rem] flex-col overflow-hidden rounded-2xl border border-white/10 bg-background/95 shadow-2xl shadow-primary/20 backdrop-blur-xl transition-all duration-200 sm:bottom-24 sm:left-auto sm:right-6 sm:h-auto sm:max-h-[calc(100dvh-7rem)] sm:w-[390px] ${
-          isOpen
-            ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
-            : "pointer-events-none translate-y-2 scale-95 opacity-0"
-        }`}
-        aria-hidden={!isOpen}
-      >
-        <div className="flex items-center justify-between border-b border-border bg-card/80 px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl border border-primary/30 bg-primary/15 text-primary">
-              <Bot className="h-5 w-5" aria-hidden="true" />
+      {isOpen && (
+        <div
+          className="fixed inset-x-1.5 bottom-1.5 top-1.5 z-[70] flex max-h-[calc(100dvh-0.75rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-background/95 shadow-2xl shadow-primary/20 backdrop-blur-xl transition-all duration-200 sm:inset-x-6 sm:bottom-6 sm:top-6 sm:max-h-[calc(100dvh-3rem)] lg:inset-x-[8vw] xl:inset-x-[10vw]"
+          role="dialog"
+          aria-label="Asistente Aplaudia"
+        >
+        <div className="flex items-center justify-between border-b border-border bg-card/80 px-3 py-2.5 sm:px-4 sm:py-3">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/15 text-primary sm:h-10 sm:w-10">
+              <Bot className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
               <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-card bg-accent-cyan" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-semibold leading-none text-foreground">Asistente Aplaudia</p>
               <p className="mt-1 text-xs text-muted-foreground">Orientación rápida · sin datos sensibles</p>
             </div>
@@ -290,22 +288,17 @@ export function AplaudiaAgentWidget() {
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 space-y-3.5 overflow-y-auto px-3.5 py-4 sm:max-h-[390px] sm:px-4">
+        <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-2.5 py-3 sm:space-y-3 sm:px-4 sm:py-4">
           {messages.map((message, index) => (
             <div
               key={`${message.role}-${index}`}
               className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
             >
-              {message.role === "assistant" && (
-                <div className="mr-2 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
-                  <Bot className="h-3.5 w-3.5" aria-hidden="true" />
-                </div>
-              )}
               <p
-                className={`max-w-[88%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-base leading-7 sm:max-w-[82%] sm:text-sm sm:leading-relaxed ${
+                className={`whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-[15.5px] leading-[1.45] sm:px-3.5 sm:text-base sm:leading-[1.45] ${
                   message.role === "user"
-                    ? "rounded-br-sm bg-primary text-primary-foreground"
-                    : "rounded-bl-sm bg-card text-foreground"
+                    ? "max-w-[94%] rounded-br-sm bg-primary text-primary-foreground sm:max-w-[88%]"
+                    : "w-full max-w-full rounded-bl-sm bg-card text-foreground"
                 }`}
               >
                 {message.content}
@@ -314,11 +307,8 @@ export function AplaudiaAgentWidget() {
           ))}
 
           {isLoading && (
-            <div className="flex items-end gap-2">
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
-                <Bot className="h-3.5 w-3.5" aria-hidden="true" />
-              </div>
-              <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm bg-card px-4 py-3">
+            <div className="flex justify-start">
+              <div className="flex max-w-full items-center gap-1.5 rounded-2xl rounded-bl-sm bg-card px-3.5 py-2.5">
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:0ms]" />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:160ms]" />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:320ms]" />
@@ -342,7 +332,7 @@ export function AplaudiaAgentWidget() {
             onKeyDown={handleKeyDown}
             disabled={isLoading}
             placeholder={isListening ? "Escuchando..." : "Cuéntame qué necesitas..."}
-            className="min-h-12 flex-1 resize-none rounded-xl border border-border bg-card px-3.5 py-2.5 text-base leading-6 text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary disabled:opacity-50 sm:min-h-11 sm:text-sm"
+            className="min-h-12 flex-1 resize-none rounded-xl border border-border bg-card px-3.5 py-2.5 text-base leading-6 text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary disabled:opacity-50"
           />
           <button
             type="button"
@@ -357,7 +347,7 @@ export function AplaudiaAgentWidget() {
                   : "Dictado por voz no disponible en este navegador"
             }
             aria-pressed={isListening}
-            className={`relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:h-11 sm:w-11 ${
+            className={`relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
               isListening
                 ? "border-accent-magenta/60 bg-accent-magenta/15 text-accent-magenta shadow-lg shadow-accent-magenta/20"
                 : supportsVoiceInput
@@ -379,7 +369,7 @@ export function AplaudiaAgentWidget() {
             type="button"
             onClick={sendMessage}
             disabled={!hasText || isLoading || !sessionId}
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-transform hover:bg-primary/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:h-11 sm:w-11"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-transform hover:bg-primary/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Enviar mensaje"
           >
             {isLoading ? (
@@ -400,27 +390,25 @@ export function AplaudiaAgentWidget() {
             {voiceMessage}
           </p>
         )}
-      </div>
+        </div>
+      )}
 
-      <button
-        type="button"
-        onClick={() => setIsOpen((current) => !current)}
-        className="fixed bottom-4 right-4 z-[55] flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-primary text-primary-foreground shadow-2xl shadow-primary/30 transition-all hover:scale-105 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95 sm:bottom-6 sm:right-6"
-        aria-label={isOpen ? "Cerrar asistente de Aplaudia" : "Abrir asistente de Aplaudia"}
-      >
-        {hasUnread && !isOpen && (
-          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-background bg-accent-magenta text-[10px] font-bold">
-            1
-          </span>
-        )}
-        <span className={`absolute transition-all ${isOpen ? "scale-100 rotate-0 opacity-100" : "scale-75 rotate-90 opacity-0"}`}>
-          <X className="h-5 w-5" aria-hidden="true" />
-        </span>
-        <span className={`absolute transition-all ${isOpen ? "scale-75 -rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100"}`}>
+      {!isOpen && (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-4 right-4 z-[55] flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-primary text-primary-foreground shadow-2xl shadow-primary/30 transition-all hover:scale-105 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95 sm:bottom-6 sm:right-6"
+          aria-label="Abrir asistente de Aplaudia"
+        >
+          {hasUnread && (
+            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-background bg-accent-magenta text-[10px] font-bold">
+              1
+            </span>
+          )}
           <MessageCircle className="h-6 w-6" aria-hidden="true" />
-        </span>
-        <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-accent-cyan" aria-hidden="true" />
-      </button>
+          <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-accent-cyan" aria-hidden="true" />
+        </button>
+      )}
     </>
   )
 }

@@ -2,6 +2,70 @@
 
 Fecha: 2026-06-30
 
+## Actualización urgente - Chatbot casi pantalla completa
+
+### Objetivo
+
+Carlos pide optimizar al máximo el espacio útil del chatbot abierto: panel casi a pantalla completa, sin X flotante redundante, sin columna vacía por icono lateral, texto algo mayor y con interlineado más compacto.
+
+### Cambios aplicados
+
+- `components/agent/aplaudia-agent-widget.tsx`:
+  - el panel abierto pasa a estructura de panel/modal grande con `fixed`, `top/bottom/left/right`, `flex-col` y área de mensajes `flex-1`;
+  - móvil usa margen mínimo (`inset-x-1.5`, `top-1.5`, `bottom-1.5`);
+  - escritorio deja de usar `sm:w-[390px]` y pasa a panel amplio (`lg:inset-x-[8vw]`, `xl:inset-x-[10vw]`);
+  - se elimina el límite `sm:max-h-[390px]` del área de mensajes;
+  - el botón flotante inferior solo existe cuando el chat está cerrado;
+  - al abrir, el cierre queda únicamente en la X superior del panel;
+  - el panel se desmonta al cerrar para no dejar foco ni cierre fantasma en el DOM;
+  - se elimina el icono lateral externo de los mensajes del asistente;
+  - la burbuja del asistente usa `w-full max-w-full`, recuperando el ancho útil;
+  - las burbujas de usuario suben a `max-w-[94%]` en móvil y `sm:max-w-[88%]`;
+  - texto de mensajes ajustado a `15.5px` en móvil y `16px` en pantallas `sm`, con `leading-[1.45]`;
+  - input inferior mantiene textarea, micrófono y enviar con botones de `48px`;
+  - no se toca `/api/agent`, `OPENAI_API_KEY`, formulario de contacto ni `content/agent/aplaudia-agent.md`.
+
+### Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existía.
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no está instalado como dependencia ejecutable.
+- Browser QA local responsive:
+  - 360x780: panel 333 x 768 px; mensajes 640 px de alto; sin scroll horizontal;
+  - 390x844: panel 363 x 832 px; mensajes 704 px de alto; sin scroll horizontal;
+  - 430x932: panel 403 x 920 px; mensajes 792 px de alto; sin scroll horizontal;
+  - 768x1024: panel 705 x 976 px; mensajes 836 px de alto; sin scroll horizontal;
+  - 1280x800: panel 1009 x 752 px; mensajes 612 px de alto; sin scroll horizontal.
+- Confirmaciones de UI:
+  - botón flotante cerrado visible: OK;
+  - botón flotante como X al abrir: eliminado;
+  - X superior del panel: OK;
+  - al cerrar con X superior vuelve el botón flotante: OK;
+  - panel desmontado al cerrar: OK;
+  - iconos laterales en mensajes del asistente: 0;
+  - mensaje de bienvenida ocupa el ancho útil de la burbuja;
+  - texto de mensajes: 15.5 px / 22.475 px en móvil y 16 px / 23.2 px en escritorio;
+  - botones micrófono/enviar: 48 x 48 px;
+  - textarea cómodo y sin solapes.
+- Envío escrito local:
+  - mensaje enviado: OK;
+  - textarea se limpia: OK;
+  - respuesta del agente/fallback local: OK;
+  - sin errores graves en consola.
+- Micrófono:
+  - botón visible y sin solape: OK;
+  - pulsación del micrófono en navegador de prueba: no rompe UI y no genera errores de consola;
+  - audio real no validado porque requiere permiso de micrófono y voz real en el dispositivo del usuario.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente de commit, push y comprobación en producción.
+
+### Siguiente paso recomendado
+
+Revisar en móvil real `https://aplaudia.com` tras despliegue. Si Carlos quiere aún más densidad, el siguiente ajuste sería acortar el saludo inicial o activar un modo específico cuando el teclado móvil esté abierto.
+
 ## Actualización urgente - Chatbot móvil
 
 ### Objetivo
