@@ -146,20 +146,28 @@ Añadir un nuevo caso queda reducido principalmente a:
   - sin scroll horizontal;
   - `Volver a casos` queda por debajo del header fijo;
   - agente y aviso de construcción no se solapan.
+- Producción `https://aplaudia.com` tras push a `main`:
+  - `/`: 200 y carga el asistente de Aplaudia.
+  - `/casos`: 200.
+  - `/casos/cronoras`: 200.
+  - `/casos/arik-custom`: 200 y referencia `arik-dashboard`.
+  - `/casos/aventuras-pixeladas`: 200.
+  - `/portfolio/arik-dashboard.webp`: 200.
+  - `/robots.txt`: 200 y apunta a `https://aplaudia.com/sitemap.xml`.
+  - `/llms.txt`: 200.
+  - `/sitemap.xml`: 200.
 
-## Estado de Railway
+## Estado de Railway y producción
 
 Railway CLI sigue sin sesión válida (`invalid_grant` / `Unauthorized`), por lo que no se pudo leer el dashboard desde terminal.
 
-Estado pendiente de confirmar tras integrar en `main`:
+El push a `main` se completó correctamente en el commit `6ac28c2`.
 
-- push a GitHub;
-- despliegue automático de Railway;
-- validación por HTTP de `https://aplaudia.com`.
+No se puede afirmar el estado visual del dashboard de Railway desde la CLI por falta de sesión válida, pero la validación HTTP confirma que producción ya está sirviendo la versión nueva en `https://aplaudia.com`.
 
 ## Siguiente paso recomendado
 
-Tras el despliegue, revisar en producción con Carlos:
+Revisar en producción con Carlos:
 
 - si el panel interno real de Arik Custom debe mantenerse visible;
 - si el agente debe conectarse a un servicio real o quedarse como preparación;
