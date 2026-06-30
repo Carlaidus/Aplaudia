@@ -93,20 +93,40 @@ Ejecutar la correccion pedida por Carlos sobre el formulario de contacto:
 
 ## Estado de Railway y produccion
 
-Pendiente de integrar en `main`, hacer push y comprobar `https://aplaudia.com`.
+Push a `main` completado en `aad9918`.
+
+Produccion validada por HTTP en `https://aplaudia.com`:
+
+- `/`: 200, formulario nuevo visible con `Primero dime qué necesitas`;
+- `/`: 200, no aparece el canal antiguo `Ambos`;
+- `/`: 200, no aparece el CTA antiguo `Enviar por email`;
+- `/casos`: 200;
+- `/casos/cronoras`: 200;
+- `/casos/arik-custom`: 200;
+- `/casos/aventuras-pixeladas`: 200;
+- `/robots.txt`: 200;
+- `/llms.txt`: 200;
+- `/sitemap.xml`: 200;
+- `/api/contacto` con canal `whatsapp`: 200, `emailSent:false`;
+- `/api/contacto` con `needs: []`: 400 controlado.
+
+Browser QA en produccion movil 390x844:
+
+- 6 necesidades visibles;
+- selector final solo con `Email` y `WhatsApp`;
+- un unico submit `Enviar`;
+- sin `mailto` ni `wa.me` duplicados dentro del formulario antes de enviar;
+- sin scroll horizontal.
+
+Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`), por lo que no se pudo leer el dashboard desde terminal. El estado operativo se valido por el dominio final sirviendo el cambio nuevo tras el push.
 
 ## Siguiente paso recomendado
 
-1. Integrar esta rama en `main` y hacer push.
-2. Esperar deployment de Railway.
-3. Validar en produccion:
-   - home con formulario nuevo;
-   - movil sin solapes ni scroll horizontal;
-   - selector final solo Email/WhatsApp;
-   - boton unico `Enviar`;
-   - `/api/contacto` con canal `whatsapp`.
-4. Configurar variables reales de Resend en Railway:
+1. Configurar variables reales de Resend en Railway:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
+2. Enviar una prueba real por Email desde el formulario.
+3. Enviar una prueba real por WhatsApp desde el formulario.
+4. Confirmar en Resend entrega y `replyTo`.
 5. Revisar legal/privacidad antes de retirar el aviso de construccion.

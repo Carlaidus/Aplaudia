@@ -6,13 +6,7 @@ Nivel de inteligencia recomendado: Alto
 
 ## Objetivo inmediato
 
-Validar en produccion el nuevo formulario de contacto estilo Arik Custom:
-
-- seleccion multiple de necesidades primero;
-- mensaje editable autocompuesto;
-- datos de contacto;
-- selector final compacto Email/WhatsApp;
-- un unico boton `Enviar`.
+Activar y probar el envio real por email del formulario de contacto, sin guardar secretos en el repo, y revisar la parte legal antes de retirar el aviso de construccion.
 
 ## Repo
 
@@ -21,69 +15,54 @@ Validar en produccion el nuevo formulario de contacto estilo Arik Custom:
 ## Contexto confirmado
 
 - `https://aplaudia.com/` funciona.
-- La web debe mantener aviso de construccion hasta validacion final.
+- Produccion ya sirve el formulario nuevo estilo Arik Custom:
+  - seleccion multiple de necesidades primero;
+  - mensaje editable autocompuesto;
+  - datos de contacto;
+  - selector final compacto Email/WhatsApp;
+  - un unico boton `Enviar`;
+  - sin canal visible `Ambos`;
+  - sin enlaces `mailto` ni `wa.me` duplicados dentro del formulario antes de enviar.
+- Browser QA en produccion movil 390x844:
+  - sin scroll horizontal;
+  - 6 necesidades visibles;
+  - solo Email/WhatsApp;
+  - un unico submit `Enviar`.
 - WhatsApp real publicado:
   - numero visible: `659304487`;
   - formato internacional: `34659304487`;
   - enlace centralizado en `content/site.ts`.
-- Contacto interno actualizado:
-  - `content/contact.ts` contiene necesidades reutilizables, constructor del mensaje guia y canales;
-  - `components/contact/contact-form.tsx` muestra seleccion multiple de necesidades antes del mensaje;
-  - el mensaje se autocompone y sigue siendo editable;
-  - el selector final solo ofrece Email o WhatsApp;
-  - el boton visible del formulario es `Enviar`;
-  - `/api/contacto` envia por Resend solo si el canal elegido es Email;
-  - WhatsApp funciona sin Resend preparando el mensaje editable.
-- Lightbox actualizado:
-  - `components/cases/case-gallery.tsx`;
-  - modal `100vw` x `100dvh`;
-  - textos como overlay para no reducir el area de imagen.
-- Agente Aplaudia:
-  - widget implementado;
-  - instrucciones en `content/agent/aplaudia-agent.md`;
-  - endpoint `/api/agent`;
-  - necesita `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET` para IA real;
-  - si faltan variables, usa fallback.
-- Variables para activar email real en Railway:
+- `/api/contacto`:
+  - canal `whatsapp`: OK sin Resend;
+  - canal `email`: necesita variables reales de Resend.
+- Variables necesarias para activar email real en Railway:
   - `RESEND_API_KEY`;
   - `CONTACT_RECIPIENT_EMAIL`;
   - `EMAIL_FROM`.
+- Railway CLI no tiene sesion valida en este entorno (`invalid_grant` / `Unauthorized`).
 - No hay base de datos, auth ni pagos.
 - No guardar secretos en el repo.
 
 ## Proxima tarea
 
-1. Confirmar despliegue tras el ultimo push a `main`.
-2. Revisar produccion:
-   - `https://aplaudia.com/`;
-   - `https://aplaudia.com/casos`;
-   - `https://aplaudia.com/casos/cronoras`;
-   - `https://aplaudia.com/casos/arik-custom`;
-   - `https://aplaudia.com/casos/aventuras-pixeladas`;
-   - `https://aplaudia.com/robots.txt`;
-   - `https://aplaudia.com/llms.txt`;
-   - `https://aplaudia.com/sitemap.xml`.
-3. Comprobar visualmente el formulario en escritorio y movil:
-   - necesidades multiples visibles;
-   - mensaje cambia al marcar/desmarcar necesidades mientras no se haya editado a mano;
-   - datos de contacto quedan debajo del mensaje;
-   - selector final solo muestra Email y WhatsApp;
-   - no aparece canal `Ambos`;
-   - no hay enlaces `mailto` ni WhatsApp duplicados dentro del bloque antes de enviar.
-4. Configurar en Railway, sin guardar secretos:
+1. Entrar en Railway con sesion valida.
+2. Configurar variables reales, sin copiarlas a archivos:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
-5. Enviar una prueba real del formulario por Email y otra por WhatsApp.
-6. Confirmar en Resend:
+3. Confirmar que `EMAIL_FROM` usa un remitente permitido/verificado en Resend.
+4. Enviar una prueba real del formulario por Email.
+5. Confirmar en Resend:
    - entrega correcta;
    - remitente permitido;
    - `replyTo` del visitante.
+6. Enviar una prueba real por WhatsApp desde el formulario.
 7. Revisar legal/contacto antes de retirar el aviso de construccion:
    - aviso legal;
    - privacidad;
    - cookies si aplica;
    - texto definitivo de consentimiento.
+8. Decidir con Carlos si ya se puede retirar el aviso de construccion.
 
 ## Deuda tecnica recomendada
 
@@ -104,7 +83,7 @@ Validar en produccion el nuevo formulario de contacto estilo Arik Custom:
 
 ## Cierre esperado de la proxima sesion
 
-- Produccion verificada tras despliegue.
-- Variables reales de Resend configuradas o bloqueo documentado.
-- Prueba real de email y WhatsApp completada si hay acceso.
-- Siguiente paso claro para legal/contacto y lanzamiento.
+- Email real del formulario probado o bloqueo documentado por falta de acceso.
+- WhatsApp probado desde el formulario.
+- Resend revisado.
+- Siguiente decision clara sobre legal y retirada del aviso de construccion.
