@@ -28,7 +28,7 @@ El input del chat incluye dictado por voz cuando el navegador soporta Web Speech
 - usa `SpeechRecognition` / `webkitSpeechRecognition` en cliente;
 - idioma `es-ES`;
 - no guarda audio en el repo ni en servidor;
-- si el navegador no soporta dictado, el boton de microfono no se muestra.
+- si el navegador no soporta dictado, el boton de microfono sigue visible y muestra un aviso discreto.
 
 Variables de entorno necesarias para activarlo:
 

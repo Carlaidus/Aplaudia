@@ -344,29 +344,37 @@ export function AplaudiaAgentWidget() {
             placeholder={isListening ? "Escuchando..." : "Cuéntame qué necesitas..."}
             className="min-h-11 flex-1 resize-none rounded-xl border border-border bg-card px-3.5 py-2.5 text-base leading-6 text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary disabled:opacity-50 sm:text-sm"
           />
-          {supportsVoiceInput && (
-            <button
-              type="button"
-              onClick={toggleVoiceInput}
-              disabled={isLoading}
-              aria-label={isListening ? "Parar dictado por voz" : "Dictar mensaje por voz"}
-              aria-pressed={isListening}
-              className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
-                isListening
-                  ? "border-accent-magenta/60 bg-accent-magenta/15 text-accent-magenta shadow-lg shadow-accent-magenta/20"
-                  : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground"
-              }`}
-            >
-              {isListening ? (
-                <MicOff className="h-4 w-4" aria-hidden="true" />
-              ) : (
-                <Mic className="h-4 w-4" aria-hidden="true" />
-              )}
-              {isListening && (
-                <span className="absolute inset-0 rounded-xl bg-accent-magenta/20 animate-ping" aria-hidden="true" />
-              )}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={toggleVoiceInput}
+            disabled={isLoading}
+            aria-disabled={!supportsVoiceInput}
+            aria-label={
+              isListening
+                ? "Parar dictado por voz"
+                : supportsVoiceInput
+                  ? "Dictar mensaje por voz"
+                  : "Dictado por voz no disponible en este navegador"
+            }
+            aria-pressed={isListening}
+            className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
+              isListening
+                ? "border-accent-magenta/60 bg-accent-magenta/15 text-accent-magenta shadow-lg shadow-accent-magenta/20"
+                : supportsVoiceInput
+                  ? "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                  : "border-border/70 bg-card/70 text-muted-foreground/60"
+            }`}
+            title={supportsVoiceInput ? "Dictar mensaje por voz" : "El dictado por voz no está disponible en este navegador"}
+          >
+            {isListening ? (
+              <MicOff className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Mic className="h-4 w-4" aria-hidden="true" />
+            )}
+            {isListening && (
+              <span className="absolute inset-0 rounded-xl bg-accent-magenta/20 animate-ping" aria-hidden="true" />
+            )}
+          </button>
           <button
             type="button"
             onClick={sendMessage}

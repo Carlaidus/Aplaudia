@@ -28,7 +28,7 @@ Validar el dictado por voz del chatbot en producción con permiso real de micró
   - idioma `es-ES`;
   - resultados parciales;
   - limpieza al cerrar/desmontar;
-  - botón oculto si no hay soporte.
+  - botón visible aunque no haya soporte, mostrando aviso discreto al tocarlo.
 - `content/agent/aplaudia-agent.md` incluye identidad, servicios, casos reales y precios orientativos.
 - No hay base de datos, auth ni pagos.
 - No guardar secretos en el repo.

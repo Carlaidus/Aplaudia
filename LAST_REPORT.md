@@ -4,7 +4,9 @@ Fecha: 2026-06-30
 
 ## Objetivo de la tarea
 
-Añadir dictado por voz al chatbot de Aplaudia tomando como referencia técnica el chat de Arik Custom, y ampliar `content/agent/aplaudia-agent.md` con instrucciones claras sobre identidad, servicios, casos reales y precios orientativos.
+Seguimiento urgente tras la validación móvil de Carlos: el dictado por voz estaba desplegado, pero el botón se ocultaba cuando el navegador no exponía `SpeechRecognition` / `webkitSpeechRecognition`. Se ajusta el chatbot para que el micrófono sea visible también en móviles sin soporte y muestre un aviso discreto.
+
+Tarea original: añadir dictado por voz al chatbot de Aplaudia tomando como referencia técnica el chat de Arik Custom, y ampliar `content/agent/aplaudia-agent.md` con instrucciones claras sobre identidad, servicios, casos reales y precios orientativos.
 
 ## Referencia revisada
 
@@ -36,7 +38,8 @@ Añadir dictado por voz al chatbot de Aplaudia tomando como referencia técnica 
   - parada del reconocimiento al cerrar el widget;
   - parada del reconocimiento al enviar mensaje;
   - limpieza del reconocimiento al desmontar;
-  - fallback: si el navegador no soporta Web Speech API, el botón de micrófono no se muestra.
+  - fallback inicial: si el navegador no soportaba Web Speech API, el botón de micrófono no se mostraba;
+  - corrección posterior: el botón de micrófono queda visible aunque no haya soporte y muestra el aviso `El dictado por voz no está disponible en este navegador.` al tocarlo.
 
 ### Instrucciones del agente
 
@@ -74,6 +77,11 @@ Añadir dictado por voz al chatbot de Aplaudia tomando como referencia técnica 
 
 ## Validaciones ejecutadas
 
+- Seguimiento móvil tras aviso de Carlos:
+  - causa confirmada: el botón estaba desplegado, pero se ocultaba si el navegador móvil no exponía Web Speech API;
+  - corrección aplicada: el botón de micrófono queda visible siempre junto al textarea;
+  - si no hay soporte, al tocarlo muestra el aviso discreto `El dictado por voz no está disponible en este navegador.`;
+  - QA local móvil 390x844: micrófono visible, enviar visible, textarea visible, sin solape y sin scroll horizontal.
 - `npm install`: no fue necesario; `node_modules` ya existía.
 - `npm run build`: OK.
 - `npm run lint`: falla por deuda previa; `eslint` no está instalado como dependencia ejecutable.
@@ -112,6 +120,7 @@ Añadir dictado por voz al chatbot de Aplaudia tomando como referencia técnica 
 
 - Dictado con audio real: requiere aceptar permiso de micrófono y hablar desde el navegador del usuario. No se aceptó permiso de micrófono desde Codex.
 - iOS/Safari: Web Speech API puede no estar disponible o comportarse de forma limitada; el botón queda oculto si el navegador no expone `SpeechRecognition` / `webkitSpeechRecognition`.
+- Corrección aplicada después de la prueba móvil de Carlos: en navegadores sin soporte, el botón ya no se oculta; queda visible y avisa al tocarlo.
 - Railway CLI sigue sin sesión válida (`invalid_grant` / `Unauthorized`), pero producción en `https://aplaudia.com` sirve el cambio desplegado.
 
 ## Estado final esperado

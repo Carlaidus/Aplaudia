@@ -72,7 +72,7 @@ Ultima actualizacion: 2026-06-30
   - idioma `es-ES`;
   - resultados parciales en el textarea;
   - parada al cerrar el widget, enviar mensaje o desmontar componente;
-  - boton oculto si el navegador no soporta reconocimiento de voz.
+  - boton visible tambien sin soporte, con aviso discreto si el navegador no expone reconocimiento de voz.
 - Instrucciones del agente ampliadas en `content/agent/aplaudia-agent.md`:
   - identidad y tono;
   - servicios;
