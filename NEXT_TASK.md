@@ -6,7 +6,7 @@ Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Objetivo inmediato
 
-Ajustar rendimiento percibido en móvil, reducir espacios iniciales entre secciones, mejorar fuente/espacio útil del chatbot y afinar el comportamiento del agente para que no hable de precios salvo que el usuario los pregunte de forma explícita. Mantener las animaciones y el look actual: no rediseñar.
+Validar en móvil real la versión ya desplegada y cerrar preparación operativa antes de retirar el aviso de construcción: dictado real, comportamiento del chatbot con teclado abierto, respuestas del agente en producción, Resend/contacto real y textos legales mínimos.
 
 ## Repo
 
@@ -29,7 +29,61 @@ Ajustar rendimiento percibido en móvil, reducir espacios iniciales entre seccio
 - Carlos ha detectado que el agente salta demasiado de una web barata a 2.500 €. Hay que introducir opciones intermedias y, si el cliente quiere gastar poco, proponer reducir alcance/fases.
 - Carlos considera exagerados para Aplaudia los rangos propios de 2.500-4.000 o 4.000-7.500 como punto principal. Esos pueden quedar como referencia de mercado/competidores, pero Aplaudia debe plantearse más accesible y vender también mantenimiento mensual.
 
-## Tarea 1: optimización móvil sin cambiar animaciones
+## Estado tras la última sesión
+
+- Hero móvil validado en producción: a 700 ms ya son visibles H1, subtítulo y CTA principal.
+- Espaciado inicial reducido en móvil sin rediseñar.
+- Chatbot validado en producción:
+  - fuente de mensajes en móvil: 16 px;
+  - textarea se vacía al enviar;
+  - textarea vuelve a 48 px;
+  - pregunta queda solo como burbuja de usuario;
+  - sin scroll horizontal.
+- Prompt del agente actualizado:
+  - no habla de precios si no se preguntan;
+  - usa rangos con `desde` si el usuario pregunta por precio;
+  - propone fases si el cliente tiene poco presupuesto;
+  - mantenimiento mensual integrado como vía de evolución.
+- Producción `https://aplaudia.com` sirve la versión final.
+
+## Próxima tarea real
+
+1. Probar en móvil real la home:
+   - primera carga;
+   - hero visible sin sensación de bloqueo;
+   - aviso de construcción;
+   - chatbot flotante;
+   - primeras secciones tras scroll.
+2. Probar chatbot en móvil real con teclado abierto:
+   - texto largo;
+   - envío;
+   - textarea vacío;
+   - altura mínima;
+   - respuesta larga;
+   - indicador de más contenido.
+3. Probar dictado por voz real:
+   - Chrome/Edge escritorio;
+   - Android si hay dispositivo disponible;
+   - iPhone/Safari si hay dispositivo disponible;
+   - confirmar permiso, transcripción y envío.
+4. Revisar respuestas reales del agente en producción durante una conversación más natural:
+   - servicios sin precio;
+   - preguntas de precio;
+   - poco presupuesto;
+   - catálogos/productos;
+   - mantenimiento mensual.
+5. Continuar con email real del formulario si Carlos ya tiene Resend listo:
+   - `RESEND_API_KEY`;
+   - `CONTACT_RECIPIENT_EMAIL`;
+   - `EMAIL_FROM`.
+6. Revisar legal/contacto antes de retirar el aviso de construcción:
+   - aviso legal;
+   - privacidad;
+   - cookies si aplica;
+   - texto definitivo de consentimiento.
+7. Decidir con Carlos si se puede retirar el aviso de construcción.
+
+## Ejecutado - Tarea 1: optimización móvil sin cambiar animaciones
 
 1. Revisar la home en móvil real/simulado.
 2. Diagnosticar por qué al cargar en móvil aparece primero solo el título y el resto tarda demasiado.
@@ -44,14 +98,14 @@ Ajustar rendimiento percibido en móvil, reducir espacios iniciales entre seccio
 4. En móvil, el contenido no debe parecer roto ni vacío durante varios segundos.
 5. No introducir saltos bruscos ni layout shift.
 
-## Tarea 2: reducir espacio entre secciones iniciales
+## Ejecutado - Tarea 2: reducir espacio entre secciones iniciales
 
 1. Revisar separación entre el hero y la siguiente sección, y entre las dos primeras secciones posteriores.
 2. Reducir ligeramente el espacio vertical si se puede sin romper el diseño premium.
 3. Mantener respiración visual suficiente.
 4. No compactar toda la web de forma agresiva; prioridad a móvil y primeras secciones.
 
-## Tarea 3: fuente y caja de escritura del chatbot
+## Ejecutado - Tarea 3: fuente y caja de escritura del chatbot
 
 1. Revisar `components/agent/aplaudia-agent-widget.tsx`.
 2. Subir un poco la fuente del asistente si sigue viéndose pequeña.
@@ -64,7 +118,7 @@ Ajustar rendimiento percibido en móvil, reducir espacios iniciales entre seccio
 9. Confirmar que esto funciona también si el texto venía del dictado por voz.
 10. Confirmar que `hasText` queda en falso y el botón de enviar vuelve a desactivarse hasta que haya nuevo texto.
 
-## Tarea 4: comportamiento de precios del agente
+## Ejecutado - Tarea 4: comportamiento de precios del agente
 
 Actualizar `content/agent/aplaudia-agent.md` para que quede claro:
 
@@ -87,7 +141,7 @@ Actualizar `content/agent/aplaudia-agent.md` para que quede claro:
 10. No prometer descuentos ni precios cerrados.
 11. No usar los rangos altos de mercado como precio propio principal. Si se mencionan, debe ser solo como comparación general: otras soluciones a medida pueden subir bastante más, pero Aplaudia intenta escalar el proyecto según presupuesto.
 
-## Tarea 5: mantenimiento mensual en el agente
+## Ejecutado - Tarea 5: mantenimiento mensual en el agente
 
 Actualizar la sección de mantenimiento del `.md` para que sea una parte clara de la propuesta:
 
@@ -100,7 +154,7 @@ Actualizar la sección de mantenimiento del `.md` para que sea una parte clara d
 - Trabajos fuera de mantenimiento: normalmente 30-45 €/h o presupuesto aparte si es una funcionalidad grande.
 - Si el cliente tiene presupuesto limitado, proponer combinar una versión inicial más sencilla con mantenimiento/evolución mensual.
 
-## Tarea 6: pruebas del agente y chatbot
+## Ejecutado - Tarea 6: pruebas del agente y chatbot
 
 Probar preguntas reales:
 
@@ -161,13 +215,10 @@ Actualizar `NEXT_TASK.md` con el siguiente foco real.
 - No mencionar programación con IA como mensaje público.
 - No inventar datos legales, dirección, CIF, precios cerrados, plazos ni garantías.
 
-## Cierre esperado de la próxima sesión
+## Cierre esperado de la próxima sesión real
 
-- Home móvil más rápida de percibir.
-- Espaciado inicial algo más compacto.
-- Chatbot legible con fuente algo mayor.
-- Input del chatbot limpio tras enviar.
-- Agente sin precios proactivos.
-- Agente con precios propios de Aplaudia más ajustados y escalables.
-- Mantenimiento mensual integrado como propuesta comercial.
-- Producción en verde.
+- Validación manual desde móvil real documentada.
+- Dictado por voz real probado o limitación por navegador documentada.
+- Formulario preparado para email real si Resend está listo.
+- Legal mínimo definido antes de retirar aviso de construcción.
+- Decisión clara sobre mantener o retirar el aviso de construcción.

@@ -57,11 +57,25 @@ Ejecutar `NEXT_TASK.md`: mejorar rendimiento percibido en móvil sin eliminar an
   - escritorio 1280x800: sin scroll horizontal y mantiene cadencia visual de escritorio;
   - chatbot móvil 390x844: fuente de mensajes 16 px / 23.2 px, input se limpia al enviar y vuelve a 48 px;
   - `/robots.txt`, `/llms.txt` y `/sitemap.xml`: OK en local.
+- QA producción en `https://aplaudia.com`:
+  - bundle final servido;
+  - móvil 390x844 a 700 ms: H1, subtítulo y CTA principal visibles con opacidad combinada 1; sin scroll horizontal;
+  - chatbot móvil 390x844: fuente de mensajes 16 px / 23.2 px, textarea vuelve a 48 px, valor vacío, botón enviar desactivado y pregunta solo como burbuja;
+  - `/robots.txt`, `/llms.txt` y `/sitemap.xml`: OK.
+- Pruebas reales de `/api/agent` en producción:
+  - `Quiero una web sencilla para mi negocio`: no da importes;
+  - `¿Cuánto cuesta una web sencilla?`: da rango orientativo con `desde`;
+  - `Tengo 50 productos pero quiero algo barato`: propone fase sencilla y ampliar por fases;
+  - `Quiero un chatbot para mi web`: no da importes;
+  - `¿Cuánto cuesta un chatbot?`: da rango orientativo con `desde`;
+  - `No tengo mucho presupuesto`: propone versión sencilla y fases, sin saltar a una opción grande.
 
 ### Estado
 
 - Cambio local validado.
-- Pendiente tras push: validar producción, respuestas reales del agente y Railway.
+- Commit principal: `5c7698c` (`Improve mobile perception and agent pricing rules`).
+- Producción `https://aplaudia.com`: OK, sirve la versión final.
+- Railway: despliegue efectivo confirmado por producción sirviendo bundle final y API actualizada.
 
 ### Siguiente paso recomendado
 
