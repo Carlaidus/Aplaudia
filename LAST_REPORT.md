@@ -4,86 +4,58 @@ Fecha: 2026-06-30
 
 ## Objetivo de la tarea
 
-Ejecutar la prioridad indicada por Carlos:
+Ejecutar la correccion pedida por Carlos sobre el formulario de contacto:
 
-- limpiar el bloque de contacto;
-- eliminar redundancias;
-- dejar mensaje guiado editable;
-- permitir envio por email, WhatsApp o ambos;
-- hacer que el lightbox sea realmente grande.
+- hacerlo como Arik Custom;
+- poner primero seleccion multiple de necesidades;
+- mantener mensaje editable autocompuesto;
+- pedir datos de contacto despues del mensaje;
+- dejar selector final compacto Email/WhatsApp;
+- mantener un unico boton `Enviar`;
+- no redisenar la web ni tocar backend, base de datos, auth o pagos.
 
 ## Cambios aplicados
 
-### Contacto limpio
+### Formulario estilo Arik Custom
 
-- `components/contact/contact-form.tsx` se simplifico:
-  - se eliminaron enlaces internos duplicados de `mailto` y WhatsApp dentro del bloque;
-  - el formulario queda como una sola pieza guiada;
-  - hay un unico CTA contextual segun canal elegido.
-- El bloque ahora se organiza en:
-  - canal de envio;
-  - tipo de proyecto;
-  - datos de contacto;
-  - mensaje editable;
-  - consentimiento.
+- `components/contact/contact-form.tsx` se reorganizo como flujo guiado:
+  - izquierda: necesidades multiples;
+  - derecha: mensaje editable, datos de contacto, privacidad, selector de canal y envio.
+- Se elimino el selector antiguo de `Tipo de proyecto`.
+- Se elimino el canal visible `Ambos`.
+- El selector final solo ofrece:
+  - `Email`;
+  - `WhatsApp`.
+- El formulario tiene un unico boton visible de envio: `Enviar`.
+- El salto interno al formulario se ajusto con `scroll-mt` para que el header fijo no tape el bloque al pulsar el CTA.
 
 ### Mensaje guiado editable
 
-- Nuevo archivo `content/contact.ts`.
-- Contiene:
-  - tipos de proyecto;
-  - mensajes guia editables;
+- `content/contact.ts` pasa a centralizar:
+  - necesidades disponibles;
+  - texto comercial de cada necesidad;
+  - constructor del mensaje guia;
   - canales de envio.
-- Al cambiar el tipo de proyecto, el mensaje se actualiza si el visitante no lo ha personalizado.
-- Se puede restaurar el texto guia con `Usar guia`.
-
-### Canales email, WhatsApp o ambos
-
-- Canales disponibles:
-  - `email`: envia por `/api/contacto` usando Resend;
-  - `whatsapp`: prepara `wa.me` con el mensaje editado, sin depender de Resend;
-  - `both`: envia email y prepara WhatsApp con el mismo contexto.
-- Si el canal requiere email, el campo email es obligatorio.
-- Si el canal es solo WhatsApp, el email deja de ser obligatorio.
-- Si falta `RESEND_API_KEY`, email/ambos fallan con error claro y WhatsApp sigue disponible.
+- El mensaje se autocompone con las necesidades marcadas.
+- Si el visitante edita el mensaje a mano, nuevas selecciones ya no machacan su texto.
+- `Usar guia` restaura el mensaje autocompuesto con la seleccion actual.
 
 ### API de contacto
 
-- `app/api/contacto/route.ts` ahora entiende:
-  - `projectType`;
-  - `deliveryChannel`.
-- Solo intenta Resend cuando el canal es `email` o `both`.
-- El email incluye:
-  - tipo de proyecto;
-  - canal solicitado;
+- `app/api/contacto/route.ts` ahora recibe `needs` en vez de depender de un unico `projectType`.
+- El email para Carlos incluye:
+  - necesidades marcadas;
   - nombre;
   - email;
   - telefono opcional;
+  - negocio o web opcional;
+  - canal solicitado;
   - mensaje.
-- No hay base de datos.
-- No se guardan secretos.
-
-### Lightbox pantalla completa
-
-- `components/cases/case-gallery.tsx` cambia de modal amplio a pantalla completa real:
-  - `100vw`;
-  - `100dvh`;
-  - sin borde ni radios;
-  - imagen ocupando todo el viewport;
-  - titulo, descripcion y cierre como overlays.
-
-### Estado del agente IA
-
-- No se cambio el agente.
-- Estado actual:
-  - widget implementado en `components/agent/aplaudia-agent-widget.tsx`;
-  - instrucciones editables en `content/agent/aplaudia-agent.md`;
-  - endpoint `/api/agent`;
-  - necesita `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET` para responder con IA real;
-  - si faltan variables, mantiene fallback elegante.
-- Para activarlo de verdad hay dos caminos:
-  - conectar un servicio externo compatible con el proxy actual;
-  - o adaptar `/api/agent` para llamar directamente a OpenAI API con una clave guardada solo en Railway.
+- El canal `WhatsApp` no intenta usar Resend.
+- El canal `Email` sigue usando Resend si `RESEND_API_KEY` esta configurada.
+- Se mantiene compatibilidad minima con `projectType` y `both` antiguos:
+  - `projectType` se usa solo como fallback si llega una peticion legacy;
+  - `both` se normaliza a `email` para no publicar el canal antiguo.
 
 ## Archivos modificados
 
@@ -92,10 +64,8 @@ Ejecutar la prioridad indicada por Carlos:
 - `NEXT_TASK.md`
 - `LAST_REPORT.md`
 - `app/api/contacto/route.ts`
-- `components/cases/case-gallery.tsx`
 - `components/contact/contact-form.tsx`
 - `content/contact.ts`
-- `content/site.ts`
 
 ## Validaciones ejecutadas
 
@@ -104,51 +74,39 @@ Ejecutar la prioridad indicada por Carlos:
 - `npx tsc --noEmit`: falla por deuda previa ya conocida:
   - tipos de `react-day-picker` en `components/ui/calendar.tsx`;
   - desalineacion antigua de mensajes `about` en `i18n/provider.tsx`.
+- `git diff --check`: OK.
 - API local `POST /api/contacto`:
-  - canal `whatsapp`: OK `200`, sin Resend;
+  - canal `whatsapp` sin email: OK `200`, `emailSent:false`;
   - canal `email` sin `RESEND_API_KEY`: OK `503` controlado;
-  - canal `both` sin `RESEND_API_KEY`: OK `503` controlado;
-  - honeypot: OK `200`.
-- Browser QA local en `http://127.0.0.1:3022`:
-  - formulario visible;
-  - sin `mailto` dentro del bloque de contacto;
-  - sin enlaces WhatsApp duplicados dentro del formulario antes de preparar mensaje;
-  - mensaje guia visible y editable;
-  - cambiar a WhatsApp actualiza CTA a `Abrir WhatsApp`;
-  - en WhatsApp, email deja de ser obligatorio;
-  - cambiar tipo a `Agente IA para WhatsApp` cambia la guia;
-  - sin scroll horizontal en escritorio ni movil;
-  - agente y aviso de construccion no se solapan en movil;
-  - consola sin errores.
-- Lightbox medido:
-  - escritorio 1280x720: modal `1280x720`, imagen `1280x720`;
-  - movil 390x844: modal `390x844`, imagen `390x844`.
+  - honeypot: OK `200`;
+  - `needs: []`: OK `400` controlado.
+- Browser QA local en `http://127.0.0.1:3023`:
+  - escritorio: 6 necesidades visibles, solo Email/WhatsApp, sin `Ambos`;
+  - escritorio: un unico submit `Enviar`;
+  - escritorio: sin `mailto` ni `wa.me` duplicados dentro del formulario antes de enviar;
+  - autocomposicion: al marcar `Agente para WhatsApp`, el mensaje anade esa necesidad;
+  - edicion manual: al editar el mensaje, nuevas selecciones no sobrescriben el texto;
+  - `Usar guia`: restaura el mensaje con la seleccion actual;
+  - movil 390x844: sin scroll horizontal;
+  - movil 390x844: orden correcto necesidades -> mensaje -> datos -> canal -> Enviar;
+  - CTA interno al formulario: cae por debajo del header fijo.
 
 ## Estado de Railway y produccion
 
-Push a `main` completado en `573ecb0`.
-
-Produccion validada por HTTP en `https://aplaudia.com`:
-
-- `/`: 200, contacto limpio visible, CTA `Enviar por email`, WhatsApp directo centralizado.
-- `/casos/arik-custom`: 200, boton `Ampliar imagen: Panel interno` visible.
-- `/robots.txt`: 200.
-- `/llms.txt`: 200.
-- `/sitemap.xml`: 200.
-- `/api/contacto` con canal `whatsapp`: 200, `emailSent:false`.
-
-Browser QA en produccion:
-
-- Lightbox Arik Custom: modal `1280x720`, imagen `1280x720`, sin scroll horizontal.
-
-Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`), por lo que no se pudo leer el dashboard desde terminal. El estado operativo se valido por HTTP en el dominio final.
+Pendiente de integrar en `main`, hacer push y comprobar `https://aplaudia.com`.
 
 ## Siguiente paso recomendado
 
-Tras desplegar:
-
-- comprobar `https://aplaudia.com`;
-- comprobar casos y lightbox en produccion;
-- configurar variables reales de Resend en Railway;
-- enviar prueba real de email y de ambos canales;
-- revisar legal/privacidad antes de retirar el aviso de construccion.
+1. Integrar esta rama en `main` y hacer push.
+2. Esperar deployment de Railway.
+3. Validar en produccion:
+   - home con formulario nuevo;
+   - movil sin solapes ni scroll horizontal;
+   - selector final solo Email/WhatsApp;
+   - boton unico `Enviar`;
+   - `/api/contacto` con canal `whatsapp`.
+4. Configurar variables reales de Resend en Railway:
+   - `RESEND_API_KEY`;
+   - `CONTACT_RECIPIENT_EMAIL`;
+   - `EMAIL_FROM`.
+5. Revisar legal/privacidad antes de retirar el aviso de construccion.
