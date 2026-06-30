@@ -34,7 +34,7 @@ No guardar valores reales de estas variables en el repo.
 
 ## Contacto y Resend
 
-La seccion `#contacto` incluye un formulario interno con seleccion multiple de necesidades y mensaje guiado editable.
+La seccion `#contacto` incluye un formulario de contacto con seleccion multiple de necesidades y mensaje editable autocompuesto.
 
 Fuente editable de textos y opciones:
 
@@ -44,6 +44,7 @@ Canales disponibles:
 
 - Email: envia mediante `/api/contacto` y Resend.
 - WhatsApp: prepara un enlace `wa.me` con el mensaje editado por el visitante.
+- Email + WhatsApp: se activa marcando los dos toggles finales.
 
 Variables de entorno necesarias para activar el envio real:
 

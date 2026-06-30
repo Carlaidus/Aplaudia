@@ -3,8 +3,8 @@ import { Resend } from "resend"
 import {
   contactNeeds,
   defaultContactDeliveryChannel,
+  defaultContactDeliveryChannels,
   defaultContactNeedIds,
-  getContactDeliveryOption,
   getContactNeeds,
   type ContactDeliveryChannel,
   type ContactNeedId,
@@ -14,6 +14,7 @@ import { siteConfig } from "@/content/site"
 export const runtime = "nodejs"
 
 const FALLBACK_FROM = "Aplaudia <onboarding@resend.dev>"
+type ContactDeliveryMode = ContactDeliveryChannel | "both"
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
@@ -34,13 +35,40 @@ function normalizeText(value: unknown) {
   return typeof value === "string" ? value.trim() : ""
 }
 
-function normalizeDeliveryChannel(value: unknown): ContactDeliveryChannel {
+function normalizeDeliveryChannel(value: unknown): ContactDeliveryMode {
   const clean = normalizeText(value)
 
   if (clean === "whatsapp") return "whatsapp"
-  if (clean === "email" || clean === "both") return "email"
+  if (clean === "both") return "both"
+  if (clean === "email") return "email"
 
   return defaultContactDeliveryChannel
+}
+
+function normalizeDeliveryChannels(value: unknown, legacyValue: unknown): ContactDeliveryChannel[] {
+  const validIds = new Set<ContactDeliveryChannel>(["email", "whatsapp"])
+  const hasExplicitChannels = Array.isArray(value)
+  const source = hasExplicitChannels
+    ? value
+    : normalizeDeliveryChannel(legacyValue) === "both"
+      ? ["email", "whatsapp"]
+      : [normalizeDeliveryChannel(legacyValue)]
+  const seen = new Set<ContactDeliveryChannel>()
+
+  source.forEach((item) => {
+    const id = normalizeText(item) as ContactDeliveryChannel
+    if (!validIds.has(id) || seen.has(id)) return
+    seen.add(id)
+  })
+
+  if (hasExplicitChannels) return Array.from(seen)
+  return seen.size > 0 ? Array.from(seen) : [...defaultContactDeliveryChannels]
+}
+
+function getDeliveryLabel(channels: ContactDeliveryChannel[]) {
+  if (channels.includes("email") && channels.includes("whatsapp")) return "Email y WhatsApp"
+  if (channels.includes("whatsapp")) return "WhatsApp"
+  return "Email"
 }
 
 function normalizeNeeds(value: unknown, legacyProjectType: unknown): ContactNeedId[] {
@@ -68,15 +96,15 @@ export async function POST(request: Request) {
     const name = normalizeText(body.name)
     const email = normalizeText(body.email)
     const phone = normalizeText(body.phone)
-    const business = normalizeText(body.business ?? body.company)
     const needs = normalizeNeeds(body.needs, body.projectType ?? body.service)
-    const deliveryChannel = normalizeDeliveryChannel(body.deliveryChannel)
+    const deliveryChannels = normalizeDeliveryChannels(body.deliveryChannels, body.deliveryChannel)
     const message = normalizeText(body.message)
     const privacy = body.privacy === true
     const honeypot = normalizeText(body.website)
-    const delivery = getContactDeliveryOption(deliveryChannel)
     const selectedNeeds = getContactNeeds(needs)
-    const sendsEmail = deliveryChannel === "email"
+    const sendsEmail = deliveryChannels.includes("email")
+    const sendsWhatsApp = deliveryChannels.includes("whatsapp")
+    const deliveryLabel = getDeliveryLabel(deliveryChannels)
 
     if (honeypot) {
       return NextResponse.json({ ok: true })
@@ -88,6 +116,10 @@ export async function POST(request: Request) {
 
     if (selectedNeeds.length === 0) {
       return NextResponse.json({ error: "Marca al menos una necesidad." }, { status: 400 })
+    }
+
+    if (deliveryChannels.length === 0) {
+      return NextResponse.json({ error: "Selecciona Email, WhatsApp o ambos para enviar la consulta." }, { status: 400 })
     }
 
     if (!name) {
@@ -135,8 +167,7 @@ export async function POST(request: Request) {
     const safeName = escapeHtml(name)
     const safeEmail = escapeHtml(email)
     const safePhone = escapeHtml(phone)
-    const safeBusiness = escapeHtml(business)
-    const safeDelivery = escapeHtml(delivery.label)
+    const safeDelivery = escapeHtml(deliveryLabel)
     const safeMessage = escapeHtml(message)
     const safeNeeds = selectedNeeds.map((need) => escapeHtml(need.label))
     const primaryNeed = selectedNeeds[0]?.label ?? "consulta"
@@ -148,8 +179,8 @@ export async function POST(request: Request) {
       `Nombre: ${name}`,
       `Email: ${email}`,
       phone ? `Teléfono: ${phone}` : null,
-      business ? `Negocio o web: ${business}` : null,
-      `Canal solicitado: ${delivery.label}`,
+      `Canal solicitado: ${deliveryLabel}`,
+      sendsWhatsApp ? "WhatsApp preparado desde la web." : null,
       "",
       "Necesidades:",
       ...selectedNeeds.map((need) => `- ${need.label}`),
@@ -183,7 +214,6 @@ export async function POST(request: Request) {
         <tr><td style="padding:7px 0;color:#64748b;width:120px">Nombre</td><td style="padding:7px 0;font-weight:700">${safeName}</td></tr>
         <tr><td style="padding:7px 0;color:#64748b">Email</td><td style="padding:7px 0"><a href="mailto:${safeEmail}" style="color:#2563eb;text-decoration:none">${safeEmail}</a></td></tr>
         ${safePhone ? `<tr><td style="padding:7px 0;color:#64748b">Teléfono</td><td style="padding:7px 0"><a href="tel:${safePhone}" style="color:#0f172a;text-decoration:none">${safePhone}</a></td></tr>` : ""}
-        ${safeBusiness ? `<tr><td style="padding:7px 0;color:#64748b">Negocio o web</td><td style="padding:7px 0">${safeBusiness}</td></tr>` : ""}
       </table>
       <h2 style="margin:0 0 12px;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;border-bottom:1px solid #e2e8f0;padding-bottom:10px">Mensaje</h2>
       <p style="margin:0 0 28px;color:#1e293b;font-size:15px;line-height:1.8;white-space:pre-wrap">${safeMessage}</p>

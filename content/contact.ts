@@ -5,54 +5,42 @@ export type ContactNeedId =
   | "whatsapp-agent"
   | "visuals"
   | "portfolio"
-  | "seo"
-  | "not-sure"
+  | "general"
 
 export const defaultContactNeedIds = ["web"] satisfies ContactNeedId[]
 export const defaultContactDeliveryChannel = "email" satisfies ContactDeliveryChannel
+export const defaultContactDeliveryChannels = ["email"] satisfies ContactDeliveryChannel[]
 
 export const contactNeeds = [
   {
     id: "web",
     label: "Página web o landing",
-    description: "Una web clara, rápida y preparada para convertir visitas en contactos.",
-    messageLine: "Página web o landing para presentar mejor mi negocio y captar contactos.",
+    messageLabel: "página web o landing",
   },
   {
     id: "whatsapp-agent",
-    label: "Agente para WhatsApp",
-    description: "Un flujo de atención que responda dudas, ordene reservas o filtre consultas.",
-    messageLine: "Agente para WhatsApp que ayude a responder, ordenar reservas o filtrar consultas.",
+    label: "Agente IA para WhatsApp",
+    messageLabel: "agente IA para WhatsApp",
   },
   {
     id: "visuals",
     label: "Visuales para marca",
-    description: "Imágenes, mockups o recursos visuales para que la marca se vea más sólida.",
-    messageLine: "Visuales para marca, web o redes con una estética más profesional.",
+    messageLabel: "visuales para marca",
   },
   {
     id: "portfolio",
-    label: "Portfolio o casos",
-    description: "Casos reales, capturas y estructura comercial para enseñar mejor el trabajo.",
-    messageLine: "Portfolio o casos reales para explicar mejor trabajos ya hechos.",
+    label: "Portfolio / caso real",
+    messageLabel: "portfolio o caso real",
   },
   {
-    id: "seo",
-    label: "SEO y estructura",
-    description: "Base técnica, textos y datos semánticos para que la web se entienda mejor.",
-    messageLine: "SEO técnico, estructura de contenidos y preparación para buscadores e IAs.",
-  },
-  {
-    id: "not-sure",
-    label: "No lo tengo claro",
-    description: "Tengo una idea o problema y necesito orientación para definir el siguiente paso.",
-    messageLine: "Orientación para decidir qué necesita ahora mi proyecto digital.",
+    id: "general",
+    label: "Consulta general",
+    messageLabel: "consulta general",
   },
 ] as const satisfies readonly {
   id: ContactNeedId
   label: string
-  description: string
-  messageLine: string
+  messageLabel: string
 }[]
 
 export const contactDeliveryOptions = [
@@ -92,19 +80,8 @@ export function getContactDeliveryOption(id: string | null | undefined) {
 export function buildGuidedContactMessage(needIds: readonly string[] | null | undefined) {
   const selectedNeeds = getContactNeeds(needIds)
   const needsText = selectedNeeds.length
-    ? selectedNeeds.map((need) => `- ${need.messageLine}`).join("\n")
-    : "- Todavía no tengo claro qué servicio concreto necesito."
+    ? selectedNeeds.map((need) => need.messageLabel).join(", ")
+    : "consulta general"
 
-  return `Hola, Aplaudia. He visto vuestra web y quiero comentar un proyecto digital.
-
-Necesidades que me interesan:
-${needsText}
-
-Contexto del negocio:
-
-Qué me gustaría conseguir:
-
-Estado actual o enlaces que debería revisar:
-
-Presupuesto, plazo o urgencia aproximada:`
+  return `Hola, Aplaudia. Me gustaría recibir información sobre ${needsText}. Quiero explicaros mi proyecto y ver cuál sería la mejor forma de enfocarlo.`
 }
