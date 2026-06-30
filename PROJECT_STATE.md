@@ -77,10 +77,12 @@ Ultima actualizacion: 2026-06-30
   - API route `app/api/contacto/route.ts`;
   - contenido editable en `content/contact.ts`;
   - seleccion multiple de necesidades como primer paso;
-  - mensaje guiado editable que se autocompone con las necesidades marcadas;
-  - datos de contacto tras el mensaje;
-  - selector final compacto con canales de envio: email o WhatsApp;
+  - mensaje editable breve que se autocompone con las necesidades marcadas;
+  - datos de contacto tras el mensaje: nombre, email y telefono opcional;
+  - selector final compacto con toggles independientes de email y WhatsApp;
+  - permite enviar por email, por WhatsApp o por ambos canales;
   - unico boton de envio visible: `Enviar`;
+  - sin CTAs intermedios ni textos tecnicos visibles en el bloque;
   - envio por Resend si existe `RESEND_API_KEY`;
   - variables previstas: `RESEND_API_KEY`, `CONTACT_RECIPIENT_EMAIL`, `EMAIL_FROM`;
   - sin base de datos y sin guardar mensajes en el repo.

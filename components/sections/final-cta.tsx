@@ -1,12 +1,8 @@
 "use client"
 
 import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import { useRef, useState } from "react"
-import { ArrowRight, MessageCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { useRef } from "react"
 import { useTranslations } from "@/i18n"
-import { siteConfig } from "@/content/site"
 import { useLightweightMotion } from "@/components/motion-performance-provider"
 import { ContactForm } from "@/components/contact/contact-form"
 
@@ -16,10 +12,6 @@ export function FinalCTA() {
   const contentRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(contentRef, { once: true, margin: "-100px" })
   const lightweightMotion = useLightweightMotion()
-  const [isPrimaryHovered, setIsPrimaryHovered] = useState(false)
-  const [isSecondaryHovered, setIsSecondaryHovered] = useState(false)
-  const secondaryContactHref = siteConfig.contact.whatsappHref ?? "#whatsapp"
-  const isSecondaryContactExternal = secondaryContactHref.startsWith("http")
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -85,110 +77,6 @@ export function FinalCTA() {
               </motion.span>
             </motion.h2>
           </div>
-          
-          <motion.p 
-            className="mx-auto max-w-3xl text-lg md:text-xl text-muted-foreground text-pretty leading-relaxed"
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            {t("subtitle")}
-          </motion.p>
-
-          {/* CTA buttons with advanced hover effects */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-5"
-          >
-            {/* Primary CTA */}
-            <motion.div
-              onMouseEnter={lightweightMotion ? undefined : () => setIsPrimaryHovered(true)}
-              onMouseLeave={lightweightMotion ? undefined : () => setIsPrimaryHovered(false)}
-              className="relative group"
-            >
-              {/* Glow effect */}
-              <motion.div
-                className="absolute -inset-1 bg-gradient-to-r from-primary via-accent-cyan to-primary rounded-xl opacity-0 blur-lg"
-                animate={{ 
-                  opacity: isPrimaryHovered ? 0.6 : 0,
-                  backgroundPosition: isPrimaryHovered ? ["0% 50%", "100% 50%", "0% 50%"] : "0% 50%",
-                }}
-                transition={{ duration: isPrimaryHovered ? 2 : 0.3 }}
-                style={{ backgroundSize: "200% 200%" }}
-              />
-              
-              <Button
-                asChild
-                size="lg"
-                className="relative bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base font-semibold rounded-xl"
-              >
-                <Link href="#aplaudia-contact-form" className="flex items-center gap-2">
-                  {t("cta")}
-                  <motion.span
-                    animate={{ x: isPrimaryHovered ? [0, 5, 0] : 0 }}
-                    transition={{ duration: 0.5, repeat: isPrimaryHovered ? Infinity : 0 }}
-                  >
-                    <ArrowRight className="h-5 w-5" />
-                  </motion.span>
-                </Link>
-              </Button>
-            </motion.div>
-
-            {/* Secondary CTA */}
-            <motion.div
-              onMouseEnter={lightweightMotion ? undefined : () => setIsSecondaryHovered(true)}
-              onMouseLeave={lightweightMotion ? undefined : () => setIsSecondaryHovered(false)}
-              className="relative"
-            >
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="relative border-border text-foreground hover:bg-card px-8 py-6 text-base font-semibold rounded-xl overflow-hidden"
-              >
-                <Link
-                  href={secondaryContactHref}
-                  target={isSecondaryContactExternal ? "_blank" : undefined}
-                  rel={isSecondaryContactExternal ? "noopener noreferrer" : undefined}
-                  className="flex items-center gap-2"
-                >
-                  {/* Animated background fill */}
-                  <motion.span
-                    className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent-cyan/10"
-                    initial={{ x: "-100%" }}
-                    animate={{ x: isSecondaryHovered ? 0 : "-100%" }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <span className="relative flex items-center gap-2">
-                    <motion.span
-                      animate={{ rotate: isSecondaryHovered ? [0, -10, 10, 0] : 0 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <MessageCircle className="h-5 w-5" />
-                    </motion.span>
-                    {t("ctaSecondary")}
-                  </span>
-                </Link>
-              </Button>
-            </motion.div>
-          </motion.div>
-
-          {/* Trust indicator with animated appearance */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="mt-10 flex items-center justify-center gap-3"
-          >
-            <motion.span 
-              className="w-2 h-2 bg-green-500 rounded-full"
-            />
-            <p className="text-sm text-muted-foreground">
-              {t("trustNote")}
-            </p>
-          </motion.div>
 
           <ContactForm />
         </motion.div>

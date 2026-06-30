@@ -4,58 +4,92 @@ Fecha: 2026-06-30
 
 ## Objetivo de la tarea
 
-Ejecutar la correccion pedida por Carlos sobre el formulario de contacto:
+Corregir definitivamente el formulario de contacto de Aplaudia aplicando el flujo exacto indicado por Carlos:
 
-- hacerlo como Arik Custom;
-- poner primero seleccion multiple de necesidades;
-- mantener mensaje editable autocompuesto;
-- pedir datos de contacto despues del mensaje;
-- dejar selector final compacto Email/WhatsApp;
-- mantener un unico boton `Enviar`;
-- no redisenar la web ni tocar backend, base de datos, auth o pagos.
+- eliminar CTAs intermedios de la seccion de contacto;
+- eliminar textos tecnicos visibles;
+- dejar el titulo de seccion y debajo directamente el panel del formulario;
+- usar seleccion multiple de necesidades;
+- usar mensaje editable breve y autocompuesto;
+- permitir Email, WhatsApp o ambos mediante dos toggles independientes;
+- mantener un unico boton final `Enviar`.
+
+## Que estaba mal
+
+- La seccion de contacto seguia mostrando CTAs redundantes antes del formulario:
+  - `Enviar consulta`;
+  - `WhatsApp`.
+- Tambien seguia apareciendo una nota intermedia tipo `Formulario interno y WhatsApp real ya activos`.
+- El formulario conservaba textos no deseados:
+  - `Usar guia`;
+  - `Guia activa`;
+  - texto tecnico sobre base de datos, Resend o WhatsApp preparado.
+- Las tarjetas de necesidades tenian poco contraste.
+- El mensaje autogenerado era demasiado largo y pedia demasiadas secciones.
+- El canal final funcionaba como seleccion unica, no como dos toggles combinables.
 
 ## Cambios aplicados
 
-### Formulario estilo Arik Custom
+### Seccion de contacto
 
-- `components/contact/contact-form.tsx` se reorganizo como flujo guiado:
-  - izquierda: necesidades multiples;
-  - derecha: mensaje editable, datos de contacto, privacidad, selector de canal y envio.
-- Se elimino el selector antiguo de `Tipo de proyecto`.
-- Se elimino el canal visible `Ambos`.
-- El selector final solo ofrece:
-  - `Email`;
-  - `WhatsApp`.
-- El formulario tiene un unico boton visible de envio: `Enviar`.
-- El salto interno al formulario se ajusto con `scroll-mt` para que el header fijo no tape el bloque al pulsar el CTA.
+- `components/sections/final-cta.tsx` queda con:
+  - titulo `Listo para llevar tu negocio al siguiente nivel`;
+  - panel del formulario justo debajo.
+- Se eliminaron:
+  - subtitulo intermedio;
+  - botones superiores;
+  - indicador de confianza de formulario/WhatsApp.
 
-### Mensaje guiado editable
+### Formulario
 
-- `content/contact.ts` pasa a centralizar:
-  - necesidades disponibles;
-  - texto comercial de cada necesidad;
-  - constructor del mensaje guia;
-  - canales de envio.
-- El mensaje se autocompone con las necesidades marcadas.
-- Si el visitante edita el mensaje a mano, nuevas selecciones ya no machacan su texto.
-- `Usar guia` restaura el mensaje autocompuesto con la seleccion actual.
+- `components/contact/contact-form.tsx` se rehizo al flujo pedido:
+  - `Primero dime qué necesitas`;
+  - texto corto;
+  - `Elige una o varias opciones`;
+  - cinco opciones exactas:
+    - `Página web o landing`;
+    - `Agente IA para WhatsApp`;
+    - `Visuales para marca`;
+    - `Portfolio / caso real`;
+    - `Consulta general`;
+  - mensaje con label `Mensaje`;
+  - accion discreta `Actualizar mensaje`;
+  - campos: nombre, email, telefono opcional;
+  - consentimiento corto;
+  - selector final con toggles independientes `Email` y `WhatsApp`;
+  - boton unico `Enviar`.
+- Se reforzaron las tarjetas de necesidades:
+  - borde mas visible;
+  - fondo con mas contraste;
+  - estado seleccionado mas evidente;
+  - mejor lectura en movil.
+- Se reforzo el checkbox de consentimiento.
+- Se eliminaron del bloque:
+  - email visible;
+  - numero visible;
+  - textos tecnicos;
+  - `Usar guia`;
+  - `Guia activa`.
 
-### API de contacto
+### Mensaje
 
-- `app/api/contacto/route.ts` ahora recibe `needs` en vez de depender de un unico `projectType`.
-- El email para Carlos incluye:
-  - necesidades marcadas;
-  - nombre;
-  - email;
-  - telefono opcional;
-  - negocio o web opcional;
-  - canal solicitado;
-  - mensaje.
-- El canal `WhatsApp` no intenta usar Resend.
-- El canal `Email` sigue usando Resend si `RESEND_API_KEY` esta configurada.
-- Se mantiene compatibilidad minima con `projectType` y `both` antiguos:
-  - `projectType` se usa solo como fallback si llega una peticion legacy;
-  - `both` se normaliza a `email` para no publicar el canal antiguo.
+- `content/contact.ts` ahora genera un mensaje breve:
+  - `Hola, Aplaudia. Me gustaría recibir información sobre ...`
+  - sin secciones largas de contexto, enlaces, presupuesto, plazo o urgencia.
+- Al cambiar opciones, el mensaje se actualiza si no fue editado manualmente.
+- Si el visitante edito el mensaje, no se machaca.
+- `Actualizar mensaje` regenera el texto con las opciones actuales.
+
+### API
+
+- `app/api/contacto/route.ts` acepta:
+  - `deliveryChannels: ["email"]`;
+  - `deliveryChannels: ["whatsapp"]`;
+  - `deliveryChannels: ["email", "whatsapp"]`.
+- Si llega `deliveryChannel: "both"` por compatibilidad, se interpreta como Email + WhatsApp.
+- Si no hay canal, devuelve error claro.
+- Si solo se elige WhatsApp, no exige email ni Resend.
+- Si se elige Email o Email + WhatsApp, usa Resend si esta configurado.
 
 ## Archivos modificados
 
@@ -65,7 +99,9 @@ Ejecutar la correccion pedida por Carlos sobre el formulario de contacto:
 - `LAST_REPORT.md`
 - `app/api/contacto/route.ts`
 - `components/contact/contact-form.tsx`
+- `components/sections/final-cta.tsx`
 - `content/contact.ts`
+- `content/routes.ts`
 
 ## Validaciones ejecutadas
 
@@ -76,57 +112,42 @@ Ejecutar la correccion pedida por Carlos sobre el formulario de contacto:
   - desalineacion antigua de mensajes `about` en `i18n/provider.tsx`.
 - `git diff --check`: OK.
 - API local `POST /api/contacto`:
-  - canal `whatsapp` sin email: OK `200`, `emailSent:false`;
-  - canal `email` sin `RESEND_API_KEY`: OK `503` controlado;
-  - honeypot: OK `200`;
-  - `needs: []`: OK `400` controlado.
-- Browser QA local en `http://127.0.0.1:3023`:
-  - escritorio: 6 necesidades visibles, solo Email/WhatsApp, sin `Ambos`;
+  - solo WhatsApp: OK `200`, `emailSent:false`;
+  - solo Email sin `RESEND_API_KEY`: OK `503` controlado;
+  - Email + WhatsApp sin `RESEND_API_KEY`: OK `503` controlado;
+  - sin canal: OK `400` controlado.
+- Browser QA local en `http://127.0.0.1:3024`:
+  - escritorio: titulo correcto y panel directamente debajo;
+  - escritorio: sin `Enviar consulta`, `Formulario interno`, `Sin base de datos`, `Resend`, `Usar guia`, `Guia activa`, `SEO y estructura`, `No lo tengo claro` ni `Negocio o web`;
+  - escritorio: cinco opciones exactas;
+  - escritorio: mensaje breve sin secciones largas;
   - escritorio: un unico submit `Enviar`;
-  - escritorio: sin `mailto` ni `wa.me` duplicados dentro del formulario antes de enviar;
-  - autocomposicion: al marcar `Agente para WhatsApp`, el mensaje anade esa necesidad;
-  - edicion manual: al editar el mensaje, nuevas selecciones no sobrescriben el texto;
-  - `Usar guia`: restaura el mensaje con la seleccion actual;
+  - seleccion multiple: OK;
+  - edicion manual del mensaje: no se sobrescribe;
+  - `Actualizar mensaje`: OK;
+  - toggles Email/WhatsApp: Email, WhatsApp, ambos y ninguno funcionan;
+  - solo WhatsApp: email no obligatorio;
+  - sin canal: muestra error claro;
   - movil 390x844: sin scroll horizontal;
-  - movil 390x844: orden correcto necesidades -> mensaje -> datos -> canal -> Enviar;
-  - CTA interno al formulario: cae por debajo del header fijo.
+  - movil 390x844: orden necesidades -> mensaje -> datos -> consentimiento -> canal -> Enviar;
+  - WhatsApp: abre `api.whatsapp.com` con telefono `34659304487` y el mensaje final codificado.
 
 ## Estado de Railway y produccion
 
-Push a `main` completado en `aad9918`.
-
-Produccion validada por HTTP en `https://aplaudia.com`:
-
-- `/`: 200, formulario nuevo visible con `Primero dime qué necesitas`;
-- `/`: 200, no aparece el canal antiguo `Ambos`;
-- `/`: 200, no aparece el CTA antiguo `Enviar por email`;
-- `/casos`: 200;
-- `/casos/cronoras`: 200;
-- `/casos/arik-custom`: 200;
-- `/casos/aventuras-pixeladas`: 200;
-- `/robots.txt`: 200;
-- `/llms.txt`: 200;
-- `/sitemap.xml`: 200;
-- `/api/contacto` con canal `whatsapp`: 200, `emailSent:false`;
-- `/api/contacto` con `needs: []`: 400 controlado.
-
-Browser QA en produccion movil 390x844:
-
-- 6 necesidades visibles;
-- selector final solo con `Email` y `WhatsApp`;
-- un unico submit `Enviar`;
-- sin `mailto` ni `wa.me` duplicados dentro del formulario antes de enviar;
-- sin scroll horizontal.
-
-Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`), por lo que no se pudo leer el dashboard desde terminal. El estado operativo se valido por el dominio final sirviendo el cambio nuevo tras el push.
+Pendiente de integrar en `main`, hacer push y comprobar `https://aplaudia.com`.
 
 ## Siguiente paso recomendado
 
-1. Configurar variables reales de Resend en Railway:
+1. Integrar la rama en `main`.
+2. Hacer push.
+3. Esperar deployment de Railway.
+4. Validar en produccion:
+   - home con formulario corregido;
+   - movil sin solapes ni scroll horizontal;
+   - sin textos prohibidos;
+   - Email, WhatsApp y ambos;
+   - WhatsApp con mensaje final.
+5. Configurar variables reales de Resend en Railway cuando Carlos quiera probar Email real:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
-2. Enviar una prueba real por Email desde el formulario.
-3. Enviar una prueba real por WhatsApp desde el formulario.
-4. Confirmar en Resend entrega y `replyTo`.
-5. Revisar legal/privacidad antes de retirar el aviso de construccion.

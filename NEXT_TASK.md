@@ -6,7 +6,7 @@ Nivel de inteligencia recomendado: Alto
 
 ## Objetivo inmediato
 
-Activar y probar el envio real por email del formulario de contacto, sin guardar secretos en el repo, y revisar la parte legal antes de retirar el aviso de construccion.
+Activar y probar el envio real por email del formulario corregido, sin guardar secretos en el repo, y revisar la parte legal antes de retirar el aviso de construccion.
 
 ## Repo
 
@@ -15,26 +15,26 @@ Activar y probar el envio real por email del formulario de contacto, sin guardar
 ## Contexto confirmado
 
 - `https://aplaudia.com/` funciona.
-- Produccion ya sirve el formulario nuevo estilo Arik Custom:
+- La home debe mantener aviso de construccion hasta validacion final de Carlos.
+- El formulario de contacto queda definido asi:
+  - titulo de seccion y debajo directamente el panel;
+  - sin CTAs intermedios de `Enviar consulta` ni `WhatsApp`;
+  - sin textos tecnicos visibles;
   - seleccion multiple de necesidades primero;
-  - mensaje editable autocompuesto;
-  - datos de contacto;
-  - selector final compacto Email/WhatsApp;
-  - un unico boton `Enviar`;
-  - sin canal visible `Ambos`;
-  - sin enlaces `mailto` ni `wa.me` duplicados dentro del formulario antes de enviar.
-- Browser QA en produccion movil 390x844:
-  - sin scroll horizontal;
-  - 6 necesidades visibles;
-  - solo Email/WhatsApp;
-  - un unico submit `Enviar`.
+  - mensaje breve editable y autocompuesto;
+  - campos: nombre, email, telefono opcional;
+  - consentimiento corto;
+  - selector final con dos toggles independientes: `Email` y `WhatsApp`;
+  - permite solo Email, solo WhatsApp o Email + WhatsApp;
+  - un unico boton final `Enviar`.
 - WhatsApp real publicado:
   - numero visible: `659304487`;
   - formato internacional: `34659304487`;
   - enlace centralizado en `content/site.ts`.
 - `/api/contacto`:
-  - canal `whatsapp`: OK sin Resend;
-  - canal `email`: necesita variables reales de Resend.
+  - solo WhatsApp: OK sin Resend;
+  - solo Email: necesita variables reales de Resend;
+  - Email + WhatsApp: necesita Resend para el email y prepara WhatsApp desde el formulario.
 - Variables necesarias para activar email real en Railway:
   - `RESEND_API_KEY`;
   - `CONTACT_RECIPIENT_EMAIL`;
@@ -45,24 +45,31 @@ Activar y probar el envio real por email del formulario de contacto, sin guardar
 
 ## Proxima tarea
 
-1. Entrar en Railway con sesion valida.
-2. Configurar variables reales, sin copiarlas a archivos:
+1. Confirmar que produccion sirve el ultimo commit de `main`.
+2. Revisar en produccion:
+   - home;
+   - formulario en escritorio;
+   - formulario en movil;
+   - envio solo WhatsApp hasta la preparacion del mensaje;
+   - ausencia de CTAs y textos tecnicos prohibidos.
+3. Entrar en Railway con sesion valida.
+4. Configurar variables reales, sin copiarlas a archivos:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
-3. Confirmar que `EMAIL_FROM` usa un remitente permitido/verificado en Resend.
-4. Enviar una prueba real del formulario por Email.
-5. Confirmar en Resend:
+5. Confirmar que `EMAIL_FROM` usa un remitente permitido/verificado en Resend.
+6. Enviar una prueba real del formulario por Email.
+7. Enviar una prueba real con Email + WhatsApp.
+8. Confirmar en Resend:
    - entrega correcta;
    - remitente permitido;
    - `replyTo` del visitante.
-6. Enviar una prueba real por WhatsApp desde el formulario.
-7. Revisar legal/contacto antes de retirar el aviso de construccion:
+9. Revisar legal/contacto antes de retirar el aviso de construccion:
    - aviso legal;
    - privacidad;
    - cookies si aplica;
    - texto definitivo de consentimiento.
-8. Decidir con Carlos si ya se puede retirar el aviso de construccion.
+10. Decidir con Carlos si ya se puede retirar el aviso de construccion.
 
 ## Deuda tecnica recomendada
 
@@ -83,6 +90,7 @@ Activar y probar el envio real por email del formulario de contacto, sin guardar
 
 ## Cierre esperado de la proxima sesion
 
+- Produccion verificada tras despliegue.
 - Email real del formulario probado o bloqueo documentado por falta de acceso.
 - WhatsApp probado desde el formulario.
 - Resend revisado.

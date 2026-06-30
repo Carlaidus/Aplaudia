@@ -28,7 +28,7 @@ export const futureRoutes = [
   {
     path: "/contacto",
     purpose:
-      "Página o sección ampliada de contacto a partir del formulario interno y WhatsApp real ya activos.",
+      "Página o sección ampliada para consultas comerciales y seguimiento de proyectos.",
   },
   {
     path: "/recursos",
