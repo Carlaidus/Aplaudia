@@ -55,7 +55,23 @@ Evitar que el chatbot salte al final cuando recibe una respuesta larga. La pregu
 ### Estado
 
 - Cambio local validado.
-- Pendiente de commit, push y comprobación en producción.
+- Commit principal: `5dff1e3` (`Improve chatbot long reply reading`).
+- Push a `main`: OK.
+- Producción `https://aplaudia.com`: OK.
+- Browser QA producción móvil 390x844 con respuesta larga real:
+  - respuesta del agente: 2563 caracteres;
+  - pregunta visible arriba: top 66 px;
+  - respuesta empieza debajo: top 182 px;
+  - no salta al final: `remaining` 1464 px tras recibir la respuesta;
+  - indicador visible mientras queda contenido hacia abajo;
+  - indicador desaparece al llegar al final (`remaining` 0);
+  - sin scroll horizontal;
+  - sin errores graves en consola.
+- Browser QA producción móvil 390x844 con respuesta corta real:
+  - respuesta del agente: 153 caracteres;
+  - indicador no visible;
+  - sin scroll horizontal;
+  - sin errores graves en consola.
 
 ### Siguiente paso recomendado
 
