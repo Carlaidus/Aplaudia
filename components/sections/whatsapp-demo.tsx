@@ -15,9 +15,11 @@ import {
 function MessageBubble({
   message,
   index,
+  lightweightMotion,
 }: {
   message: WhatsAppConversationMessage
   index: number
+  lightweightMotion: boolean
 }) {
   const isOutgoing = message.type === "outgoing"
 
@@ -25,7 +27,12 @@ function MessageBubble({
     <motion.div
       initial={{ opacity: 0, x: isOutgoing ? 20 : -20, scale: 0.9 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
-      transition={{ duration: 0.4, delay: 0.3 + index * 0.2, type: "spring", stiffness: 100 }}
+      transition={{
+        duration: lightweightMotion ? 0.25 : 0.4,
+        delay: lightweightMotion ? 0.05 + index * 0.05 : 0.3 + index * 0.2,
+        type: "spring",
+        stiffness: 100,
+      }}
       className={`flex ${isOutgoing ? "justify-end" : "justify-start"}`}
     >
       <div
@@ -55,7 +62,7 @@ function MessageBubble({
 }
 
 // WhatsApp-inspired phone mockup component
-function WhatsAppMockup({ t }: { t: (key: string) => string }) {
+function WhatsAppMockup({ t, lightweightMotion }: { t: (key: string) => string; lightweightMotion: boolean }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-50px" })
 
@@ -64,7 +71,7 @@ function WhatsAppMockup({ t }: { t: (key: string) => string }) {
       ref={ref}
       initial={{ opacity: 0, rotateY: -15, scale: 0.9 }}
       animate={isInView ? { opacity: 1, rotateY: 0, scale: 1 } : { opacity: 0, rotateY: -15, scale: 0.9 }}
-      transition={{ duration: 0.8, type: "spring", stiffness: 60 }}
+      transition={{ duration: lightweightMotion ? 0.35 : 0.8, type: "spring", stiffness: 60 }}
       style={{ perspective: 1000 }}
       className="relative mx-auto w-full max-w-[320px]"
     >
@@ -98,7 +105,7 @@ function WhatsAppMockup({ t }: { t: (key: string) => string }) {
           <div className="h-[340px] overflow-y-auto p-3 flex flex-col gap-2.5 bg-background">
             {isInView &&
               whatsappConversationMessages.map((message, index) => (
-                <MessageBubble key={message.id} message={message} index={index} />
+                <MessageBubble key={message.id} message={message} index={index} lightweightMotion={lightweightMotion} />
               ))}
           </div>
 
@@ -111,7 +118,7 @@ function WhatsAppMockup({ t }: { t: (key: string) => string }) {
                   key={prompt}
                   initial={{ opacity: 0, y: 10 }}
                   animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                  transition={{ delay: 1.2 + i * 0.1 }}
+                  transition={{ delay: lightweightMotion ? 0.15 + i * 0.04 : 1.2 + i * 0.1 }}
                   className="shrink-0 text-xs px-3 py-1.5 rounded-full bg-secondary text-muted-foreground border border-border hover:border-primary/30 transition-colors cursor-default"
                 >
                   {prompt}
@@ -138,7 +145,7 @@ function WhatsAppMockup({ t }: { t: (key: string) => string }) {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-        transition={{ duration: 0.4, delay: 1.5 }}
+        transition={{ duration: 0.4, delay: lightweightMotion ? 0.25 : 1.5 }}
         className="absolute -bottom-4 left-1/2 -translate-x-1/2"
       >
         <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-medium text-primary">
@@ -167,7 +174,7 @@ export function WhatsAppDemo() {
   ]
 
   return (
-    <section id="whatsapp" className="relative py-32 lg:py-40 overflow-hidden">
+    <section id="whatsapp" className="relative overflow-hidden py-20 sm:py-28 lg:py-40">
       {/* Animated background */}
       <div className="absolute inset-0 pointer-events-none">
         <div
@@ -182,12 +189,12 @@ export function WhatsAppDemo() {
         {/* Section header with horizontal reveal */}
         <motion.div
           ref={headerRef}
-          className="mx-auto max-w-3xl text-center mb-16"
+          className="mx-auto mb-10 max-w-3xl text-center sm:mb-16"
         >
           <motion.span
             initial={{ opacity: 0, x: -30 }}
             animate={isHeaderInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: lightweightMotion ? 0.3 : 0.6 }}
             className="inline-flex items-center gap-2 text-sm font-semibold text-primary uppercase tracking-widest mb-4"
           >
             <MessageSquare className="w-4 h-4" />
@@ -197,7 +204,7 @@ export function WhatsAppDemo() {
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             animate={isHeaderInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            transition={{ duration: lightweightMotion ? 0.3 : 0.6, delay: lightweightMotion ? 0.03 : 0.1 }}
             className="text-[2.25rem] sm:text-4xl md:text-5xl font-bold tracking-normal leading-tight text-foreground text-balance mb-6"
           >
             {t("title")}{" "}
@@ -207,7 +214,7 @@ export function WhatsAppDemo() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={isHeaderInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: lightweightMotion ? 0.3 : 0.6, delay: lightweightMotion ? 0.06 : 0.2 }}
             className="text-lg text-muted-foreground text-pretty"
           >
             {t("subtitle")}
@@ -215,10 +222,10 @@ export function WhatsAppDemo() {
         </motion.div>
 
         {/* Main content: Phone mockup + Benefits */}
-        <div className="grid gap-16 lg:grid-cols-2 items-center">
+        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
           {/* Phone mockup */}
           <div className="order-2 lg:order-1 flex justify-center">
-            <WhatsAppMockup t={t} />
+            <WhatsAppMockup t={t} lightweightMotion={lightweightMotion} />
           </div>
 
           {/* Benefits with staggered slide-in */}
@@ -232,7 +239,7 @@ export function WhatsAppDemo() {
                   key={benefit.title}
                   initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40, y: 20 }}
                   animate={isBenefitsInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: index % 2 === 0 ? -40 : 40, y: 20 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  transition={{ duration: lightweightMotion ? 0.25 : 0.5, delay: lightweightMotion ? index * 0.04 : index * 0.1 }}
                   whileHover={lightweightMotion ? undefined : { scale: 1.03, transition: { duration: 0.2 } }}
                   className="flex items-start gap-4 p-5 rounded-xl bg-card/50 backdrop-blur border border-border hover:border-primary/30 transition-colors"
                 >

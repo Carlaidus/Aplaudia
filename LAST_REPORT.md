@@ -2,6 +2,71 @@
 
 Fecha: 2026-06-30
 
+## Actualización - Rendimiento móvil, espaciado inicial y reglas del agente
+
+### Objetivo
+
+Ejecutar `NEXT_TASK.md`: mejorar rendimiento percibido en móvil sin eliminar animaciones, reducir ligeramente el espacio inicial entre secciones, subir un poco la legibilidad del chatbot y ajustar el agente para no hablar de precios salvo petición explícita.
+
+### Causa probable detectada
+
+- En móvil, `useLightweightMotion()` desactiva transformaciones pesadas, pero varios elementos críticos del hero seguían entrando con delays pensados para escritorio:
+  - subtítulo: `1.2s`;
+  - CTAs: `1.4s-1.6s`;
+  - stack técnico: `1.8s-2s`;
+  - indicador de scroll: `2.5s`.
+- Además, durante la primera detección del modo móvil, Framer podía arrancar con opacidad inicial de escritorio en subtítulo y CTAs, dando sensación de contenido incompleto.
+- Las dos primeras secciones posteriores usaban padding móvil amplio (`py-32`), aumentando la sensación de hueco entre bloques.
+
+### Cambios aplicados
+
+- `components/sections/hero.tsx`:
+  - añadidos `entranceDelay()` y `entranceDuration()` para acortar delays en móvil/lightweight sin tocar la cadencia de escritorio;
+  - subtítulo, CTA principal y CTA secundario quedan forzados a opacidad visible en móvil para evitar la sensación de carga rota;
+  - no se elimina la animación general ni se cambia el diseño.
+- `components/sections/scroll-story.tsx`:
+  - padding móvil baja a `py-20`, con `sm:py-28` y `lg:py-40`;
+  - margen bajo del titular baja en móvil;
+  - delays de tarjetas y línea decorativa se acortan solo en `lightweightMotion`.
+- `components/sections/whatsapp-demo.tsx`:
+  - padding móvil baja a `py-20`, con `sm:py-28` y `lg:py-40`;
+  - gap inicial baja en móvil;
+  - mockup, mensajes, chips y beneficios reducen delays en móvil.
+- `components/agent/aplaudia-agent-widget.tsx`:
+  - fuente de mensajes sube a `text-base` en móvil y `16.5px` en escritorio;
+  - se mantiene interlineado compacto, panel grande, micrófono, reset del input e indicador de más contenido.
+- `content/agent/aplaudia-agent.md`:
+  - regla explícita: no mencionar precios si el usuario no los pregunta;
+  - precios solo ante preguntas de coste, precio, presupuesto, tarifa, cuánto cuesta, barato, económico, mínimo o desde cuánto;
+  - nueva escala por fases para webs, productos y catálogos;
+  - mantenimiento mensual reforzado como propuesta evolutiva;
+  - mantenimiento avanzado ajustado a `desde 120-200 €/mes`;
+  - si hay muchos productos y poco presupuesto, proponer fase 1 con productos destacados antes de saltar a una solución grande.
+
+### Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existía.
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no está instalado como dependencia ejecutable.
+- `git diff --check`: pendiente antes del commit final.
+- QA local con `next start` en `http://127.0.0.1:3043`:
+  - home `200`;
+  - móvil 360x780 a 700 ms: H1, subtítulo y CTA principal visibles con opacidad combinada 1; sin scroll horizontal;
+  - móvil 390x844 a 700 ms: H1, subtítulo y CTA principal visibles con opacidad combinada 1; sin scroll horizontal;
+  - móvil 430x932 a 700 ms: H1, subtítulo y CTA principal visibles con opacidad combinada 1; sin scroll horizontal;
+  - escritorio 1280x800: sin scroll horizontal y mantiene cadencia visual de escritorio;
+  - chatbot móvil 390x844: fuente de mensajes 16 px / 23.2 px, input se limpia al enviar y vuelve a 48 px;
+  - `/robots.txt`, `/llms.txt` y `/sitemap.xml`: OK en local.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente tras push: validar producción, respuestas reales del agente y Railway.
+
+### Siguiente paso recomendado
+
+Validar en producción las preguntas reales de precios/no precios y confirmar desde móvil real que el contenido inicial ya no parece aparecer tarde.
+
 ## Actualización urgente - Reset inmediato del textarea del chatbot
 
 ### Objetivo

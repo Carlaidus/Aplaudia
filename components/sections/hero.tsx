@@ -107,6 +107,8 @@ export function Hero() {
   const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
 
   const techStack = ["Next.js", "React", "TypeScript", "SEO técnico"]
+  const entranceDelay = (delay: number) => (lightweightMotion ? Math.min(delay * 0.18, 0.28) : delay)
+  const entranceDuration = (duration: number) => (lightweightMotion ? Math.min(duration, 0.35) : duration)
 
   return (
     <section ref={containerRef} className="relative flex min-h-[100svh] items-start justify-center overflow-hidden pt-20 sm:min-h-[110vh] sm:items-center">
@@ -148,7 +150,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: entranceDuration(0.6), delay: entranceDelay(0.2) }}
             className="relative mb-8"
           >
             <div className="relative overflow-hidden rounded-full bg-card/80 backdrop-blur-sm border border-border-accent/30 px-5 py-2">
@@ -192,8 +194,8 @@ export function Hero() {
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl text-pretty leading-relaxed mb-6 sm:mb-12"
+            transition={{ duration: entranceDuration(0.8), delay: entranceDelay(1.2), ease: [0.22, 1, 0.36, 1] }}
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl text-pretty leading-relaxed mb-6 sm:mb-12 max-[900px]:!opacity-100 max-[900px]:!transform-none"
           >
             {t("subtitle")}
           </motion.p>
@@ -202,14 +204,14 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.4 }}
-            className="flex flex-col sm:flex-row items-center gap-5"
+            transition={{ delay: entranceDelay(1.4) }}
+            className="flex flex-col sm:flex-row items-center gap-5 max-[900px]:!opacity-100"
           >
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 1.5, ease: [0.22, 1, 0.36, 1] }}
-              className="group relative"
+              transition={{ duration: entranceDuration(0.6), delay: entranceDelay(1.5), ease: [0.22, 1, 0.36, 1] }}
+              className="group relative max-[900px]:!opacity-100 max-[900px]:!transform-none"
             >
               {!lightweightMotion && (
                 <div
@@ -234,7 +236,8 @@ export function Hero() {
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 1.6, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: entranceDuration(0.6), delay: entranceDelay(1.6), ease: [0.22, 1, 0.36, 1] }}
+              className="max-[900px]:!opacity-100 max-[900px]:!transform-none"
             >
               <Button
                 asChild
@@ -251,13 +254,13 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.8 }}
+            transition={{ delay: entranceDelay(1.8) }}
             className="mt-20 flex flex-col items-center gap-6"
           >
             <motion.p 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.9 }}
+              transition={{ delay: entranceDelay(1.9) }}
               className="text-sm text-muted-foreground font-medium"
             >
               {t("techLabel")}
@@ -269,7 +272,7 @@ export function Hero() {
                   initial={{ opacity: 0, scale: 0.8, x: index % 2 === 0 ? -20 : 20 }}
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   transition={{ 
-                    delay: 2 + index * 0.1,
+                    delay: entranceDelay(2 + index * 0.1),
                     type: "spring",
                     stiffness: 200,
                     damping: 20,
@@ -292,7 +295,7 @@ export function Hero() {
         style={{ opacity: scrollIndicatorOpacity }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2.5 }}
+        transition={{ delay: entranceDelay(2.5) }}
       >
         <motion.span 
           className="text-xs text-muted-foreground font-medium uppercase tracking-widest"

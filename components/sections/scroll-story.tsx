@@ -59,7 +59,7 @@ export function ScrollStory() {
   return (
     <section 
       ref={containerRef} 
-      className="relative py-32 lg:py-40 overflow-hidden"
+      className="relative overflow-hidden py-20 sm:py-28 lg:py-40"
     >
       {/* Animated background with parallax depth and scan line */}
       <div className="absolute inset-0 pointer-events-none">
@@ -77,10 +77,10 @@ export function ScrollStory() {
       <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-8 text-center">
         {/* Main statement with word-by-word 3D perspective reveal */}
         <motion.div 
-          className="mb-16"
+          className="mb-10 sm:mb-16"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: lightweightMotion ? 0.3 : 0.6 }}
         >
           <h2
             className="mx-auto max-w-[22rem] text-[2.125rem] font-bold tracking-normal text-foreground leading-[1.14] text-balance sm:max-w-3xl sm:text-4xl sm:leading-tight md:text-5xl lg:text-6xl"
@@ -115,9 +115,12 @@ export function ScrollStory() {
               {" "}
               <motion.span 
                 className="relative inline-block"
-                initial={{ opacity: 0, scale: 0.8 }}
+                initial={lightweightMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ delay: (line1Words.length + line2Words.length + line3Words.length) * 0.08 + 0.2, duration: 0.6 }}
+                transition={{
+                  delay: lightweightMotion ? 0 : (line1Words.length + line2Words.length + line3Words.length) * 0.08 + 0.2,
+                  duration: lightweightMotion ? 0.25 : 0.6,
+                }}
                 viewport={{ once: true, margin: "-100px" }}
               >
                 {/* Animated gradient text */}
@@ -156,11 +159,13 @@ export function ScrollStory() {
             return (
               <motion.div
                 key={benefit.label}
-                initial={{ 
-                  opacity: 0, 
-                  x: direction.x,
-                  y: direction.y,
-                }}
+                initial={lightweightMotion
+                  ? { opacity: 0, x: 0, y: 14 }
+                  : {
+                      opacity: 0,
+                      x: direction.x,
+                      y: direction.y,
+                    }}
                 whileInView={{ 
                   opacity: 1, 
                   x: 0,
@@ -171,8 +176,8 @@ export function ScrollStory() {
                   boxShadow: "0 20px 40px rgba(102, 51, 153, 0.15)",
                 }}
                 transition={{ 
-                  duration: 0.8, 
-                  delay: (line1Words.length + line2Words.length + line3Words.length) * 0.08 + 0.35 + index * 0.15,
+                  duration: lightweightMotion ? 0.35 : 0.8,
+                  delay: lightweightMotion ? index * 0.06 : (line1Words.length + line2Words.length + line3Words.length) * 0.08 + 0.35 + index * 0.15,
                   type: "spring",
                   stiffness: 100,
                 }}
@@ -205,8 +210,8 @@ export function ScrollStory() {
                   initial={{ scaleX: 0 }}
                   whileInView={{ scaleX: 1 }}
                   transition={{ 
-                    duration: 0.6, 
-                    delay: (line1Words.length + line2Words.length + line3Words.length) * 0.08 + 0.5 + index * 0.15,
+                    duration: lightweightMotion ? 0.3 : 0.6,
+                    delay: lightweightMotion ? 0.1 + index * 0.05 : (line1Words.length + line2Words.length + line3Words.length) * 0.08 + 0.5 + index * 0.15,
                   }}
                   viewport={{ once: true, margin: "-100px" }}
                   style={{ transformOrigin: "left" }}

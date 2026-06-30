@@ -368,7 +368,7 @@ export function AplaudiaAgentWidget() {
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <p
-                  className={`whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-[15.5px] leading-[1.45] sm:px-3.5 sm:text-base sm:leading-[1.45] ${
+                  className={`whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-base leading-[1.45] sm:px-3.5 sm:text-[16.5px] sm:leading-[1.45] ${
                     message.role === "user"
                       ? "max-w-[94%] rounded-br-sm bg-primary text-primary-foreground sm:max-w-[88%]"
                       : "w-full max-w-full rounded-bl-sm bg-card text-foreground"
