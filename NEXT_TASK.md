@@ -2,11 +2,11 @@
 
 Prioridad: Alta
 Modelo recomendado para Codex: GPT-5.5
-Nivel de inteligencia recomendado: Alto
+Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Objetivo inmediato
 
-Validar en móvil real el chatbot casi a pantalla completa con respuestas largas reales, teclado abierto y permiso real de micrófono. Revisar también respuestas reales del agente tras la ampliación de instrucciones y precios orientativos.
+Ajustar rendimiento percibido en móvil, reducir espacios iniciales entre secciones y afinar el comportamiento del agente para que no hable de precios salvo que el usuario los pregunte de forma explícita. Mantener las animaciones y el look actual: no rediseñar.
 
 ## Repo
 
@@ -16,99 +16,146 @@ Validar en móvil real el chatbot casi a pantalla completa con respuestas largas
 
 - `https://aplaudia.com/` funciona.
 - La home debe mantener aviso de construcción hasta validación final de Carlos.
-- El aviso de construcción queda flotando a la izquierda.
-- El aviso de construcción usa fecha `30 junio 2026`.
+- El aviso de construcción queda flotando a la izquierda y usa fecha `30 junio 2026`.
 - El chatbot queda flotando a la derecha.
-- El chatbot abierto funciona como panel grande/casi pantalla completa:
-  - sin X flotante inferior redundante;
-  - cierre únicamente con la X superior;
-  - sin icono lateral en mensajes del asistente;
-  - burbuja del asistente a ancho completo;
-  - panel ancho en escritorio, no limitado a 390 px;
-  - mensajes con tipografía mayor e interlineado más compacto.
-- Las respuestas largas del chatbot ya no saltan automáticamente al final:
-  - la pregunta del usuario queda arriba;
-  - la respuesta empieza justo debajo;
-  - aparece un indicador flotante si queda contenido por leer hacia abajo;
-  - el indicador desaparece al llegar al final.
-- El hero móvil se ha compactado para reducir el hueco superior antes del primer texto grande.
-- El formulario de contacto no muestra `Actualizar mensaje`.
+- El chatbot abierto funciona como panel grande/casi pantalla completa.
+- El chatbot tiene dictado por voz con Web Speech API.
 - `/api/agent` prioriza OpenAI directamente con `OPENAI_API_KEY`.
 - `OPENAI_API_KEY` está activa en producción.
-- El chatbot incorpora dictado por voz con Web Speech API:
-  - `SpeechRecognition`;
-  - `webkitSpeechRecognition`;
-  - idioma `es-ES`;
-  - resultados parciales;
-  - limpieza al cerrar/desmontar;
-  - botón visible aunque no haya soporte, mostrando aviso discreto al tocarlo.
 - `content/agent/aplaudia-agent.md` incluye identidad, servicios, casos reales y precios orientativos.
+- Carlos ha observado en móvil que a veces solo aparece el primer título y el resto tarda en mostrarse. Luego aparece, pero da sensación de carga rota/lenta.
+- Carlos quiere mantener las mismas animaciones y estilo, pero optimizar el tiempo hasta que el contenido sea visible.
+- Carlos quiere algo menos de espacio entre secciones, sobre todo en las dos primeras.
+- Carlos quiere la fuente del asistente Aplaudia un poco más grande si es posible.
+- Carlos quiere que el chatbot NO saque precios a la primera de cambio. Solo debe hablar de precios cuando el usuario pregunte explícitamente por coste, precio, presupuesto, tarifa, cuánto cuesta, barato, económico, mínimo, etc.
+- Carlos ha detectado que el agente salta demasiado de una web barata a 2.500 €. Hay que introducir opciones intermedias y, si el cliente quiere gastar poco, proponer reducir alcance/fases.
+- Carlos considera exagerados para Aplaudia los rangos propios de 2.500-4.000 o 4.000-7.500 como punto principal. Esos pueden quedar como referencia de mercado/competidores, pero Aplaudia debe plantearse más accesible y vender también mantenimiento mensual.
 - No hay base de datos, auth ni pagos.
 - No guardar secretos en el repo.
 
-## Próxima tarea
+## Tarea 1: optimización móvil sin cambiar animaciones
 
-1. Probar en un móvil real el chatbot abierto en producción:
-   - confirmar que el panel ocupa suficiente altura;
-   - confirmar que el texto se lee cómodo;
-   - confirmar que el textarea, el micrófono y enviar quedan visibles;
-   - confirmar que no hay solapes ni scroll horizontal;
-   - enviar una pregunta que produzca respuesta larga;
-   - confirmar que la pregunta queda arriba y la respuesta empieza debajo;
-   - confirmar que el indicador de más contenido aparece y desaparece correctamente;
-   - confirmar comportamiento con teclado abierto;
-   - decidir si hace falta acortar el saludo inicial.
-2. Revisar la home en móvil real:
-   - confirmar que el hero arranca antes y queda más serio;
-   - confirmar que no hay solapes con aviso de construcción, chatbot ni barra del navegador;
-   - confirmar que subtítulo y CTAs siguen siendo legibles.
-3. Probar dictado por voz en producción:
-   - Chrome/Edge en escritorio;
-   - Android si hay dispositivo disponible;
-   - iPhone/Safari si hay dispositivo disponible.
-4. Confirmar:
-   - aparece el botón de micrófono si el navegador lo soporta;
-   - pide permiso de micrófono;
-   - transcribe al textarea;
-   - permite parar escucha;
-   - permite enviar tras dictado;
-   - no se solapa con enviar ni con el texto;
-   - no rompe móvil.
-5. Probar respuestas reales del agente sobre:
-   - precios de webs;
-   - agentes IA web;
-   - integración con WhatsApp;
-   - visuales, imagen y vídeo;
-   - mantenimiento;
-   - casos Cronoras, Arik Custom y Aventuras Pixeladas.
-6. Verificar que el agente:
-   - usa siempre precios orientativos con `desde`;
-   - no da presupuesto cerrado;
-   - no inventa plazos;
-   - no inventa garantías;
-   - no inventa datos legales;
-   - no menciona programación con IA.
-7. Ajustar `content/agent/aplaudia-agent.md` solo si las pruebas reales muestran respuestas mejorables.
-8. Continuar con email real del formulario si Carlos ya tiene Resend listo:
-   - `RESEND_API_KEY`;
-   - `CONTACT_RECIPIENT_EMAIL`;
-   - `EMAIL_FROM`.
-9. Revisar legal/contacto antes de retirar el aviso de construcción:
-   - aviso legal;
-   - privacidad;
-   - cookies si aplica;
-   - texto definitivo de consentimiento.
+1. Revisar la home en móvil real/simulado.
+2. Diagnosticar por qué al cargar en móvil aparece primero solo el título y el resto tarda demasiado.
+3. Mantener el look y las animaciones actuales, pero mejorar rendimiento percibido:
+   - no eliminar animaciones;
+   - no cambiar estilo visual;
+   - sí reducir delays, staggers o bloqueos si hacen que el contenido parezca ausente;
+   - asegurar que el contenido crítico aparece antes;
+   - evitar que observers, motion o efectos esperen demasiado en móvil;
+   - revisar imágenes/fondos pesados si bloquean el render;
+   - revisar hidratación y main thread si procede.
+4. En móvil, el contenido no debe parecer roto ni vacío durante varios segundos.
+5. No introducir saltos bruscos ni layout shift.
 
-## Deuda técnica recomendada
+## Tarea 2: reducir espacio entre secciones iniciales
 
-- Instalar/configurar ESLint para que `npm run lint` funcione de forma reproducible.
-- Resolver tipos de `react-day-picker`.
-- Alinear mensajes i18n de `about` en ES/CA/EN para que `npx tsc --noEmit` pase.
-- Mantener `next build --webpack` mientras el workspace local siga en unidad de red.
+1. Revisar separación entre el hero y la siguiente sección, y entre las dos primeras secciones posteriores.
+2. Reducir ligeramente el espacio vertical si se puede sin romper el diseño premium.
+3. Mantener respiración visual suficiente.
+4. No compactar toda la web de forma agresiva; prioridad a móvil y primeras secciones.
+
+## Tarea 3: fuente del chatbot
+
+1. Revisar `components/agent/aplaudia-agent-widget.tsx`.
+2. Subir un poco la fuente del asistente si sigue viéndose pequeña.
+3. Mantener interlineado compacto.
+4. No perder espacio útil.
+5. Mantener panel grande, micrófono, scroll inteligente e indicador de más contenido.
+
+## Tarea 4: comportamiento de precios del agente
+
+Actualizar `content/agent/aplaudia-agent.md` para que quede claro:
+
+1. El agente NO debe hablar de precios de forma proactiva.
+2. Solo debe mencionar precios si el usuario pregunta explícitamente por:
+   - precio;
+   - coste;
+   - presupuesto;
+   - tarifa;
+   - cuánto cuesta;
+   - barato;
+   - económico;
+   - mínimo;
+   - desde cuánto.
+3. Si el usuario pregunta por servicios sin mencionar precio, debe explicar posibilidades y llevar al formulario/WhatsApp sin sacar importes.
+4. Si el usuario pregunta por precio, usar siempre `desde` y explicar que depende del alcance.
+5. Si el usuario quiere algo muy barato, no saltar directamente a la opción completa más cara. Proponer reducir alcance.
+6. Añadir una sección de escalado por alcance para webs con productos/catálogos, con precios propios de Aplaudia más accesibles:
+   - landing o web muy sencilla: desde 390 €;
+   - web sencilla con pocos productos destacados: desde 500-800 €;
+   - catálogo básico/listado simple sin panel avanzado: desde 650-950 €;
+   - catálogo más trabajado sin panel avanzado: desde 950-1.500 €;
+   - catálogo con panel simple para editar contenido: desde 1.500-2.300 €;
+   - catálogo con filtros, fichas completas, buscador, panel y carga inicial amplia: desde 2.300 € en adelante;
+   - proyectos tipo aplicación, reservas, automatizaciones, dashboards o paneles avanzados: presupuesto a medida.
+7. Añadir norma: si hay muchos productos pero el cliente quiere algo económico, sugerir una fase 1 con productos destacados y dejar el catálogo completo para fase 2.
+8. Añadir norma: la clave comercial de Aplaudia es poder empezar de forma sencilla y ampliar por fases.
+9. Añadir norma: dar importancia al mantenimiento mensual como vía para evolucionar la web sin presupuestos grandes de golpe.
+10. No prometer descuentos ni precios cerrados.
+11. No usar los rangos altos de mercado como precio propio principal. Si se mencionan, debe ser solo como comparación general: otras soluciones a medida pueden subir bastante más, pero Aplaudia intenta escalar el proyecto según presupuesto.
+
+## Tarea 5: mantenimiento mensual en el agente
+
+Actualizar la sección de mantenimiento del `.md` para que sea una parte clara de la propuesta:
+
+- Mantenimiento básico: desde 20-30 €/mes.
+  - Para revisión mínima, pequeños ajustes pactados y soporte básico.
+- Mantenimiento activo: desde 60-90 €/mes.
+  - Para cambios pequeños recurrentes, textos, imágenes, pequeñas mejoras y acompañamiento.
+- Mantenimiento avanzado: desde 120-200 €/mes.
+  - Para más trabajo mensual, pequeñas evoluciones, mejoras, contenido, SEO básico o propuestas de nuevas funcionalidades.
+- Trabajos fuera de mantenimiento: normalmente 30-45 €/h o presupuesto aparte si es una funcionalidad grande.
+- Si el cliente tiene presupuesto limitado, proponer combinar una versión inicial más sencilla con mantenimiento/evolución mensual.
+
+## Tarea 6: pruebas del agente
+
+Probar preguntas reales:
+
+1. `Quiero una web sencilla para mi negocio` -> NO debe hablar de precios si no se preguntan.
+2. `¿Cuánto cuesta una web sencilla?` -> puede dar rango desde 390 € y explicar alcance.
+3. `Tengo 50 productos pero quiero algo barato` -> debe proponer fases/reducir alcance antes de saltar a catálogos completos.
+4. `Quiero un chatbot para mi web` -> no hablar de precio si no se pregunta.
+5. `¿Cuánto cuesta un chatbot?` -> desde 500 €, WhatsApp desde +100 €, siempre orientativo.
+6. `No tengo mucho presupuesto` -> debe proponer una fase inicial sencilla y mantenimiento mensual, no una opción grande.
+
+## Validaciones obligatorias
+
+- `npm install` si hace falta.
+- `npm run build`.
+- `npm run lint` si está disponible.
+- Probar home móvil 360/390/430 px.
+- Probar escritorio.
+- Confirmar que no se han eliminado animaciones ni cambiado el look.
+- Confirmar que el contenido móvil aparece antes y no parece roto.
+- Confirmar que hay menos espacio entre primeras secciones sin apretar demasiado.
+- Confirmar que el chatbot sigue funcionando.
+- Confirmar que el micrófono sigue funcionando o mantiene fallback.
+- Confirmar respuestas del agente sobre precios según reglas.
+- Confirmar que `/robots.txt`, `/llms.txt` y `/sitemap.xml` siguen funcionando.
+- Confirmar producción/Railway en verde tras push.
+
+## Documentación
+
+Actualizar `LAST_REPORT.md` con:
+
+- causa probable del retraso visual en móvil;
+- ajustes aplicados sin tocar animaciones;
+- cambios de espaciado inicial;
+- cambios de fuente del chatbot;
+- cambios en normas de precios del agente;
+- nueva escala de precios propios de Aplaudia;
+- nueva orientación de mantenimiento mensual;
+- pruebas ejecutadas;
+- estado final de producción/Railway;
+- siguiente paso recomendado.
+
+Actualizar `NEXT_TASK.md` con el siguiente foco real.
 
 ## Restricciones
 
 - No rediseñar la web completa.
+- No eliminar animaciones.
 - No romper home, casos, móvil ni escritorio.
 - No tocar dominio, DNS ni Cloudflare salvo petición explícita.
 - No añadir base de datos, auth ni pagos.
@@ -118,7 +165,10 @@ Validar en móvil real el chatbot casi a pantalla completa con respuestas largas
 
 ## Cierre esperado de la próxima sesión
 
-- Dictado real probado o limitación documentada por navegador/dispositivo.
-- Agente probado en producción con varias preguntas reales de precios y servicios.
-- Ajustes del prompt documentados si hacen falta.
-- Siguiente decisión clara sobre Resend, legal y retirada del aviso de construcción.
+- Home móvil más rápida de percibir.
+- Espaciado inicial algo más compacto.
+- Chatbot legible con fuente algo mayor.
+- Agente sin precios proactivos.
+- Agente con precios propios de Aplaudia más ajustados y escalables.
+- Mantenimiento mensual integrado como propuesta comercial.
+- Producción en verde.
