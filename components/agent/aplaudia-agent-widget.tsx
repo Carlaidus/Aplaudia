@@ -1,11 +1,53 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Bot, Loader2, MessageCircle, Send, Sparkles, X } from "lucide-react"
+import { Bot, Loader2, MessageCircle, Mic, MicOff, Send, Sparkles, X } from "lucide-react"
 
 type AgentMessage = {
   role: "user" | "assistant"
   content: string
+}
+
+type SpeechRecognitionAlternativeLike = {
+  transcript: string
+}
+
+type SpeechRecognitionResultLike = {
+  readonly isFinal: boolean
+  readonly length: number
+  [index: number]: SpeechRecognitionAlternativeLike
+}
+
+type SpeechRecognitionResultListLike = {
+  readonly length: number
+  [index: number]: SpeechRecognitionResultLike
+}
+
+type SpeechRecognitionEventLike = Event & {
+  results: SpeechRecognitionResultListLike
+}
+
+type SpeechRecognitionErrorEventLike = Event & {
+  error?: string
+}
+
+type SpeechRecognitionLike = {
+  lang: string
+  continuous: boolean
+  interimResults: boolean
+  onstart: (() => void) | null
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null
+  onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null
+  onend: (() => void) | null
+  start: () => void
+  stop: () => void
+}
+
+type SpeechRecognitionConstructorLike = new () => SpeechRecognitionLike
+
+type SpeechRecognitionWindow = Window & {
+  SpeechRecognition?: SpeechRecognitionConstructorLike
+  webkitSpeechRecognition?: SpeechRecognitionConstructorLike
 }
 
 const WELCOME_MESSAGE: AgentMessage = {
@@ -16,6 +58,13 @@ const WELCOME_MESSAGE: AgentMessage = {
 
 const SESSION_KEY = "aplaudia_agent_session"
 
+function getSpeechRecognitionConstructor() {
+  if (typeof window === "undefined") return null
+
+  const speechWindow = window as SpeechRecognitionWindow
+  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null
+}
+
 export function AplaudiaAgentWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<AgentMessage[]>([WELCOME_MESSAGE])
@@ -23,9 +72,14 @@ export function AplaudiaAgentWidget() {
   const [isLoading, setIsLoading] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [hasUnread, setHasUnread] = useState(false)
+  const [supportsVoiceInput, setSupportsVoiceInput] = useState(false)
+  const [isListening, setIsListening] = useState(false)
+  const [voiceMessage, setVoiceMessage] = useState("")
 
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null)
+  const voiceBaseTextRef = useRef("")
 
   useEffect(() => {
     let id = sessionStorage.getItem(SESSION_KEY)
@@ -37,17 +91,32 @@ export function AplaudiaAgentWidget() {
   }, [])
 
   useEffect(() => {
+    setSupportsVoiceInput(Boolean(getSpeechRecognitionConstructor()))
+  }, [])
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, isLoading])
 
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) {
+      recognitionRef.current?.stop()
+      setVoiceMessage("")
+      return
+    }
 
     setHasUnread(false)
     const timeout = window.setTimeout(() => inputRef.current?.focus(), 200)
 
     return () => window.clearTimeout(timeout)
   }, [isOpen])
+
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.stop()
+      recognitionRef.current = null
+    }
+  }, [])
 
   const resizeInput = useCallback(() => {
     const input = inputRef.current
@@ -57,9 +126,94 @@ export function AplaudiaAgentWidget() {
     input.style.height = `${Math.min(input.scrollHeight, 96)}px`
   }, [])
 
+  const setInputValue = useCallback(
+    (value: string) => {
+      const input = inputRef.current
+      if (!input) return
+
+      input.value = value
+      input.scrollTop = input.scrollHeight
+      setHasText(value.trim().length > 0)
+      resizeInput()
+    },
+    [resizeInput],
+  )
+
+  const toggleVoiceInput = useCallback(() => {
+    if (isListening) {
+      recognitionRef.current?.stop()
+      return
+    }
+
+    const SpeechRecognitionConstructor = getSpeechRecognitionConstructor()
+
+    if (!SpeechRecognitionConstructor) {
+      setSupportsVoiceInput(false)
+      setVoiceMessage("El dictado por voz no está disponible en este navegador.")
+      return
+    }
+
+    const recognition = new SpeechRecognitionConstructor()
+    recognition.lang = "es-ES"
+    recognition.continuous = false
+    recognition.interimResults = true
+
+    voiceBaseTextRef.current = inputRef.current?.value.trim() ?? ""
+
+    recognition.onstart = () => {
+      setIsListening(true)
+      setVoiceMessage("Escuchando...")
+    }
+
+    recognition.onresult = (event) => {
+      const transcript = Array.from({ length: event.results.length }, (_, index) => {
+        return event.results[index]?.[0]?.transcript ?? ""
+      })
+        .join("")
+        .trim()
+
+      const baseText = voiceBaseTextRef.current
+      const nextValue = [baseText, transcript].filter(Boolean).join(" ").trim()
+      setInputValue(nextValue)
+    }
+
+    recognition.onerror = (event) => {
+      setIsListening(false)
+      recognitionRef.current = null
+
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        setVoiceMessage("No se ha podido acceder al micrófono.")
+      } else if (event.error === "no-speech") {
+        setVoiceMessage("No se ha detectado voz. Puedes intentarlo de nuevo.")
+      } else {
+        setVoiceMessage("El dictado por voz no está disponible ahora mismo.")
+      }
+    }
+
+    recognition.onend = () => {
+      setIsListening(false)
+      recognitionRef.current = null
+      voiceBaseTextRef.current = inputRef.current?.value.trim() ?? ""
+      setVoiceMessage((current) => (current === "Escuchando..." ? "" : current))
+    }
+
+    recognitionRef.current = recognition
+
+    try {
+      recognition.start()
+    } catch {
+      recognitionRef.current = null
+      setIsListening(false)
+      setVoiceMessage("No se ha podido iniciar el dictado por voz.")
+    }
+  }, [isListening, setInputValue])
+
   const sendMessage = useCallback(async () => {
     const text = inputRef.current?.value.trim() ?? ""
     if (!text || isLoading || !sessionId) return
+
+    recognitionRef.current?.stop()
+    setVoiceMessage("")
 
     const userMessage: AgentMessage = { role: "user", content: text }
     setMessages((current) => [...current, userMessage])
@@ -182,13 +336,37 @@ export function AplaudiaAgentWidget() {
             maxLength={500}
             onInput={(event) => {
               setHasText(event.currentTarget.value.trim().length > 0)
+              setVoiceMessage("")
               resizeInput()
             }}
             onKeyDown={handleKeyDown}
             disabled={isLoading}
-            placeholder="Cuéntame qué necesitas..."
+            placeholder={isListening ? "Escuchando..." : "Cuéntame qué necesitas..."}
             className="min-h-11 flex-1 resize-none rounded-xl border border-border bg-card px-3.5 py-2.5 text-base leading-6 text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary disabled:opacity-50 sm:text-sm"
           />
+          {supportsVoiceInput && (
+            <button
+              type="button"
+              onClick={toggleVoiceInput}
+              disabled={isLoading}
+              aria-label={isListening ? "Parar dictado por voz" : "Dictar mensaje por voz"}
+              aria-pressed={isListening}
+              className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
+                isListening
+                  ? "border-accent-magenta/60 bg-accent-magenta/15 text-accent-magenta shadow-lg shadow-accent-magenta/20"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground"
+              }`}
+            >
+              {isListening ? (
+                <MicOff className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Mic className="h-4 w-4" aria-hidden="true" />
+              )}
+              {isListening && (
+                <span className="absolute inset-0 rounded-xl bg-accent-magenta/20 animate-ping" aria-hidden="true" />
+              )}
+            </button>
+          )}
           <button
             type="button"
             onClick={sendMessage}
@@ -203,6 +381,17 @@ export function AplaudiaAgentWidget() {
             )}
           </button>
         </div>
+
+        {(isListening || voiceMessage) && (
+          <p
+            className={`border-t border-border/60 px-4 pb-3 text-xs ${
+              isListening ? "text-accent-magenta" : "text-muted-foreground"
+            }`}
+            aria-live="polite"
+          >
+            {voiceMessage}
+          </p>
+        )}
       </div>
 
       <button

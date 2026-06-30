@@ -2,11 +2,11 @@
 
 Prioridad: Alta
 Modelo recomendado para Codex: GPT-5.5
-Nivel de inteligencia recomendado: Extremadamente alto
+Nivel de inteligencia recomendado: Alto
 
 ## Objetivo inmediato
 
-Probar y afinar el agente IA real de Aplaudia ya activo con OpenAI en produccion, y despues continuar con el email real por Resend y la revision legal.
+Validar el dictado por voz del chatbot en producción con permiso real de micrófono y revisar respuestas reales del agente tras la ampliación de instrucciones y precios orientativos.
 
 ## Repo
 
@@ -15,42 +15,64 @@ Probar y afinar el agente IA real de Aplaudia ya activo con OpenAI en produccion
 ## Contexto confirmado
 
 - `https://aplaudia.com/` funciona.
-- La home debe mantener aviso de construccion hasta validacion final de Carlos.
-- El aviso de construccion debe quedar flotando a la izquierda.
-- El aviso de construccion ya usa fecha `30 junio 2026`.
-- El chatbot debe quedar flotando a la derecha.
-- El formulario de contacto no debe mostrar el boton `Actualizar mensaje`.
-- El mensaje del formulario se autocompone al cambiar necesidades mientras el visitante no lo haya editado a mano.
+- La home debe mantener aviso de construcción hasta validación final de Carlos.
+- El aviso de construcción queda flotando a la izquierda.
+- El aviso de construcción usa fecha `30 junio 2026`.
+- El chatbot queda flotando a la derecha.
+- El formulario de contacto no muestra `Actualizar mensaje`.
 - `/api/agent` prioriza OpenAI directamente con `OPENAI_API_KEY`.
-- `OPENAI_API_KEY` ya esta activa en produccion.
-- `OPENAI_AGENT_MODEL` es opcional; si falta, se usa el modelo definido en codigo.
-- Las variables heredadas `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET` quedan solo como respaldo opcional.
+- `OPENAI_API_KEY` está activa en producción.
+- El chatbot incorpora dictado por voz con Web Speech API:
+  - `SpeechRecognition`;
+  - `webkitSpeechRecognition`;
+  - idioma `es-ES`;
+  - resultados parciales;
+  - limpieza al cerrar/desmontar;
+  - botón oculto si no hay soporte.
+- `content/agent/aplaudia-agent.md` incluye identidad, servicios, casos reales y precios orientativos.
 - No hay base de datos, auth ni pagos.
 - No guardar secretos en el repo.
 
-## Proxima tarea
+## Próxima tarea
 
-1. Probar el agente en `https://aplaudia.com` con conversaciones reales:
-   - pregunta sobre webs;
-   - pregunta sobre agentes de WhatsApp;
-   - pregunta sobre casos reales;
-   - comprobar que no inventa precios, plazos, CIF, direccion ni garantias.
-2. Ajustar `content/agent/aplaudia-agent.md` solo si las pruebas reales muestran respuestas mejorables.
-3. Revisar que el aviso de construccion sigue visible a la izquierda.
-4. Revisar que el chatbot sigue visible a la derecha en desktop y movil.
-5. Continuar con email real del formulario si Carlos ya tiene Resend listo:
+1. Probar dictado por voz en producción:
+   - Chrome/Edge en escritorio;
+   - Android si hay dispositivo disponible;
+   - iPhone/Safari si hay dispositivo disponible.
+2. Confirmar:
+   - aparece el botón de micrófono si el navegador lo soporta;
+   - pide permiso de micrófono;
+   - transcribe al textarea;
+   - permite parar escucha;
+   - permite enviar tras dictado;
+   - no se solapa con enviar ni con el texto;
+   - no rompe móvil.
+3. Probar respuestas reales del agente sobre:
+   - precios de webs;
+   - agentes IA web;
+   - integración con WhatsApp;
+   - visuales, imagen y vídeo;
+   - mantenimiento;
+   - casos Cronoras, Arik Custom y Aventuras Pixeladas.
+4. Verificar que el agente:
+   - usa siempre precios orientativos con `desde`;
+   - no da presupuesto cerrado;
+   - no inventa plazos;
+   - no inventa garantías;
+   - no inventa datos legales;
+   - no menciona programación con IA.
+5. Ajustar `content/agent/aplaudia-agent.md` solo si las pruebas reales muestran respuestas mejorables.
+6. Continuar con email real del formulario si Carlos ya tiene Resend listo:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
-6. Enviar prueba real solo Email.
-7. Enviar prueba real Email + WhatsApp.
-8. Revisar legal/contacto antes de retirar el aviso de construccion:
-    - aviso legal;
-    - privacidad;
-    - cookies si aplica;
-    - texto definitivo de consentimiento.
+7. Revisar legal/contacto antes de retirar el aviso de construcción:
+   - aviso legal;
+   - privacidad;
+   - cookies si aplica;
+   - texto definitivo de consentimiento.
 
-## Deuda tecnica recomendada
+## Deuda técnica recomendada
 
 - Instalar/configurar ESLint para que `npm run lint` funcione de forma reproducible.
 - Resolver tipos de `react-day-picker`.
@@ -59,17 +81,17 @@ Probar y afinar el agente IA real de Aplaudia ya activo con OpenAI en produccion
 
 ## Restricciones
 
-- No redisenar la web completa.
-- No romper home, casos, movil ni escritorio.
-- No tocar dominio, DNS ni Cloudflare salvo peticion explicita.
-- No anadir base de datos, auth ni pagos.
+- No rediseñar la web completa.
+- No romper home, casos, móvil ni escritorio.
+- No tocar dominio, DNS ni Cloudflare salvo petición explícita.
+- No añadir base de datos, auth ni pagos.
 - No guardar claves ni secretos.
-- No mencionar programacion con IA como mensaje publico.
-- No inventar datos legales, direccion, CIF, precios, plazos ni garantias.
+- No mencionar programación con IA como mensaje público.
+- No inventar datos legales, dirección, CIF, precios cerrados, plazos ni garantías.
 
-## Cierre esperado de la proxima sesion
+## Cierre esperado de la próxima sesión
 
-- Agente probado en produccion con varias conversaciones reales.
+- Dictado real probado o limitación documentada por navegador/dispositivo.
+- Agente probado en producción con varias preguntas reales de precios y servicios.
 - Ajustes del prompt documentados si hacen falta.
-- Formulario y WhatsApp comprobados sin regresiones.
-- Siguiente decision clara sobre Resend, legal y retirada del aviso de construccion.
+- Siguiente decisión clara sobre Resend, legal y retirada del aviso de construcción.

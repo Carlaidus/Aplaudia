@@ -66,6 +66,19 @@ Ultima actualizacion: 2026-06-30
   - modelo opcional configurable con `OPENAI_AGENT_MODEL`;
   - servicio legado compatible con `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET` solo como respaldo;
   - fallback elegante si no hay agente configurado.
+- Chatbot ampliado el 2026-06-30 con dictado por voz:
+  - boton de microfono junto al input;
+  - Web Speech API en cliente (`SpeechRecognition` / `webkitSpeechRecognition`);
+  - idioma `es-ES`;
+  - resultados parciales en el textarea;
+  - parada al cerrar el widget, enviar mensaje o desmontar componente;
+  - boton oculto si el navegador no soporta reconocimiento de voz.
+- Instrucciones del agente ampliadas en `content/agent/aplaudia-agent.md`:
+  - identidad y tono;
+  - servicios;
+  - casos reales;
+  - precios orientativos siempre con "desde";
+  - normas para no inventar datos, garantias, plazos ni precios cerrados.
 - Flotantes de la home ajustados el 2026-06-30:
   - aviso de construccion a la izquierda;
   - fecha visible del aviso actualizada a `30 junio 2026`;
@@ -162,7 +175,7 @@ Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 - Revisar legal/privacidad antes de retirar el aviso de construccion, porque ya existe captacion de contacto.
 - Revisar en produccion con Carlos la nueva version de portfolio/casos ya desplegada.
 - Validar con Carlos si el panel interno real de Arik Custom debe mostrarse publicamente.
-- Conectar agente IA real solo cuando exista servicio externo y variables seguras en Railway.
+- Revisar conversaciones reales del agente activo con OpenAI para ajustar tono, limites y respuestas frecuentes.
 - Definir datos legales reales antes de ampliar JSON-LD con direccion, telefono, redes sociales o fundador.
 
 ## Servicios externos

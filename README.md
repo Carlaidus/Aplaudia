@@ -23,6 +23,13 @@ Documentos de control del proyecto:
 
 El widget de agente funciona mediante `/api/agent` y prioriza OpenAI directamente.
 
+El input del chat incluye dictado por voz cuando el navegador soporta Web Speech API:
+
+- usa `SpeechRecognition` / `webkitSpeechRecognition` en cliente;
+- idioma `es-ES`;
+- no guarda audio en el repo ni en servidor;
+- si el navegador no soporta dictado, el boton de microfono no se muestra.
+
 Variables de entorno necesarias para activarlo:
 
 - `OPENAI_API_KEY`: clave privada de OpenAI configurada en Railway.
