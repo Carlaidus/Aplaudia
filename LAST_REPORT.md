@@ -46,11 +46,18 @@ Sustituir la primera prueba de imágenes generadas, que quedaba demasiado tecnol
   - escritorio 1365x900: imágenes cargan, sin scroll horizontal;
   - móvil 390x844: galería visible en su hueco, sin scroll horizontal;
   - no se modifica diseño, orden de secciones ni animaciones.
+- QA producción en `https://aplaudia.com`:
+  - home responde y referencia los assets nuevos;
+  - la home ya no referencia los assets antiguos de la primera tanda;
+  - el aviso de construcción sigue visible;
+  - los seis assets nuevos responden `200`.
 
 ### Estado
 
-- Cambio local validado.
-- Pendiente de commit, push y comprobación de despliegue de Railway.
+- Cambio validado, commiteado y enviado a `origin/main`.
+- Commit de assets: `d4109d2` (`Sustituye visuales generados por versiones realistas`).
+- Producción `https://aplaudia.com`: OK, sirve las imágenes nuevas.
+- Railway: despliegue efectivo confirmado por producción sirviendo los assets nuevos.
 
 ### Siguiente paso recomendado
 
