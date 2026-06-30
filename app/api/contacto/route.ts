@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
 import {
+  contactNeeds,
   defaultContactDeliveryChannel,
-  defaultContactProjectType,
+  defaultContactNeedIds,
   getContactDeliveryOption,
-  getContactProjectOption,
+  getContactNeeds,
   type ContactDeliveryChannel,
-  type ContactProjectType,
+  type ContactNeedId,
 } from "@/content/contact"
 import { siteConfig } from "@/content/site"
 
@@ -36,27 +37,28 @@ function normalizeText(value: unknown) {
 function normalizeDeliveryChannel(value: unknown): ContactDeliveryChannel {
   const clean = normalizeText(value)
 
-  if (clean === "email" || clean === "whatsapp" || clean === "both") {
-    return clean
-  }
+  if (clean === "whatsapp") return "whatsapp"
+  if (clean === "email" || clean === "both") return "email"
 
   return defaultContactDeliveryChannel
 }
 
-function normalizeProjectType(value: unknown): ContactProjectType {
-  const clean = normalizeText(value)
+function normalizeNeeds(value: unknown, legacyProjectType: unknown): ContactNeedId[] {
+  const validIds = new Set<ContactNeedId>(contactNeeds.map((need) => need.id))
+  const source = Array.isArray(value)
+    ? value
+    : normalizeText(legacyProjectType)
+      ? [legacyProjectType]
+      : defaultContactNeedIds
+  const seen = new Set<ContactNeedId>()
 
-  if (
-    clean === "web" ||
-    clean === "whatsapp-agent" ||
-    clean === "visuals" ||
-    clean === "portfolio" ||
-    clean === "general"
-  ) {
-    return clean
-  }
+  source.forEach((item) => {
+    const id = normalizeText(item) as ContactNeedId
+    if (!validIds.has(id) || seen.has(id)) return
+    seen.add(id)
+  })
 
-  return defaultContactProjectType
+  return Array.from(seen)
 }
 
 export async function POST(request: Request) {
@@ -66,14 +68,15 @@ export async function POST(request: Request) {
     const name = normalizeText(body.name)
     const email = normalizeText(body.email)
     const phone = normalizeText(body.phone)
-    const projectType = normalizeProjectType(body.projectType ?? body.service)
+    const business = normalizeText(body.business ?? body.company)
+    const needs = normalizeNeeds(body.needs, body.projectType ?? body.service)
     const deliveryChannel = normalizeDeliveryChannel(body.deliveryChannel)
     const message = normalizeText(body.message)
     const privacy = body.privacy === true
     const honeypot = normalizeText(body.website)
-    const project = getContactProjectOption(projectType)
     const delivery = getContactDeliveryOption(deliveryChannel)
-    const sendsEmail = deliveryChannel === "email" || deliveryChannel === "both"
+    const selectedNeeds = getContactNeeds(needs)
+    const sendsEmail = deliveryChannel === "email"
 
     if (honeypot) {
       return NextResponse.json({ ok: true })
@@ -81,6 +84,10 @@ export async function POST(request: Request) {
 
     if (!privacy) {
       return NextResponse.json({ error: "Acepta el uso de datos para responder a tu consulta." }, { status: 400 })
+    }
+
+    if (selectedNeeds.length === 0) {
+      return NextResponse.json({ error: "Marca al menos una necesidad." }, { status: 400 })
     }
 
     if (!name) {
@@ -128,9 +135,11 @@ export async function POST(request: Request) {
     const safeName = escapeHtml(name)
     const safeEmail = escapeHtml(email)
     const safePhone = escapeHtml(phone)
-    const safeProject = escapeHtml(project.label)
+    const safeBusiness = escapeHtml(business)
     const safeDelivery = escapeHtml(delivery.label)
     const safeMessage = escapeHtml(message)
+    const safeNeeds = selectedNeeds.map((need) => escapeHtml(need.label))
+    const primaryNeed = selectedNeeds[0]?.label ?? "consulta"
 
     const text = [
       "Nuevo mensaje desde Aplaudia",
@@ -138,9 +147,12 @@ export async function POST(request: Request) {
       `Fecha: ${date}`,
       `Nombre: ${name}`,
       `Email: ${email}`,
-      phone ? `Telefono: ${phone}` : null,
-      `Tipo de proyecto: ${project.label}`,
+      phone ? `Teléfono: ${phone}` : null,
+      business ? `Negocio o web: ${business}` : null,
       `Canal solicitado: ${delivery.label}`,
+      "",
+      "Necesidades:",
+      ...selectedNeeds.map((need) => `- ${need.label}`),
       "",
       "Mensaje:",
       message,
@@ -161,14 +173,17 @@ export async function POST(request: Request) {
     </div>
     <div style="padding:32px">
       <div style="background:#f8fafc;border-left:4px solid #2563eb;border-radius:10px;padding:16px 18px;margin-bottom:28px">
-        <p style="margin:0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Tipo de proyecto</p>
-        <p style="margin:6px 0 0;color:#0f172a;font-size:18px;font-weight:700">${safeProject}</p>
-        <p style="margin:8px 0 0;color:#64748b;font-size:13px">Canal solicitado: <strong>${safeDelivery}</strong></p>
+        <p style="margin:0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Necesidades marcadas</p>
+        <ul style="margin:10px 0 0;padding-left:18px;color:#0f172a;font-size:16px;font-weight:700;line-height:1.7">
+          ${safeNeeds.map((need) => `<li>${need}</li>`).join("")}
+        </ul>
+        <p style="margin:10px 0 0;color:#64748b;font-size:13px">Canal solicitado: <strong>${safeDelivery}</strong></p>
       </div>
       <table style="width:100%;border-collapse:collapse;margin-bottom:28px;font-size:14px;color:#0f172a">
         <tr><td style="padding:7px 0;color:#64748b;width:120px">Nombre</td><td style="padding:7px 0;font-weight:700">${safeName}</td></tr>
         <tr><td style="padding:7px 0;color:#64748b">Email</td><td style="padding:7px 0"><a href="mailto:${safeEmail}" style="color:#2563eb;text-decoration:none">${safeEmail}</a></td></tr>
-        ${safePhone ? `<tr><td style="padding:7px 0;color:#64748b">Telefono</td><td style="padding:7px 0"><a href="tel:${safePhone}" style="color:#0f172a;text-decoration:none">${safePhone}</a></td></tr>` : ""}
+        ${safePhone ? `<tr><td style="padding:7px 0;color:#64748b">Teléfono</td><td style="padding:7px 0"><a href="tel:${safePhone}" style="color:#0f172a;text-decoration:none">${safePhone}</a></td></tr>` : ""}
+        ${safeBusiness ? `<tr><td style="padding:7px 0;color:#64748b">Negocio o web</td><td style="padding:7px 0">${safeBusiness}</td></tr>` : ""}
       </table>
       <h2 style="margin:0 0 12px;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;border-bottom:1px solid #e2e8f0;padding-bottom:10px">Mensaje</h2>
       <p style="margin:0 0 28px;color:#1e293b;font-size:15px;line-height:1.8;white-space:pre-wrap">${safeMessage}</p>
@@ -186,7 +201,7 @@ export async function POST(request: Request) {
     const { error } = await resend.emails.send({
       from,
       to,
-      subject: `Nuevo contacto Aplaudia - ${project.label}`,
+      subject: `Nuevo contacto Aplaudia - ${primaryNeed}`,
       html,
       text,
       replyTo: email,

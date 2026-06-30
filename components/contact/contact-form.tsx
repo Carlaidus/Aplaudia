@@ -1,20 +1,22 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { AlertCircle, CheckCircle2, MessageCircle, RotateCcw, Send, ShieldCheck } from "lucide-react"
+import { AlertCircle, Check, CheckCircle2, MessageCircle, RotateCcw, Send, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
+  buildGuidedContactMessage,
   contactDeliveryOptions,
-  contactProjectOptions,
+  contactNeeds,
   defaultContactDeliveryChannel,
-  defaultContactProjectType,
-  getContactProjectOption,
+  defaultContactNeedIds,
+  getContactDeliveryOption,
+  getContactNeeds,
   type ContactDeliveryChannel,
-  type ContactProjectType,
+  type ContactNeedId,
 } from "@/content/contact"
 import { siteConfig } from "@/content/site"
 
@@ -22,7 +24,8 @@ type FormState = {
   name: string
   email: string
   phone: string
-  projectType: ContactProjectType
+  business: string
+  needs: ContactNeedId[]
   deliveryChannel: ContactDeliveryChannel
   message: string
   privacy: boolean
@@ -30,25 +33,34 @@ type FormState = {
 }
 
 function createInitialFormState(): FormState {
+  const needs = [...defaultContactNeedIds]
+
   return {
     name: "",
     email: "",
     phone: "",
-    projectType: defaultContactProjectType,
+    business: "",
+    needs,
     deliveryChannel: defaultContactDeliveryChannel,
-    message: getContactProjectOption(defaultContactProjectType).guidedMessage,
+    message: buildGuidedContactMessage(needs),
     privacy: false,
     website: "",
   }
 }
 
 function buildWhatsAppHref(formData: FormState) {
-  const project = getContactProjectOption(formData.projectType)
+  const selectedNeeds = getContactNeeds(formData.needs)
+  const needsText = selectedNeeds.length
+    ? selectedNeeds.map((need) => `- ${need.label}`).join("\n")
+    : "- Sin necesidades marcadas"
   const lines = [
-    "Hola, Aplaudia. He visto vuestra web y quiero hablar sobre un proyecto digital.",
+    "Hola, Aplaudia. He visto vuestra web y quiero comentar un proyecto digital.",
     "",
-    `Tipo de proyecto: ${project.label}`,
+    "Necesidades:",
+    needsText,
+    "",
     formData.name.trim() ? `Nombre: ${formData.name.trim()}` : null,
+    formData.business.trim() ? `Negocio o web: ${formData.business.trim()}` : null,
     formData.email.trim() ? `Email: ${formData.email.trim()}` : null,
     formData.phone.trim() ? `Teléfono: ${formData.phone.trim()}` : null,
     "",
@@ -66,16 +78,13 @@ export function ContactForm() {
   const [statusMessage, setStatusMessage] = useState("")
   const [preparedWhatsAppHref, setPreparedWhatsAppHref] = useState<string | null>(null)
 
-  const selectedProject = useMemo(
-    () => getContactProjectOption(formData.projectType),
-    [formData.projectType],
-  )
+  const selectedNeeds = useMemo(() => getContactNeeds(formData.needs), [formData.needs])
   const selectedDelivery = useMemo(
-    () => contactDeliveryOptions.find((option) => option.id === formData.deliveryChannel),
+    () => getContactDeliveryOption(formData.deliveryChannel),
     [formData.deliveryChannel],
   )
-  const sendsEmail = formData.deliveryChannel === "email" || formData.deliveryChannel === "both"
-  const sendsWhatsApp = formData.deliveryChannel === "whatsapp" || formData.deliveryChannel === "both"
+  const sendsEmail = formData.deliveryChannel === "email"
+  const sendsWhatsApp = formData.deliveryChannel === "whatsapp"
 
   const resetStatus = () => {
     if (status !== "idle") {
@@ -85,21 +94,24 @@ export function ContactForm() {
     }
   }
 
-  const updateField = (field: keyof FormState, value: string | boolean) => {
+  const updateField = <Field extends keyof FormState>(field: Field, value: FormState[Field]) => {
     setFormData((current) => ({ ...current, [field]: value }))
     resetStatus()
   }
 
-  const updateProjectType = (projectType: ContactProjectType) => {
+  const toggleNeed = (needId: ContactNeedId) => {
     setFormData((current) => {
-      const currentSuggestion = getContactProjectOption(current.projectType).guidedMessage
-      const nextSuggestion = getContactProjectOption(projectType).guidedMessage
+      const nextNeeds = current.needs.includes(needId)
+        ? current.needs.filter((id) => id !== needId)
+        : [...current.needs, needId]
+      const currentSuggestion = buildGuidedContactMessage(current.needs)
+      const nextSuggestion = buildGuidedContactMessage(nextNeeds)
       const shouldReplaceMessage =
         current.message.trim().length === 0 || current.message === currentSuggestion
 
       return {
         ...current,
-        projectType,
+        needs: nextNeeds,
         message: shouldReplaceMessage ? nextSuggestion : current.message,
       }
     })
@@ -109,13 +121,19 @@ export function ContactForm() {
   const useSuggestedMessage = () => {
     setFormData((current) => ({
       ...current,
-      message: getContactProjectOption(current.projectType).guidedMessage,
+      message: buildGuidedContactMessage(current.needs),
     }))
     resetStatus()
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    if (formData.needs.length === 0) {
+      setStatus("error")
+      setStatusMessage("Marca al menos una necesidad o selecciona “No lo tengo claro”.")
+      return
+    }
 
     if (!formData.privacy) {
       setStatus("error")
@@ -125,7 +143,13 @@ export function ContactForm() {
 
     if (sendsEmail && !formData.email.trim()) {
       setStatus("error")
-      setStatusMessage("El email es obligatorio si quieres enviar la consulta por correo.")
+      setStatusMessage("El email es obligatorio si eliges recibir respuesta por correo.")
+      return
+    }
+
+    if (!formData.message.trim() || formData.message.trim().length < 10) {
+      setStatus("error")
+      setStatusMessage("Revisa el mensaje antes de enviarlo.")
       return
     }
 
@@ -148,20 +172,18 @@ export function ContactForm() {
         if (!response.ok) {
           throw new Error(data.error ?? "No se ha podido enviar el mensaje.")
         }
+
+        setStatusMessage("Consulta enviada por email. Te responderemos lo antes posible.")
+        setFormData(createInitialFormState())
       }
 
       if (whatsappHref) {
-        window.open(whatsappHref, "_blank", "noopener,noreferrer")
-      }
-
-      if (formData.deliveryChannel === "email") {
-        setStatusMessage("Consulta enviada por email. Te responderemos lo antes posible.")
-        setFormData(createInitialFormState())
-      } else if (formData.deliveryChannel === "whatsapp") {
-        setStatusMessage("WhatsApp está preparado con tu mensaje. Revísalo antes de enviarlo.")
-      } else {
-        setStatusMessage("Email enviado y WhatsApp preparado con el mismo contexto.")
-        setFormData(createInitialFormState())
+        const popup = window.open(whatsappHref, "_blank", "noopener,noreferrer")
+        if (!popup) {
+          setStatusMessage("WhatsApp está preparado. Si no se ha abierto, usa el enlace de confirmación.")
+        } else {
+          setStatusMessage("WhatsApp está preparado con tu mensaje. Revísalo antes de enviarlo.")
+        }
       }
 
       setStatus("success")
@@ -169,23 +191,16 @@ export function ContactForm() {
       setStatus("error")
       setStatusMessage(
         error instanceof Error
-          ? `${error.message} Puedes cambiar el canal a WhatsApp si quieres contactar ahora.`
-          : "No se ha podido enviar el mensaje. Puedes cambiar el canal a WhatsApp si quieres contactar ahora.",
+          ? `${error.message} También puedes elegir WhatsApp y enviarlo ahora.`
+          : "No se ha podido enviar el mensaje. También puedes elegir WhatsApp y enviarlo ahora.",
       )
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const submitLabel =
-    formData.deliveryChannel === "email"
-      ? "Enviar por email"
-      : formData.deliveryChannel === "whatsapp"
-        ? "Abrir WhatsApp"
-        : "Enviar y abrir WhatsApp"
-
   return (
-    <div id="aplaudia-contact-form" className="mx-auto mt-14 max-w-5xl text-left">
+    <div id="aplaudia-contact-form" className="mx-auto mt-14 max-w-5xl scroll-mt-28 text-left sm:scroll-mt-32">
       <form
         onSubmit={handleSubmit}
         className="rounded-[2rem] border border-white/10 bg-card/70 p-4 shadow-2xl shadow-primary/10 backdrop-blur sm:p-6 lg:p-7"
@@ -201,44 +216,56 @@ export function ContactForm() {
           aria-hidden="true"
         />
 
-        <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr]">
+        <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="space-y-5 rounded-[1.5rem] border border-white/10 bg-background/70 p-5 sm:p-6">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
                 Contacto guiado
               </p>
               <h3 className="mt-4 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                Un mensaje claro, por el canal que prefieras.
+                Primero dime qué necesitas.
               </h3>
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                Elige email, WhatsApp o ambos. El texto se rellena como guía y puedes editarlo antes de enviarlo.
+                Marca una o varias opciones. El mensaje se prepara con tu selección y lo puedes editar antes de enviarlo.
               </p>
             </div>
 
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Canal de envío
+                Necesidades
               </p>
-              <div className="mt-3 grid gap-3" role="radiogroup" aria-label="Canal de envío">
-                {contactDeliveryOptions.map((option) => {
-                  const isSelected = formData.deliveryChannel === option.id
+              <div className="mt-3 grid gap-3" aria-label="Necesidades del proyecto">
+                {contactNeeds.map((option) => {
+                  const isSelected = formData.needs.includes(option.id)
 
                   return (
                     <button
                       key={option.id}
                       type="button"
-                      data-contact-channel={option.id}
-                      onClick={() => updateField("deliveryChannel", option.id)}
-                      className={`rounded-2xl border px-4 py-3 text-left transition-colors ${
+                      data-contact-need={option.id}
+                      onClick={() => toggleNeed(option.id)}
+                      className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-colors ${
                         isSelected
                           ? "border-primary/70 bg-primary/15 text-foreground"
                           : "border-border/70 bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-foreground"
                       }`}
                       aria-pressed={isSelected}
                     >
-                      <span className="block text-sm font-semibold">{option.label}</span>
-                      <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
-                        {option.description}
+                      <span
+                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
+                          isSelected
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-background/50"
+                        }`}
+                        aria-hidden="true"
+                      >
+                        {isSelected && <Check className="h-3.5 w-3.5" />}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold">{option.label}</span>
+                        <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+                          {option.description}
+                        </span>
                       </span>
                     </button>
                   )
@@ -246,81 +273,13 @@ export function ContactForm() {
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="contact-project-type" className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                Tipo de proyecto
-              </Label>
-              <select
-                id="contact-project-type"
-                name="projectType"
-                value={formData.projectType}
-                onChange={(event) => updateProjectType(event.target.value as ContactProjectType)}
-                className="mt-2 h-12 w-full rounded-xl border border-border bg-card/80 px-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/30"
-              >
-                {contactProjectOptions.map((option) => (
-                  <option key={option.id} value={option.id} className="bg-background text-foreground">
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             <div className="flex items-start gap-3 rounded-2xl border border-border/70 bg-card/50 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent-cyan" aria-hidden="true" />
-              <span>Sin base de datos: email mediante Resend y WhatsApp preparado por enlace seguro.</span>
+              <span>Sin base de datos: email mediante Resend o WhatsApp preparado con tu mensaje.</span>
             </div>
           </div>
 
           <div className="min-w-0 space-y-5 rounded-[1.5rem] border border-white/10 bg-background/60 p-5 sm:p-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="min-w-0">
-                <Label htmlFor="contact-name" className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  Nombre *
-                </Label>
-                <Input
-                  id="contact-name"
-                  name="name"
-                  type="text"
-                  required
-                  autoComplete="name"
-                  value={formData.name}
-                  onChange={(event) => updateField("name", event.target.value)}
-                  className="mt-2 h-12 rounded-xl border-border bg-card/80"
-                />
-              </div>
-
-              <div className="min-w-0">
-                <Label htmlFor="contact-email" className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  Email {sendsEmail ? "*" : ""}
-                </Label>
-                <Input
-                  id="contact-email"
-                  name="email"
-                  type="email"
-                  required={sendsEmail}
-                  autoComplete="email"
-                  value={formData.email}
-                  onChange={(event) => updateField("email", event.target.value)}
-                  className="mt-2 h-12 rounded-xl border-border bg-card/80"
-                />
-              </div>
-            </div>
-
-            <div className="min-w-0">
-              <Label htmlFor="contact-phone" className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                Teléfono
-              </Label>
-              <Input
-                id="contact-phone"
-                name="phone"
-                type="tel"
-                autoComplete="tel"
-                value={formData.phone}
-                onChange={(event) => updateField("phone", event.target.value)}
-                className="mt-2 h-12 rounded-xl border-border bg-card/80"
-              />
-            </div>
-
             <div>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -328,7 +287,7 @@ export function ContactForm() {
                     Mensaje editable *
                   </Label>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Guía activa: {selectedProject.label}
+                    Guía activa: {selectedNeeds.length} {selectedNeeds.length === 1 ? "necesidad" : "necesidades"}
                   </p>
                 </div>
                 <button
@@ -349,6 +308,75 @@ export function ContactForm() {
                 onChange={(event) => updateField("message", event.target.value)}
                 className="mt-2 min-h-52 resize-y rounded-xl border-border bg-card/80 leading-relaxed"
               />
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Datos de contacto
+              </p>
+              <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                <div className="min-w-0">
+                  <Label htmlFor="contact-name" className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Nombre *
+                  </Label>
+                  <Input
+                    id="contact-name"
+                    name="name"
+                    type="text"
+                    required
+                    autoComplete="name"
+                    value={formData.name}
+                    onChange={(event) => updateField("name", event.target.value)}
+                    className="mt-2 h-12 rounded-xl border-border bg-card/80"
+                  />
+                </div>
+
+                <div className="min-w-0">
+                  <Label htmlFor="contact-email" className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Email {sendsEmail ? "*" : ""}
+                  </Label>
+                  <Input
+                    id="contact-email"
+                    name="email"
+                    type="email"
+                    required={sendsEmail}
+                    autoComplete="email"
+                    value={formData.email}
+                    onChange={(event) => updateField("email", event.target.value)}
+                    className="mt-2 h-12 rounded-xl border-border bg-card/80"
+                  />
+                </div>
+
+                <div className="min-w-0">
+                  <Label htmlFor="contact-phone" className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Teléfono
+                  </Label>
+                  <Input
+                    id="contact-phone"
+                    name="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    value={formData.phone}
+                    onChange={(event) => updateField("phone", event.target.value)}
+                    className="mt-2 h-12 rounded-xl border-border bg-card/80"
+                  />
+                </div>
+
+                <div className="min-w-0">
+                  <Label htmlFor="contact-business" className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Negocio o web
+                  </Label>
+                  <Input
+                    id="contact-business"
+                    name="business"
+                    type="text"
+                    autoComplete="organization"
+                    value={formData.business}
+                    onChange={(event) => updateField("business", event.target.value)}
+                    className="mt-2 h-12 rounded-xl border-border bg-card/80"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="flex items-start gap-3 rounded-2xl border border-border/70 bg-card/50 px-4 py-3">
@@ -395,29 +423,52 @@ export function ContactForm() {
               </div>
             )}
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="h-12 rounded-xl px-6 text-sm font-semibold"
-              >
-                {isSubmitting ? (
-                  "Preparando..."
-                ) : (
-                  <>
-                    {sendsWhatsApp ? (
-                      <MessageCircle className="mr-2 h-4 w-4" aria-hidden="true" />
-                    ) : (
-                      <Send className="mr-2 h-4 w-4" aria-hidden="true" />
-                    )}
-                    {submitLabel}
-                  </>
-                )}
-              </Button>
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                Canal seleccionado: {selectedDelivery?.label ?? "Email"}.
+            <div className="rounded-2xl border border-border/70 bg-card/50 p-3">
+              <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Canal de envío">
+                {contactDeliveryOptions.map((option) => {
+                  const isSelected = formData.deliveryChannel === option.id
+
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      data-contact-delivery={option.id}
+                      onClick={() => updateField("deliveryChannel", option.id)}
+                      className={`rounded-xl border px-3 py-2.5 text-center text-sm font-semibold transition-colors ${
+                        isSelected
+                          ? "border-primary/70 bg-primary/15 text-foreground"
+                          : "border-transparent text-muted-foreground hover:bg-background/50 hover:text-foreground"
+                      }`}
+                      aria-pressed={isSelected}
+                    >
+                      {option.label}
+                    </button>
+                  )
+                })}
+              </div>
+              <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
+                {selectedDelivery.description}
               </p>
             </div>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="h-12 w-full rounded-xl px-6 text-sm font-semibold"
+            >
+              {isSubmitting ? (
+                "Preparando..."
+              ) : (
+                <>
+                  {sendsWhatsApp ? (
+                    <MessageCircle className="mr-2 h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <Send className="mr-2 h-4 w-4" aria-hidden="true" />
+                  )}
+                  Enviar
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </form>

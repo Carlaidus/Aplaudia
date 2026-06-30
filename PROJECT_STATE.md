@@ -76,8 +76,11 @@ Ultima actualizacion: 2026-06-30
   - componente `components/contact/contact-form.tsx`;
   - API route `app/api/contacto/route.ts`;
   - contenido editable en `content/contact.ts`;
-  - mensaje guiado editable segun tipo de proyecto;
-  - canales de envio: email, WhatsApp o ambos;
+  - seleccion multiple de necesidades como primer paso;
+  - mensaje guiado editable que se autocompone con las necesidades marcadas;
+  - datos de contacto tras el mensaje;
+  - selector final compacto con canales de envio: email o WhatsApp;
+  - unico boton de envio visible: `Enviar`;
   - envio por Resend si existe `RESEND_API_KEY`;
   - variables previstas: `RESEND_API_KEY`, `CONTACT_RECIPIENT_EMAIL`, `EMAIL_FROM`;
   - sin base de datos y sin guardar mensajes en el repo.

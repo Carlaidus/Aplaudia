@@ -34,17 +34,16 @@ No guardar valores reales de estas variables en el repo.
 
 ## Contacto y Resend
 
-La seccion `#contacto` incluye un formulario interno con mensaje guiado editable.
+La seccion `#contacto` incluye un formulario interno con seleccion multiple de necesidades y mensaje guiado editable.
 
 Fuente editable de textos y opciones:
 
-- `content/contact.ts`: tipos de proyecto, mensajes guia y canales de envio.
+- `content/contact.ts`: necesidades, mensajes guia y canales de envio.
 
 Canales disponibles:
 
 - Email: envia mediante `/api/contacto` y Resend.
 - WhatsApp: prepara un enlace `wa.me` con el mensaje editado por el visitante.
-- Ambos: envia email y prepara WhatsApp con el mismo contexto.
 
 Variables de entorno necesarias para activar el envio real:
 
