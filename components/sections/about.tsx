@@ -106,7 +106,7 @@ export function About() {
               style={lightweightMotion ? undefined : { rotate: imageRotate }}
             >
               <Image
-                src="/visuals/aplaudia-studio-workspace.webp"
+                src="/visuals/aplaudia-studio-workspace-real.webp"
                 alt={t("imageAlt")}
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"

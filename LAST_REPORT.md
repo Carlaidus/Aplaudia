@@ -2,6 +2,60 @@
 
 Fecha: 2026-06-30
 
+## Actualización - Segunda tanda de visuales generados más realistas
+
+### Objetivo
+
+Sustituir la primera prueba de imágenes generadas, que quedaba demasiado tecnológica/holográfica, por una propuesta más realista y comercial sin tocar el diseño, el layout ni las animaciones de la web.
+
+### Feedback incorporado
+
+- Las imágenes anteriores se percibían demasiado futuristas.
+- La nueva dirección visual prioriza escenas reales de estudio, tienda, pantallas y material comercial.
+- Se incluye una muestra clara de ropa sobre una persona vista en pantalla.
+- Se evitan hologramas, interfaces imposibles y estética de ciencia ficción.
+
+### Cambios aplicados
+
+- `components/sections/visual-gallery.tsx`:
+  - se sustituyen las cinco imágenes de la galería por escenas realistas de edición, web, vídeo, pantalla en tienda y sistema de campaña;
+  - se actualizan textos alternativos para describir mejor cada imagen.
+- `components/sections/about.tsx`:
+  - se sustituye la imagen del bloque de estudio por una mesa de trabajo realista con portátil, cámara, muestras y material visual.
+- `public/visuals/`:
+  - añadidas imágenes WebP optimizadas:
+    - `ai-image-enhancement-real.webp`;
+    - `real-web-composition.webp`;
+    - `real-motion-editing.webp`;
+    - `retail-screen-clothing.webp`;
+    - `real-campaign-system.webp`;
+    - `aplaudia-studio-workspace-real.webp`.
+  - eliminada la primera tanda de visuales generados por quedar demasiado tecnológica.
+
+### Validaciones ejecutadas
+
+- Generación realizada con la herramienta integrada de imagen de Codex (`image_gen`), en modo built-in.
+- Imágenes revisadas visualmente antes de incorporarlas al repo.
+- Conversión a WebP con `sharp`, manteniendo tamaños contenidos.
+- `npm install`: no fue necesario; `node_modules` ya existía.
+- `npm run build`: OK desde `T:\20-PROYECTOS\APLAUDIA`.
+- `npm run lint`: falla por deuda previa; `eslint` no está disponible como ejecutable del proyecto.
+- `git diff --check`: OK; solo avisos de fin de línea CRLF/LF existentes en Windows.
+- QA local con `next start` en `http://127.0.0.1:3044`:
+  - home responde `200`;
+  - escritorio 1365x900: imágenes cargan, sin scroll horizontal;
+  - móvil 390x844: galería visible en su hueco, sin scroll horizontal;
+  - no se modifica diseño, orden de secciones ni animaciones.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente de commit, push y comprobación de despliegue de Railway.
+
+### Siguiente paso recomendado
+
+Revisar en producción desde móvil real si esta línea de imágenes encaja mejor. Si se quiere afinar más, generar una tercera tanda todavía más luminosa y menos oscura, manteniendo el mismo enfoque realista.
+
 ## Actualización - Rendimiento móvil, espaciado inicial y reglas del agente
 
 ### Objetivo
