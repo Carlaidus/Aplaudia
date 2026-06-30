@@ -34,7 +34,17 @@ No guardar valores reales de estas variables en el repo.
 
 ## Contacto y Resend
 
-La seccion `#contacto` incluye un formulario interno que envia mensajes mediante `/api/contacto` y Resend.
+La seccion `#contacto` incluye un formulario interno con mensaje guiado editable.
+
+Fuente editable de textos y opciones:
+
+- `content/contact.ts`: tipos de proyecto, mensajes guia y canales de envio.
+
+Canales disponibles:
+
+- Email: envia mediante `/api/contacto` y Resend.
+- WhatsApp: prepara un enlace `wa.me` con el mensaje editado por el visitante.
+- Ambos: envia email y prepara WhatsApp con el mismo contexto.
 
 Variables de entorno necesarias para activar el envio real:
 
@@ -45,6 +55,7 @@ Variables de entorno necesarias para activar el envio real:
 Fallbacks sin secreto:
 
 - Si falta `RESEND_API_KEY`, la web sigue cargando y el formulario muestra un error controlado.
+- El canal WhatsApp sigue operativo sin Resend.
 - Si falta `CONTACT_RECIPIENT_EMAIL`, se usa el email publico definido en `siteConfig`.
 - El WhatsApp real esta centralizado en `content/site.ts`.
 

@@ -64,6 +64,10 @@ Ultima actualizacion: 2026-06-30
   - instrucciones editables en `content/agent/aplaudia-agent.md`;
   - fallback elegante si faltan `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET`.
 - Lightbox de vistas clave ampliado para ocupar casi toda la ventana util en escritorio y movil.
+- Lightbox de vistas clave refinado a pantalla completa real:
+  - `100vw` x `100dvh`;
+  - imagen ocupando el viewport completo;
+  - titulo, descripcion y cierre como overlay para no reducir el area visual.
 - WhatsApp real publicado desde `content/site.ts`:
   - numero visible: `659304487`;
   - formato internacional: `34659304487`;
@@ -71,6 +75,9 @@ Ultima actualizacion: 2026-06-30
 - Formulario interno de contacto en la seccion `#contacto`:
   - componente `components/contact/contact-form.tsx`;
   - API route `app/api/contacto/route.ts`;
+  - contenido editable en `content/contact.ts`;
+  - mensaje guiado editable segun tipo de proyecto;
+  - canales de envio: email, WhatsApp o ambos;
   - envio por Resend si existe `RESEND_API_KEY`;
   - variables previstas: `RESEND_API_KEY`, `CONTACT_RECIPIENT_EMAIL`, `EMAIL_FROM`;
   - sin base de datos y sin guardar mensajes en el repo.

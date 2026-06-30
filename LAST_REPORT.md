@@ -6,134 +6,136 @@ Fecha: 2026-06-30
 
 Ejecutar la prioridad indicada por Carlos:
 
-- lightbox de casos realmente grande;
-- WhatsApp real publicado;
-- formulario interno de contacto con Resend siguiendo el patron de Arik Custom;
-- mantener diseño general, movil y rendimiento.
+- limpiar el bloque de contacto;
+- eliminar redundancias;
+- dejar mensaje guiado editable;
+- permitir envio por email, WhatsApp o ambos;
+- hacer que el lightbox sea realmente grande.
 
 ## Cambios aplicados
 
-### Lightbox grande
+### Contacto limpio
 
-- `components/cases/case-gallery.tsx` ahora abre las vistas clave en un modal casi a pantalla completa:
-  - escritorio: `98vw` y `96dvh`, con maximo amplio;
-  - movil: ocupa casi toda la ventana util;
-  - imagen central en area flexible sin recortar;
-  - cierre accesible mantenido.
-- Se conserva la galeria y el orden de las vistas clave.
+- `components/contact/contact-form.tsx` se simplifico:
+  - se eliminaron enlaces internos duplicados de `mailto` y WhatsApp dentro del bloque;
+  - el formulario queda como una sola pieza guiada;
+  - hay un unico CTA contextual segun canal elegido.
+- El bloque ahora se organiza en:
+  - canal de envio;
+  - tipo de proyecto;
+  - datos de contacto;
+  - mensaje editable;
+  - consentimiento.
 
-### WhatsApp real
+### Mensaje guiado editable
 
-- `content/site.ts` centraliza el numero confirmado:
-  - visible: `659304487`;
-  - internacional: `34659304487`;
-  - enlace `wa.me` con mensaje inicial.
-- Los CTAs que ya dependian de `siteConfig.contact.whatsappHref` pasan a abrir WhatsApp real.
-- Footer y CTA final reutilizan la misma fuente.
+- Nuevo archivo `content/contact.ts`.
+- Contiene:
+  - tipos de proyecto;
+  - mensajes guia editables;
+  - canales de envio.
+- Al cambiar el tipo de proyecto, el mensaje se actualiza si el visitante no lo ha personalizado.
+- Se puede restaurar el texto guia con `Usar guia`.
 
-### Formulario interno con Resend
+### Canales email, WhatsApp o ambos
 
-- Nuevo componente: `components/contact/contact-form.tsx`.
-- Nueva API route: `app/api/contacto/route.ts`.
-- Dependencia añadida: `resend` (`^6.16.0`).
-- Campos:
+- Canales disponibles:
+  - `email`: envia por `/api/contacto` usando Resend;
+  - `whatsapp`: prepara `wa.me` con el mensaje editado, sin depender de Resend;
+  - `both`: envia email y prepara WhatsApp con el mismo contexto.
+- Si el canal requiere email, el campo email es obligatorio.
+- Si el canal es solo WhatsApp, el email deja de ser obligatorio.
+- Si falta `RESEND_API_KEY`, email/ambos fallan con error claro y WhatsApp sigue disponible.
+
+### API de contacto
+
+- `app/api/contacto/route.ts` ahora entiende:
+  - `projectType`;
+  - `deliveryChannel`.
+- Solo intenta Resend cuando el canal es `email` o `both`.
+- El email incluye:
+  - tipo de proyecto;
+  - canal solicitado;
   - nombre;
   - email;
   - telefono opcional;
-  - servicio;
-  - mensaje;
-  - consentimiento explicito.
-- Seguridad basica:
-  - validacion en cliente y servidor;
-  - honeypot simple;
-  - escape HTML en el email;
-  - sin base de datos;
-  - sin guardar mensajes en el repo;
-  - sin secretos en codigo.
-- Variables necesarias en Railway:
-  - `RESEND_API_KEY`;
-  - `CONTACT_RECIPIENT_EMAIL`;
-  - `EMAIL_FROM`.
-- Si falta `RESEND_API_KEY`, el endpoint devuelve error controlado `503` y la UI ofrece WhatsApp como alternativa.
+  - mensaje.
+- No hay base de datos.
+- No se guardan secretos.
 
-### Copy de contacto
+### Lightbox pantalla completa
 
-- CTA final deja de prometer una agenda o llamada automatica.
-- Nuevo mensaje orientado a consulta real:
-  - formulario interno;
-  - WhatsApp directo;
-  - respuesta humana posterior.
-- Se ajustaron textos ES/CA/EN del CTA final para no mantener el copy antiguo de agenda.
+- `components/cases/case-gallery.tsx` cambia de modal amplio a pantalla completa real:
+  - `100vw`;
+  - `100dvh`;
+  - sin borde ni radios;
+  - imagen ocupando todo el viewport;
+  - titulo, descripcion y cierre como overlays.
+
+### Estado del agente IA
+
+- No se cambio el agente.
+- Estado actual:
+  - widget implementado en `components/agent/aplaudia-agent-widget.tsx`;
+  - instrucciones editables en `content/agent/aplaudia-agent.md`;
+  - endpoint `/api/agent`;
+  - necesita `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET` para responder con IA real;
+  - si faltan variables, mantiene fallback elegante.
+- Para activarlo de verdad hay dos caminos:
+  - conectar un servicio externo compatible con el proxy actual;
+  - o adaptar `/api/agent` para llamar directamente a OpenAI API con una clave guardada solo en Railway.
 
 ## Archivos modificados
 
 - `README.md`
-- `DECISIONS.md`
 - `PROJECT_STATE.md`
 - `NEXT_TASK.md`
 - `LAST_REPORT.md`
 - `app/api/contacto/route.ts`
-- `components/contact/contact-form.tsx`
 - `components/cases/case-gallery.tsx`
-- `components/sections/final-cta.tsx`
-- `content/agent/aplaudia-agent.md`
-- `content/routes.ts`
+- `components/contact/contact-form.tsx`
+- `content/contact.ts`
 - `content/site.ts`
-- `i18n/messages/ca.json`
-- `i18n/messages/en.json`
-- `i18n/messages/es.json`
-- `package.json`
-- `package-lock.json`
 
 ## Validaciones ejecutadas
 
-- `npm install resend@^6.12.3`: OK; npm resolvio `resend@^6.16.0`.
-  - Aviso local: el repo exige Node `22.x` y la maquina local ejecuta Node `24.14.0`.
-  - `npm audit` informa 2 vulnerabilidades; no se ejecuto `npm audit fix --force` para evitar cambios amplios.
 - `npm run build`: OK.
 - `npm run lint`: no ejecutable; `eslint` no esta instalado como dependencia.
 - `npx tsc --noEmit`: falla por deuda previa ya conocida:
   - tipos de `react-day-picker` en `components/ui/calendar.tsx`;
   - desalineacion antigua de mensajes `about` en `i18n/provider.tsx`.
-- API local `POST /api/contacto` sin `RESEND_API_KEY`: devuelve `503` controlado con mensaje esperado.
-- Browser QA local en `http://127.0.0.1:3021`:
-  - home carga con formulario en `#contacto`;
-  - WhatsApp aparece con `wa.me/34659304487`;
-  - formulario muestra fallback hacia WhatsApp si Resend no esta configurado;
+- API local `POST /api/contacto`:
+  - canal `whatsapp`: OK `200`, sin Resend;
+  - canal `email` sin `RESEND_API_KEY`: OK `503` controlado;
+  - canal `both` sin `RESEND_API_KEY`: OK `503` controlado;
+  - honeypot: OK `200`.
+- Browser QA local en `http://127.0.0.1:3022`:
+  - formulario visible;
+  - sin `mailto` dentro del bloque de contacto;
+  - sin enlaces WhatsApp duplicados dentro del formulario antes de preparar mensaje;
+  - mensaje guia visible y editable;
+  - cambiar a WhatsApp actualiza CTA a `Abrir WhatsApp`;
+  - en WhatsApp, email deja de ser obligatorio;
+  - cambiar tipo a `Agente IA para WhatsApp` cambia la guia;
   - sin scroll horizontal en escritorio ni movil;
   - agente y aviso de construccion no se solapan en movil;
-  - Arik Custom mantiene 3 vistas clave.
+  - consola sin errores.
 - Lightbox medido:
-  - escritorio 1280x720: modal `1254x691`, area de imagen `1252x564`;
-  - movil 390x844: modal `382x810`, area de imagen `380x665`.
-- Produccion `https://aplaudia.com` tras push a `main`:
-  - `/`: 200, formulario visible y WhatsApp real publicado;
-  - `/casos/arik-custom`: 200 con `Ampliar imagen: Panel interno`;
-  - `/casos/cronoras`: 200 con vistas ampliables;
-  - `/casos/aventuras-pixeladas`: 200 con vistas ampliables;
-  - `/api/contacto`: 200 con honeypot, sin disparar email externo;
-  - `/robots.txt`: 200;
-  - `/llms.txt`: 200 y contacto actualizado;
-  - `/sitemap.xml`: 200.
-- Browser QA en produccion:
-  - lightbox Arik Custom: modal `1254x691`, area de imagen `1252x564`;
-  - home: formulario visible, ancho `1024`, sin scroll horizontal;
-  - 4 enlaces `wa.me/34659304487` detectados.
+  - escritorio 1280x720: modal `1280x720`, imagen `1280x720`;
+  - movil 390x844: modal `390x844`, imagen `390x844`.
 
 ## Estado de Railway y produccion
 
-Push a `main` completado en `0a0168f`.
+Pendiente de confirmar tras push a `main`.
 
-La produccion de `https://aplaudia.com` ya sirve la version nueva por HTTP.
-
-Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`), por lo que no se pudo leer el dashboard desde terminal. El estado operativo se verifico por HTTP en el dominio final.
+Railway CLI seguia sin sesion valida en la tarea anterior (`invalid_grant` / `Unauthorized`), por lo que si se mantiene igual habra que validar por HTTP en el dominio final.
 
 ## Siguiente paso recomendado
 
-Configurar en Railway las variables reales de Resend:
+Tras desplegar:
 
-- `RESEND_API_KEY`;
-- `CONTACT_RECIPIENT_EMAIL`;
-- `EMAIL_FROM`.
-
-Despues, enviar una prueba real del formulario y revisar en Resend que llega con `replyTo` correcto.
+- comprobar `https://aplaudia.com`;
+- comprobar casos y lightbox en produccion;
+- configurar variables reales de Resend en Railway;
+- enviar prueba real de email y de ambos canales;
+- revisar legal/privacidad antes de retirar el aviso de construccion.

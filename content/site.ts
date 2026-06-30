@@ -22,7 +22,7 @@ export const siteConfig = {
     whatsappNumber: "659304487",
     whatsappInternational: "34659304487",
     whatsappHref:
-      "https://wa.me/34659304487?text=Hola%2C%20Aplaudia.%20Quiero%20hablar%20sobre%20un%20proyecto%20digital.",
+      "https://wa.me/34659304487?text=Hola%2C%20he%20visto%20la%20web%20de%20Aplaudia%20y%20me%20gustar%C3%ADa%20hablar%20sobre%20un%20proyecto%20web%20o%20digital.",
   },
   seo: {
     title: "Aplaudia | Estudio digital para negocios",

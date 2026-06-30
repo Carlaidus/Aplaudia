@@ -62,13 +62,24 @@ export function CaseGallery({ images, label }: CaseGalleryProps) {
       <Dialog open={selectedImage !== null} onOpenChange={(open) => !open && setSelectedImage(null)}>
         <DialogContent
           data-case-lightbox
-          className="h-[96dvh] w-[98vw] max-w-[98vw] overflow-hidden border-border bg-background/95 p-0 shadow-2xl sm:max-w-[98vw] lg:max-w-[min(98vw,110rem)]"
+          className="h-[100dvh] w-[100vw] max-w-none overflow-hidden rounded-none border-0 bg-black/95 p-0 shadow-2xl sm:max-w-none"
           showCloseButton={false}
         >
           {selectedImage && (
-            <div className="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
-              <div className="flex items-start justify-between gap-4 border-b border-border px-4 py-3 sm:px-5">
-                <div>
+            <div className="relative h-full w-full">
+              <div className="absolute inset-0">
+                <Image
+                  src={selectedImage.src}
+                  alt={selectedImage.alt}
+                  fill
+                  sizes="100vw"
+                  className="object-contain p-2 sm:p-4"
+                  priority
+                />
+              </div>
+
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 bg-gradient-to-b from-black/85 via-black/45 to-transparent px-4 pb-12 pt-4 sm:px-6 sm:pt-5">
+                <div className="max-w-[calc(100%-4rem)]">
                   <DialogTitle className="text-base font-semibold sm:text-lg">
                     {selectedImage.title}
                   </DialogTitle>
@@ -76,28 +87,18 @@ export function CaseGallery({ images, label }: CaseGalleryProps) {
                     {label}
                   </DialogDescription>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedImage(null)}
-                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                  aria-label="Cerrar imagen ampliada"
-                >
-                  <X className="h-4 w-4" aria-hidden="true" />
-                </button>
               </div>
 
-              <div className="relative min-h-0 bg-black/60">
-                <Image
-                  src={selectedImage.src}
-                  alt={selectedImage.alt}
-                  fill
-                  sizes="96vw"
-                  className="object-contain"
-                  priority
-                />
-              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedImage(null)}
+                className="absolute right-4 top-4 z-20 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white shadow-2xl backdrop-blur transition-colors hover:border-white/40 hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:right-6 sm:top-5"
+                aria-label="Cerrar imagen ampliada"
+              >
+                <X className="h-5 w-5" aria-hidden="true" />
+              </button>
 
-              <p className="border-t border-border px-4 py-3 text-sm leading-relaxed text-muted-foreground sm:px-5">
+              <p className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/90 via-black/55 to-transparent px-4 pb-4 pt-14 text-sm leading-relaxed text-white/80 sm:px-6 sm:pb-5">
                 {selectedImage.description}
               </p>
             </div>
