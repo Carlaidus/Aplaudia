@@ -14,6 +14,8 @@ Carlos detecta en móvil que hay demasiado espacio vacío desde la cabecera hast
   - en móvil, el hero deja de usar centrado vertical dentro de `110vh`;
   - el alto móvil pasa a `min-h-[100svh]` para respetar mejor la altura útil real del navegador móvil;
   - el contenido principal del hero pasa a arrancar arriba (`items-start`) con padding móvil más contenido;
+  - el padding superior interno móvil queda en `pt-8` para reducir el hueco inicial sin compactar escritorio;
+  - el margen bajo el subtítulo queda en `mb-6 sm:mb-12` para evitar roces entre CTAs y aviso flotante en móviles pequeños;
   - desde `sm` en adelante se mantiene el comportamiento anterior (`sm:min-h-[110vh]` y `sm:items-center`);
   - no se tocan textos, animaciones, orden de secciones, CTAs, chatbot ni aviso de construcción.
 
@@ -25,10 +27,9 @@ Carlos detecta en móvil que hay demasiado espacio vacío desde la cabecera hast
 - `git diff --check`: OK.
 - QA local con `next start` en `http://127.0.0.1:3041`:
   - home responde `200`;
-  - móvil 360x780: badge top 160 px, H1 top 230 px, subtítulo visible, sin scroll horizontal;
-  - móvil 390x844: badge top 160 px, H1 top 230 px, subtítulo visible y CTAs visibles, sin scroll horizontal;
-  - móvil 430x932: badge top 160 px, H1 top 230 px, subtítulo visible, sin scroll horizontal;
-  - escritorio 1280x800: se conserva la composición amplia original.
+  - móvil 360x780: badge top 112 px, H1 top 182 px, subtítulo visible, CTAs visibles, aviso sin solapar CTAs y sin scroll horizontal;
+  - móvil 390x844: badge top 112 px, H1 top 182 px, subtítulo visible, CTAs visibles, aviso sin solapar CTAs y sin scroll horizontal;
+  - escritorio 1280x800: se conserva la composición amplia original y sin scroll horizontal.
 
 ### Estado
 

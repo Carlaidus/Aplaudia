@@ -140,7 +140,7 @@ export function Hero() {
 
       {/* Main content with scroll-based opacity and scale */}
       <motion.div 
-        className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-24 pt-20 sm:py-32 lg:px-8"
+        className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-24 pt-8 sm:py-32 lg:px-8"
         style={lightweightMotion ? undefined : { opacity: textOpacity, y: textY, scale: scaleDown }}
       >
         <div className="flex flex-col items-center text-center">
@@ -193,7 +193,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl text-pretty leading-relaxed mb-12"
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl text-pretty leading-relaxed mb-6 sm:mb-12"
           >
             {t("subtitle")}
           </motion.p>
