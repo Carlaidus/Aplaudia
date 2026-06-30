@@ -75,7 +75,7 @@ export function AplaudiaAgentWidget() {
       const res = await fetch("/api/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, sessionId }),
+        body: JSON.stringify({ message: text, sessionId, history: messages.slice(-8) }),
       })
       const data = await res.json()
       const reply =
@@ -96,7 +96,7 @@ export function AplaudiaAgentWidget() {
     } finally {
       setIsLoading(false)
     }
-  }, [isLoading, isOpen, sessionId])
+  }, [isLoading, isOpen, messages, sessionId])
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -108,7 +108,7 @@ export function AplaudiaAgentWidget() {
   return (
     <>
       <div
-        className={`fixed bottom-36 left-3 right-3 z-[55] flex max-h-[calc(100dvh-10rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-background/95 shadow-2xl shadow-primary/20 backdrop-blur-xl transition-all duration-200 sm:bottom-24 sm:left-6 sm:right-auto sm:w-[390px] ${
+        className={`fixed bottom-36 left-3 right-3 z-[55] flex max-h-[calc(100dvh-10rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-background/95 shadow-2xl shadow-primary/20 backdrop-blur-xl transition-all duration-200 sm:bottom-24 sm:left-auto sm:right-6 sm:w-[390px] ${
           isOpen
             ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
             : "pointer-events-none translate-y-2 scale-95 opacity-0"
@@ -208,7 +208,7 @@ export function AplaudiaAgentWidget() {
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="fixed bottom-20 right-4 z-[55] flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-primary text-primary-foreground shadow-2xl shadow-primary/30 transition-all hover:scale-105 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95 sm:bottom-6 sm:left-6 sm:right-auto"
+        className="fixed bottom-20 right-4 z-[55] flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-primary text-primary-foreground shadow-2xl shadow-primary/30 transition-all hover:scale-105 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95 sm:bottom-6 sm:right-6"
         aria-label={isOpen ? "Cerrar asistente de Aplaudia" : "Abrir asistente de Aplaudia"}
       >
         {hasUnread && !isOpen && (

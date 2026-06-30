@@ -62,7 +62,15 @@ Ultima actualizacion: 2026-06-30
   - `components/agent/aplaudia-agent-widget.tsx`;
   - `app/api/agent/route.ts`;
   - instrucciones editables en `content/agent/aplaudia-agent.md`;
-  - fallback elegante si faltan `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET`.
+  - usa OpenAI directamente si Railway tiene `OPENAI_API_KEY`;
+  - modelo opcional configurable con `OPENAI_AGENT_MODEL`;
+  - servicio legado compatible con `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET` solo como respaldo;
+  - fallback elegante si no hay agente configurado.
+- Flotantes de la home ajustados el 2026-06-30:
+  - aviso de construccion a la izquierda;
+  - fecha visible del aviso actualizada a `30 junio 2026`;
+  - chatbot a la derecha;
+  - sin solape intencionado entre ambos.
 - Lightbox de vistas clave ampliado para ocupar casi toda la ventana util en escritorio y movil.
 - Lightbox de vistas clave refinado a pantalla completa real:
   - `100vw` x `100dvh`;

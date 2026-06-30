@@ -21,14 +21,19 @@ Documentos de control del proyecto:
 
 ## Agente IA flotante
 
-El widget de agente puede funcionar con un servicio externo compatible con el proxy `/api/agent`.
+El widget de agente funciona mediante `/api/agent` y prioriza OpenAI directamente.
 
 Variables de entorno necesarias para activarlo:
 
-- `APLAUDIA_AGENT_API_URL`: URL base del servicio del agente.
-- `APLAUDIA_AGENT_API_SECRET`: secreto Bearer para llamar a ese servicio.
+- `OPENAI_API_KEY`: clave privada de OpenAI configurada en Railway.
+- `OPENAI_AGENT_MODEL`: modelo opcional para el agente. Si falta, se usa `gpt-5.4-mini`.
 
-Si faltan esas variables, la web no se rompe: el agente muestra una respuesta de fallback indicando que no esta conectado.
+Variables heredadas opcionales si se quisiera usar un servicio externo compatible:
+
+- `APLAUDIA_AGENT_API_URL`: URL base del servicio del agente legado.
+- `APLAUDIA_AGENT_API_SECRET`: secreto Bearer para llamar a ese servicio legado.
+
+Si falta `OPENAI_API_KEY` y no hay servicio legado configurado, la web no se rompe: el agente muestra una respuesta de fallback indicando que no esta conectado.
 
 No guardar valores reales de estas variables en el repo.
 

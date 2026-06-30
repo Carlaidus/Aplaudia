@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { AlertCircle, Check, CheckCircle2, MessageCircle, RotateCcw, Send } from "lucide-react"
+import { AlertCircle, Check, CheckCircle2, MessageCircle, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -123,14 +123,6 @@ export function ContactForm() {
 
       return { ...current, deliveryChannels }
     })
-    resetStatus()
-  }
-
-  const updateSuggestedMessage = () => {
-    setFormData((current) => ({
-      ...current,
-      message: buildGuidedContactMessage(current.needs),
-    }))
     resetStatus()
   }
 
@@ -296,19 +288,9 @@ export function ContactForm() {
 
           <div className="min-w-0 space-y-5 rounded-[1.5rem] border border-white/15 bg-background/70 p-5 sm:p-6">
             <div>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <Label htmlFor="contact-message" className="text-xs uppercase tracking-[0.18em] text-foreground/80">
-                  Mensaje
-                </Label>
-                <button
-                  type="button"
-                  onClick={updateSuggestedMessage}
-                  className="inline-flex items-center gap-2 self-start rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-                  Actualizar mensaje
-                </button>
-              </div>
+              <Label htmlFor="contact-message" className="text-xs uppercase tracking-[0.18em] text-foreground/80">
+                Mensaje
+              </Label>
               <Textarea
                 id="contact-message"
                 name="message"

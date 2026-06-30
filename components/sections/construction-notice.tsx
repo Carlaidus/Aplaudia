@@ -23,7 +23,7 @@ export function ConstructionNotice() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-4 right-4 z-[60] inline-flex max-w-[calc(100vw-2rem)] items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-card/90 px-3 py-2.5 text-sm font-medium text-foreground shadow-2xl shadow-primary/20 backdrop-blur-2xl transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-3.5"
+        className="fixed bottom-4 left-4 z-[60] inline-flex max-w-[calc(100vw-6rem)] items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-card/90 px-3 py-2.5 text-sm font-medium text-foreground shadow-2xl shadow-primary/20 backdrop-blur-2xl transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:max-w-[calc(100vw-2rem)] sm:px-3.5"
         aria-label="Mostrar aviso de construcción"
       >
         <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
@@ -43,7 +43,7 @@ export function ConstructionNotice() {
       initial={{ opacity: 0, y: 24, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.6, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed inset-x-3 bottom-4 z-[60] mx-auto max-w-sm rounded-3xl border border-white/10 bg-background/80 p-[1px] shadow-2xl shadow-primary/20 backdrop-blur-2xl sm:bottom-6 sm:left-auto sm:right-6 sm:mx-0 sm:w-[25rem] sm:max-w-xl"
+      className="fixed bottom-4 left-3 right-20 z-[60] max-w-sm rounded-3xl border border-white/10 bg-background/80 p-[1px] shadow-2xl shadow-primary/20 backdrop-blur-2xl sm:bottom-6 sm:left-6 sm:right-auto sm:w-[25rem] sm:max-w-xl"
       role="status"
       aria-live="polite"
     >

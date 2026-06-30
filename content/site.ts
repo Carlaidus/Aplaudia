@@ -41,7 +41,7 @@ export const siteConfig = {
     ],
   },
   constructionNotice: {
-    dateLabel: "29 junio 2026",
+    dateLabel: "30 junio 2026",
     status: "En construcción",
     title: "Aplaudia está en construcción",
     body:

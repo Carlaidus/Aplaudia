@@ -4,92 +4,52 @@ Fecha: 2026-06-30
 
 ## Objetivo de la tarea
 
-Corregir definitivamente el formulario de contacto de Aplaudia aplicando el flujo exacto indicado por Carlos:
+Ejecutar la prioridad indicada por Carlos sobre `NEXT_TASK.md`:
 
-- eliminar CTAs intermedios de la seccion de contacto;
-- eliminar textos tecnicos visibles;
-- dejar el titulo de seccion y debajo directamente el panel del formulario;
-- usar seleccion multiple de necesidades;
-- usar mensaje editable breve y autocompuesto;
-- permitir Email, WhatsApp o ambos mediante dos toggles independientes;
-- mantener un unico boton final `Enviar`.
-
-## Que estaba mal
-
-- La seccion de contacto seguia mostrando CTAs redundantes antes del formulario:
-  - `Enviar consulta`;
-  - `WhatsApp`.
-- Tambien seguia apareciendo una nota intermedia tipo `Formulario interno y WhatsApp real ya activos`.
-- El formulario conservaba textos no deseados:
-  - `Usar guia`;
-  - `Guia activa`;
-  - texto tecnico sobre base de datos, Resend o WhatsApp preparado.
-- Las tarjetas de necesidades tenian poco contraste.
-- El mensaje autogenerado era demasiado largo y pedia demasiadas secciones.
-- El canal final funcionaba como seleccion unica, no como dos toggles combinables.
+- quitar el boton `Actualizar mensaje` del formulario;
+- mover el aviso de construccion a la izquierda;
+- actualizar la fecha visible del aviso a `30 junio 2026`;
+- mover el chatbot a la derecha;
+- activar el agente IA mediante `OPENAI_API_KEY`;
+- no guardar secretos en el repo;
+- mantener diseno, contenido y funcionalidad visual sin redisenar la web.
 
 ## Cambios aplicados
 
-### Seccion de contacto
+### Formulario de contacto
 
-- `components/sections/final-cta.tsx` queda con:
-  - titulo `Listo para llevar tu negocio al siguiente nivel`;
-  - panel del formulario justo debajo.
-- Se eliminaron:
-  - subtitulo intermedio;
-  - botones superiores;
-  - indicador de confianza de formulario/WhatsApp.
+- Se elimino el boton visible `Actualizar mensaje`.
+- Se elimino el icono asociado `RotateCcw`.
+- El mensaje sigue siendo editable.
+- El mensaje sigue autocomponiendose al cambiar necesidades mientras el visitante no lo haya editado manualmente.
+- Se mantiene un unico boton final: `Enviar`.
 
-### Formulario
+### Flotantes
 
-- `components/contact/contact-form.tsx` se rehizo al flujo pedido:
-  - `Primero dime qué necesitas`;
-  - texto corto;
-  - `Elige una o varias opciones`;
-  - cinco opciones exactas:
-    - `Página web o landing`;
-    - `Agente IA para WhatsApp`;
-    - `Visuales para marca`;
-    - `Portfolio / caso real`;
-    - `Consulta general`;
-  - mensaje con label `Mensaje`;
-  - accion discreta `Actualizar mensaje`;
-  - campos: nombre, email, telefono opcional;
-  - consentimiento corto;
-  - selector final con toggles independientes `Email` y `WhatsApp`;
-  - boton unico `Enviar`.
-- Se reforzaron las tarjetas de necesidades:
-  - borde mas visible;
-  - fondo con mas contraste;
-  - estado seleccionado mas evidente;
-  - mejor lectura en movil.
-- Se reforzo el checkbox de consentimiento.
-- Se eliminaron del bloque:
-  - email visible;
-  - numero visible;
-  - textos tecnicos;
-  - `Usar guia`;
-  - `Guia activa`.
+- `components/sections/construction-notice.tsx`:
+  - aviso minimizado ahora queda abajo a la izquierda;
+  - aviso desplegado ahora queda anclado a la izquierda;
+  - en movil deja espacio a la derecha para el chatbot.
+- `content/site.ts`:
+  - `constructionNotice.dateLabel` actualizado a `30 junio 2026`.
+- `components/agent/aplaudia-agent-widget.tsx`:
+  - boton flotante del chatbot queda abajo a la derecha;
+  - panel del chatbot queda a la derecha en escritorio;
+  - en movil ocupa el ancho util sin chocar con el aviso minimizado.
 
-### Mensaje
+### Agente IA
 
-- `content/contact.ts` ahora genera un mensaje breve:
-  - `Hola, Aplaudia. Me gustaría recibir información sobre ...`
-  - sin secciones largas de contexto, enlaces, presupuesto, plazo o urgencia.
-- Al cambiar opciones, el mensaje se actualiza si no fue editado manualmente.
-- Si el visitante edito el mensaje, no se machaca.
-- `Actualizar mensaje` regenera el texto con las opciones actuales.
-
-### API
-
-- `app/api/contacto/route.ts` acepta:
-  - `deliveryChannels: ["email"]`;
-  - `deliveryChannels: ["whatsapp"]`;
-  - `deliveryChannels: ["email", "whatsapp"]`.
-- Si llega `deliveryChannel: "both"` por compatibilidad, se interpreta como Email + WhatsApp.
-- Si no hay canal, devuelve error claro.
-- Si solo se elige WhatsApp, no exige email ni Resend.
-- Si se elige Email o Email + WhatsApp, usa Resend si esta configurado.
+- `app/api/agent/route.ts` ahora prioriza OpenAI directamente:
+  - usa `OPENAI_API_KEY` si existe en Railway;
+  - usa `OPENAI_AGENT_MODEL` si existe;
+  - si falta `OPENAI_AGENT_MODEL`, usa el modelo por defecto definido en codigo;
+  - llama a `https://api.openai.com/v1/responses`;
+  - envia las instrucciones editables de `content/agent/aplaudia-agent.md`;
+  - envia un contexto corto de la conversacion reciente;
+  - desactiva almacenamiento del response con `store:false`.
+- Las variables antiguas `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET` quedan como respaldo opcional.
+- Si no hay `OPENAI_API_KEY` ni agente legado configurado, el widget devuelve fallback controlado y la web no se rompe.
+- No se ha guardado ninguna clave ni secreto en el repo.
 
 ## Archivos modificados
 
@@ -97,80 +57,59 @@ Corregir definitivamente el formulario de contacto de Aplaudia aplicando el fluj
 - `PROJECT_STATE.md`
 - `NEXT_TASK.md`
 - `LAST_REPORT.md`
-- `app/api/contacto/route.ts`
+- `app/api/agent/route.ts`
+- `components/agent/aplaudia-agent-widget.tsx`
 - `components/contact/contact-form.tsx`
-- `components/sections/final-cta.tsx`
-- `content/contact.ts`
-- `content/routes.ts`
+- `components/sections/construction-notice.tsx`
+- `content/site.ts`
 
 ## Validaciones ejecutadas
 
+- `npm install`: no fue necesario; `node_modules` ya existia.
 - `npm run build`: OK.
-- `npm run lint`: no ejecutable; `eslint` no esta instalado como dependencia.
-- `npx tsc --noEmit`: falla por deuda previa ya conocida:
+- `npm run lint`: falla por deuda previa; `eslint` no esta instalado como dependencia ejecutable.
+- `npx tsc --noEmit`: falla por deuda previa ya documentada:
   - tipos de `react-day-picker` en `components/ui/calendar.tsx`;
   - desalineacion antigua de mensajes `about` en `i18n/provider.tsx`.
 - `git diff --check`: OK.
-- API local `POST /api/contacto`:
-  - solo WhatsApp: OK `200`, `emailSent:false`;
-  - solo Email sin `RESEND_API_KEY`: OK `503` controlado;
-  - Email + WhatsApp sin `RESEND_API_KEY`: OK `503` controlado;
-  - sin canal: OK `400` controlado.
-- Browser QA local en `http://127.0.0.1:3024`:
-  - escritorio: titulo correcto y panel directamente debajo;
-  - escritorio: sin `Enviar consulta`, `Formulario interno`, `Sin base de datos`, `Resend`, `Usar guia`, `Guia activa`, `SEO y estructura`, `No lo tengo claro` ni `Negocio o web`;
-  - escritorio: cinco opciones exactas;
-  - escritorio: mensaje breve sin secciones largas;
-  - escritorio: un unico submit `Enviar`;
-  - seleccion multiple: OK;
-  - edicion manual del mensaje: no se sobrescribe;
-  - `Actualizar mensaje`: OK;
-  - toggles Email/WhatsApp: Email, WhatsApp, ambos y ninguno funcionan;
-  - solo WhatsApp: email no obligatorio;
-  - sin canal: muestra error claro;
-  - movil 390x844: sin scroll horizontal;
-  - movil 390x844: orden necesidades -> mensaje -> datos -> consentimiento -> canal -> Enviar;
-  - WhatsApp: abre `api.whatsapp.com` con telefono `34659304487` y el mensaje final codificado.
+- API local `POST /api/agent` sin `OPENAI_API_KEY`: OK, devuelve fallback controlado con `unavailable:true`.
+- Servidor local de produccion `next start` en `http://127.0.0.1:3033`: home `200` y `/robots.txt` `200`.
+- Browser QA local desktop 1280x800:
+  - sin `Actualizar mensaje`;
+  - aviso de construccion visible a la izquierda;
+  - boton y panel del chatbot a la derecha;
+  - sin solape entre aviso y chatbot.
+- Browser QA local movil 390x844:
+  - sin `Actualizar mensaje`;
+  - aviso minimizado visible como `En construccion - 30 junio 2026`;
+  - chatbot a la derecha;
+  - panel del chatbot abre sin scroll horizontal;
+  - sin solape entre aviso y chatbot.
 
-## Estado de Railway y produccion
+## Estado de Railway
 
-Push a `main` completado en `b87b594`.
+- Railway estaba operativo antes de esta tarea segun el estado documentado previamente.
+- Falta configurar `OPENAI_API_KEY` en Railway para activar respuestas reales de OpenAI en produccion.
+- No se ha tocado DNS, Cloudflare ni configuracion externa desde el repo.
+- No se han guardado secretos.
+- Pendiente comprobar produccion tras push del commit de esta tarea.
 
-Produccion validada por HTTP en `https://aplaudia.com`:
+## Estado final esperado
 
-- `/`: 200;
-- `/casos`: 200;
-- `/robots.txt`: 200;
-- `/llms.txt`: 200;
-- `/sitemap.xml`: 200;
-- home con formulario corregido visible;
-- no aparece `Enviar consulta`;
-- no aparece `Formulario interno`;
-- no aparece `WhatsApp real ya activos`;
-- no aparece `Sin base de datos`;
-- no aparece `Usar guia` ni `Guia activa`;
-- no aparecen `SEO y estructura`, `No lo tengo claro` ni `Negocio o web`;
-- `/api/contacto` con solo WhatsApp: 200, `emailSent:false`;
-- `/api/contacto` sin canal: 400 controlado.
-
-Browser QA en produccion movil 390x844:
-
-- titulo: `Listo para llevar tu negocio al siguiente nivel`;
-- panel: `Primero dime qué necesitas`;
-- cinco opciones exactas;
-- mensaje breve;
-- toggles `Email` y `WhatsApp`;
-- un unico boton `Enviar`;
-- sin scroll horizontal.
-
-Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`), por lo que no se pudo leer el dashboard desde terminal. El estado operativo se valido por el dominio final sirviendo el cambio nuevo tras el push.
+- Web visualmente igual salvo ubicacion de flotantes y eliminacion del boton redundante.
+- Aviso de construccion visible a la izquierda.
+- Aviso de construccion con fecha `30 junio 2026`.
+- Chatbot visible a la derecha.
+- Formulario sin `Actualizar mensaje`.
+- Agente preparado para responder con OpenAI en cuanto Railway tenga `OPENAI_API_KEY`.
 
 ## Siguiente paso recomendado
 
-1. Configurar variables reales de Resend en Railway cuando Carlos quiera probar Email real:
+1. Configurar `OPENAI_API_KEY` en Railway.
+2. Opcionalmente definir `OPENAI_AGENT_MODEL` si Carlos quiere cambiar el modelo por defecto.
+3. Desplegar y probar el agente real en `https://aplaudia.com`.
+4. Despues continuar con Resend:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
-2. Enviar prueba real solo Email.
-3. Enviar prueba real Email + WhatsApp.
-4. Revisar legal/privacidad antes de retirar el aviso de construccion.
+5. Revisar legal/privacidad antes de retirar el aviso de construccion.
