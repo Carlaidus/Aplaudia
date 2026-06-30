@@ -61,11 +61,12 @@ export function CaseGallery({ images, label }: CaseGalleryProps) {
 
       <Dialog open={selectedImage !== null} onOpenChange={(open) => !open && setSelectedImage(null)}>
         <DialogContent
-          className="max-h-[92dvh] max-w-[min(96vw,72rem)] overflow-hidden border-border bg-background/95 p-0 shadow-2xl"
+          data-case-lightbox
+          className="h-[96dvh] w-[98vw] max-w-[98vw] overflow-hidden border-border bg-background/95 p-0 shadow-2xl sm:max-w-[98vw] lg:max-w-[min(98vw,110rem)]"
           showCloseButton={false}
         >
           {selectedImage && (
-            <div className="grid max-h-[92dvh] grid-rows-[auto_minmax(0,1fr)_auto]">
+            <div className="grid h-full grid-rows-[auto_minmax(0,1fr)_auto]">
               <div className="flex items-start justify-between gap-4 border-b border-border px-4 py-3 sm:px-5">
                 <div>
                   <DialogTitle className="text-base font-semibold sm:text-lg">
@@ -85,7 +86,7 @@ export function CaseGallery({ images, label }: CaseGalleryProps) {
                 </button>
               </div>
 
-              <div className="relative min-h-[42vh] bg-black/40 sm:min-h-[62vh]">
+              <div className="relative min-h-0 bg-black/60">
                 <Image
                   src={selectedImage.src}
                   alt={selectedImage.alt}

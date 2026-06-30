@@ -8,6 +8,7 @@ import Link from "next/link"
 import { useTranslations } from "@/i18n"
 import { siteConfig } from "@/content/site"
 import { useLightweightMotion } from "@/components/motion-performance-provider"
+import { ContactForm } from "@/components/contact/contact-form"
 
 export function FinalCTA() {
   const { t } = useTranslations("finalCta")
@@ -63,10 +64,10 @@ export function FinalCTA() {
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
         <motion.div
           ref={contentRef}
-          className="mx-auto max-w-3xl text-center"
+          className="mx-auto max-w-5xl text-center"
         >
           {/* Title with perspective entrance */}
-          <div className="overflow-hidden mb-6" style={{ perspective: "1000px" }}>
+          <div className="mx-auto mb-6 max-w-3xl overflow-hidden" style={{ perspective: "1000px" }}>
             <motion.h2 
               className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl text-balance"
               initial={{ opacity: 0, rotateX: -20, y: 50 }}
@@ -86,7 +87,7 @@ export function FinalCTA() {
           </div>
           
           <motion.p 
-            className="text-lg md:text-xl text-muted-foreground text-pretty leading-relaxed"
+            className="mx-auto max-w-3xl text-lg md:text-xl text-muted-foreground text-pretty leading-relaxed"
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -123,7 +124,7 @@ export function FinalCTA() {
                 size="lg"
                 className="relative bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base font-semibold rounded-xl"
               >
-                <Link href={`mailto:${siteConfig.contact.email}`} className="flex items-center gap-2">
+                <Link href="#aplaudia-contact-form" className="flex items-center gap-2">
                   {t("cta")}
                   <motion.span
                     animate={{ x: isPrimaryHovered ? [0, 5, 0] : 0 }}
@@ -188,6 +189,8 @@ export function FinalCTA() {
               {t("trustNote")}
             </p>
           </motion.div>
+
+          <ContactForm />
         </motion.div>
       </div>
 

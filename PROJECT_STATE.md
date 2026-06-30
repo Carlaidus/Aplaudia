@@ -63,6 +63,17 @@ Ultima actualizacion: 2026-06-30
   - `app/api/agent/route.ts`;
   - instrucciones editables en `content/agent/aplaudia-agent.md`;
   - fallback elegante si faltan `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET`.
+- Lightbox de vistas clave ampliado para ocupar casi toda la ventana util en escritorio y movil.
+- WhatsApp real publicado desde `content/site.ts`:
+  - numero visible: `659304487`;
+  - formato internacional: `34659304487`;
+  - enlaces `wa.me` centralizados.
+- Formulario interno de contacto en la seccion `#contacto`:
+  - componente `components/contact/contact-form.tsx`;
+  - API route `app/api/contacto/route.ts`;
+  - envio por Resend si existe `RESEND_API_KEY`;
+  - variables previstas: `RESEND_API_KEY`, `CONTACT_RECIPIENT_EMAIL`, `EMAIL_FROM`;
+  - sin base de datos y sin guardar mensajes en el repo.
 
 ## Estado de despliegue
 
@@ -124,7 +135,11 @@ Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 - Revisar contenido comercial antes de lanzar.
 - Revisar textos ES / CA / EN.
 - Crear legal basico: aviso legal, privacidad y cookies si se va a captar contacto.
-- Decidir formulario/contacto/WhatsApp real; no hay numero de WhatsApp publicado en `siteConfig`.
+- Configurar variables reales de Resend en Railway para activar el envio del formulario:
+  - `RESEND_API_KEY`;
+  - `CONTACT_RECIPIENT_EMAIL`;
+  - `EMAIL_FROM`.
+- Revisar legal/privacidad antes de retirar el aviso de construccion, porque ya existe captacion de contacto.
 - Revisar en produccion con Carlos la nueva version de portfolio/casos ya desplegada.
 - Validar con Carlos si el panel interno real de Arik Custom debe mostrarse publicamente.
 - Conectar agente IA real solo cuando exista servicio externo y variables seguras en Railway.

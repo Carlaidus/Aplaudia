@@ -31,3 +31,21 @@ Variables de entorno necesarias para activarlo:
 Si faltan esas variables, la web no se rompe: el agente muestra una respuesta de fallback indicando que no esta conectado.
 
 No guardar valores reales de estas variables en el repo.
+
+## Contacto y Resend
+
+La seccion `#contacto` incluye un formulario interno que envia mensajes mediante `/api/contacto` y Resend.
+
+Variables de entorno necesarias para activar el envio real:
+
+- `RESEND_API_KEY`: clave privada de Resend.
+- `CONTACT_RECIPIENT_EMAIL`: email receptor de las consultas.
+- `EMAIL_FROM`: remitente verificado en Resend.
+
+Fallbacks sin secreto:
+
+- Si falta `RESEND_API_KEY`, la web sigue cargando y el formulario muestra un error controlado.
+- Si falta `CONTACT_RECIPIENT_EMAIL`, se usa el email publico definido en `siteConfig`.
+- El WhatsApp real esta centralizado en `content/site.ts`.
+
+No guardar valores reales de estas variables en el repo.

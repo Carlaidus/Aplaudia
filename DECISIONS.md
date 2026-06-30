@@ -5,7 +5,7 @@
 - No guardar secretos, tokens, claves, contrasenas ni variables privadas en los `.md`.
 - No guardar datos reales de clientes salvo instruccion explicita de Carlos.
 - No tocar configuracion de Cloudflare ni Railway manualmente sin instruccion clara.
-- No introducir formularios que recojan datos sin revisar legal/privacidad.
+- El formulario interno de contacto queda preparado por instruccion de Carlos, con consentimiento explicito, envio por Resend y sin guardar mensajes en base de datos. Legal/privacidad sigue pendiente antes de retirar el aviso de construccion.
 
 ## Git y despliegue
 
@@ -50,3 +50,4 @@
 - No complicar Aplaudia como Aventuras Pixeladas: memoria ligera, accion rapida, documentacion compacta.
 - El JSON-LD puede incluir `Organization`, `WebSite`, `Service` e `ItemList`; no anadir `FAQPage` hasta que existan FAQs reales visibles en la web.
 - `content/site.ts` es la fuente central para marca, dominio canonico, contacto, metadata SEO, servicios, aviso de construccion y rutas futuras recomendadas.
+- El WhatsApp publico confirmado para Aplaudia es `659304487` (`34659304487` en formato internacional) y debe centralizarse en `content/site.ts`.

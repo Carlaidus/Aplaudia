@@ -16,10 +16,13 @@ export const siteConfig = {
   audience:
     "Negocios pequeños, profesionales independientes y marcas que quieren mejorar su presencia digital sin montar un equipo técnico interno.",
   contactCta:
-    "Solicitar una conversación desde la sección de contacto de la web.",
+    "Enviar el formulario interno de contacto o escribir por WhatsApp.",
   contact: {
     email: "carlosvfx@gmail.com",
-    whatsappHref: null,
+    whatsappNumber: "659304487",
+    whatsappInternational: "34659304487",
+    whatsappHref:
+      "https://wa.me/34659304487?text=Hola%2C%20Aplaudia.%20Quiero%20hablar%20sobre%20un%20proyecto%20digital.",
   },
   seo: {
     title: "Aplaudia | Estudio digital para negocios",
