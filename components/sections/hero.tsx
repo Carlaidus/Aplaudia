@@ -109,7 +109,7 @@ export function Hero() {
   const techStack = ["Next.js", "React", "TypeScript", "SEO técnico"]
 
   return (
-    <section ref={containerRef} className="relative min-h-[110vh] flex items-center justify-center overflow-hidden pt-20">
+    <section ref={containerRef} className="relative flex min-h-[100svh] items-start justify-center overflow-hidden pt-20 sm:min-h-[110vh] sm:items-center">
       {/* Layered animated backgrounds */}
       <div className="absolute inset-0">
         {/* Deep background layer with parallax */}
@@ -140,7 +140,7 @@ export function Hero() {
 
       {/* Main content with scroll-based opacity and scale */}
       <motion.div 
-        className="relative z-10 mx-auto max-w-7xl px-6 py-32 lg:px-8 w-full"
+        className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-24 pt-20 sm:py-32 lg:px-8"
         style={lightweightMotion ? undefined : { opacity: textOpacity, y: textY, scale: scaleDown }}
       >
         <div className="flex flex-col items-center text-center">

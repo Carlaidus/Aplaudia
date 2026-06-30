@@ -2,6 +2,43 @@
 
 Fecha: 2026-06-30
 
+## Actualización urgente - Espacio superior del hero en móvil
+
+### Objetivo
+
+Carlos detecta en móvil que hay demasiado espacio vacío desde la cabecera hasta el primer texto grande de la home. Se corrige solo el espaciado vertical inicial del hero en móvil, sin rediseñar la web ni cambiar contenido.
+
+### Cambios aplicados
+
+- `components/sections/hero.tsx`:
+  - en móvil, el hero deja de usar centrado vertical dentro de `110vh`;
+  - el alto móvil pasa a `min-h-[100svh]` para respetar mejor la altura útil real del navegador móvil;
+  - el contenido principal del hero pasa a arrancar arriba (`items-start`) con padding móvil más contenido;
+  - desde `sm` en adelante se mantiene el comportamiento anterior (`sm:min-h-[110vh]` y `sm:items-center`);
+  - no se tocan textos, animaciones, orden de secciones, CTAs, chatbot ni aviso de construcción.
+
+### Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existía.
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no está instalado como dependencia ejecutable.
+- `git diff --check`: OK.
+- QA local con `next start` en `http://127.0.0.1:3041`:
+  - home responde `200`;
+  - móvil 360x780: badge top 160 px, H1 top 230 px, subtítulo visible, sin scroll horizontal;
+  - móvil 390x844: badge top 160 px, H1 top 230 px, subtítulo visible y CTAs visibles, sin scroll horizontal;
+  - móvil 430x932: badge top 160 px, H1 top 230 px, subtítulo visible, sin scroll horizontal;
+  - escritorio 1280x800: se conserva la composición amplia original.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente tras push: comprobar producción en `https://aplaudia.com` con viewport móvil y confirmar que el hueco superior queda reducido también en despliegue.
+
+### Siguiente paso recomendado
+
+Revisar la home desde móvil real tras el despliegue y confirmar si el nuevo equilibrio del hero se siente más serio y compacto sin perder aire visual.
+
 ## Actualización urgente - Lectura de respuestas largas del chatbot
 
 ### Objetivo

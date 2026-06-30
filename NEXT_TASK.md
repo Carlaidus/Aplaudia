@@ -31,6 +31,7 @@ Validar en móvil real el chatbot casi a pantalla completa con respuestas largas
   - la respuesta empieza justo debajo;
   - aparece un indicador flotante si queda contenido por leer hacia abajo;
   - el indicador desaparece al llegar al final.
+- El hero móvil se ha compactado para reducir el hueco superior antes del primer texto grande.
 - El formulario de contacto no muestra `Actualizar mensaje`.
 - `/api/agent` prioriza OpenAI directamente con `OPENAI_API_KEY`.
 - `OPENAI_API_KEY` está activa en producción.
@@ -57,11 +58,15 @@ Validar en móvil real el chatbot casi a pantalla completa con respuestas largas
    - confirmar que el indicador de más contenido aparece y desaparece correctamente;
    - confirmar comportamiento con teclado abierto;
    - decidir si hace falta acortar el saludo inicial.
-2. Probar dictado por voz en producción:
+2. Revisar la home en móvil real:
+   - confirmar que el hero arranca antes y queda más serio;
+   - confirmar que no hay solapes con aviso de construcción, chatbot ni barra del navegador;
+   - confirmar que subtítulo y CTAs siguen siendo legibles.
+3. Probar dictado por voz en producción:
    - Chrome/Edge en escritorio;
    - Android si hay dispositivo disponible;
    - iPhone/Safari si hay dispositivo disponible.
-3. Confirmar:
+4. Confirmar:
    - aparece el botón de micrófono si el navegador lo soporta;
    - pide permiso de micrófono;
    - transcribe al textarea;
@@ -69,26 +74,26 @@ Validar en móvil real el chatbot casi a pantalla completa con respuestas largas
    - permite enviar tras dictado;
    - no se solapa con enviar ni con el texto;
    - no rompe móvil.
-4. Probar respuestas reales del agente sobre:
+5. Probar respuestas reales del agente sobre:
    - precios de webs;
    - agentes IA web;
    - integración con WhatsApp;
    - visuales, imagen y vídeo;
    - mantenimiento;
    - casos Cronoras, Arik Custom y Aventuras Pixeladas.
-5. Verificar que el agente:
+6. Verificar que el agente:
    - usa siempre precios orientativos con `desde`;
    - no da presupuesto cerrado;
    - no inventa plazos;
    - no inventa garantías;
    - no inventa datos legales;
    - no menciona programación con IA.
-6. Ajustar `content/agent/aplaudia-agent.md` solo si las pruebas reales muestran respuestas mejorables.
-7. Continuar con email real del formulario si Carlos ya tiene Resend listo:
+7. Ajustar `content/agent/aplaudia-agent.md` solo si las pruebas reales muestran respuestas mejorables.
+8. Continuar con email real del formulario si Carlos ya tiene Resend listo:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
-8. Revisar legal/contacto antes de retirar el aviso de construcción:
+9. Revisar legal/contacto antes de retirar el aviso de construcción:
    - aviso legal;
    - privacidad;
    - cookies si aplica;
