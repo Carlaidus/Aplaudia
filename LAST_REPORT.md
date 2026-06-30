@@ -126,9 +126,22 @@ Ejecutar la prioridad indicada por Carlos:
 
 ## Estado de Railway y produccion
 
-Pendiente de confirmar tras push a `main`.
+Push a `main` completado en `573ecb0`.
 
-Railway CLI seguia sin sesion valida en la tarea anterior (`invalid_grant` / `Unauthorized`), por lo que si se mantiene igual habra que validar por HTTP en el dominio final.
+Produccion validada por HTTP en `https://aplaudia.com`:
+
+- `/`: 200, contacto limpio visible, CTA `Enviar por email`, WhatsApp directo centralizado.
+- `/casos/arik-custom`: 200, boton `Ampliar imagen: Panel interno` visible.
+- `/robots.txt`: 200.
+- `/llms.txt`: 200.
+- `/sitemap.xml`: 200.
+- `/api/contacto` con canal `whatsapp`: 200, `emailSent:false`.
+
+Browser QA en produccion:
+
+- Lightbox Arik Custom: modal `1280x720`, imagen `1280x720`, sin scroll horizontal.
+
+Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`), por lo que no se pudo leer el dashboard desde terminal. El estado operativo se valido por HTTP en el dominio final.
 
 ## Siguiente paso recomendado
 
