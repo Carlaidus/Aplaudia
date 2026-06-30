@@ -12,7 +12,7 @@ import {
   portfolioProjects,
   showcaseLabels,
   type PortfolioProject,
-} from "@/content/showcase"
+} from "@/lib/cases"
 
 function ProjectCaseCard({
   project,

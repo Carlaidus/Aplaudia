@@ -47,9 +47,22 @@ Ultima actualizacion: 2026-06-30
 - Copy principal ES revisado para espanol de Espana: `reserva`, `reservar`, `portfolio`, horarios 24 h y giros menos latinoamericanos.
 - Portfolio/casos con trabajos reales en `content/showcase.ts`:
   - Cronoras con portada/demo, dashboard, proyectos y estadisticas.
-  - Arik Custom con home, catalogo, ficha real de producto y solicitud real de presupuesto.
+  - Arik Custom con home, catalogo filtrable enfocado, panel interno real y solicitud real de presupuesto.
   - Aventuras Pixeladas con home, cartuchos reales, paneles vivos y vista responsive.
   - Las composiciones sinteticas de panel/control se retiraron el 2026-06-30 para priorizar capturas reales limpias.
+- Navegacion interna de casos corregida:
+  - header y footer usan `/#...` fuera de home;
+  - cada caso permite volver a `/casos` y `/`.
+- Estructura modular de casos:
+  - `components/cases/case-template.tsx`;
+  - `components/cases/case-gallery.tsx`;
+  - `lib/cases.ts`.
+- Vistas clave de casos ampliables con lightbox.
+- Agente IA flotante preparado:
+  - `components/agent/aplaudia-agent-widget.tsx`;
+  - `app/api/agent/route.ts`;
+  - instrucciones editables en `content/agent/aplaudia-agent.md`;
+  - fallback elegante si faltan `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET`.
 
 ## Estado de despliegue
 
@@ -104,6 +117,7 @@ Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 3. Documentacion tecnica al dia para que Codex y ChatGPT puedan continuar sin perder contexto.
 4. Revisar con Carlos si el portfolio/casos ya es suficiente para validacion final.
 5. Revisar legal/contacto antes de retirar el aviso de construccion.
+6. Decidir si se activa el agente IA real o se deja preparado con fallback.
 
 ## Pendiente
 
@@ -112,6 +126,8 @@ Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 - Crear legal basico: aviso legal, privacidad y cookies si se va a captar contacto.
 - Decidir formulario/contacto/WhatsApp real; no hay numero de WhatsApp publicado en `siteConfig`.
 - Revisar en produccion con Carlos la nueva version de portfolio/casos ya desplegada.
+- Validar con Carlos si el panel interno real de Arik Custom debe mostrarse publicamente.
+- Conectar agente IA real solo cuando exista servicio externo y variables seguras en Railway.
 - Definir datos legales reales antes de ampliar JSON-LD con direccion, telefono, redes sociales o fundador.
 
 ## Servicios externos

@@ -4,127 +4,163 @@ Fecha: 2026-06-30
 
 ## Objetivo de la tarea
 
-Corregir la sección de casos/portfolio para que use referencias reales, se vea profesional, mejore legibilidad y hable como Aplaudia, sin mencionar a Carlos como marca pública ni usar reclamos técnicos poco útiles.
+Refinar Aplaudia sin rediseñar la web: navegación interna de casos, agente IA flotante, mejora de imágenes de casos, ampliación de galerías y estructura modular para futuros proyectos.
 
-## Problemas detectados
+## Navegación interna
 
-- Arik Custom:
-  - `arik-producto.webp` era una composición inventada;
-  - la camiseta no parecía real;
-  - el texto de la ficha quedaba forzado;
-  - `arik-admin-panel.webp` era otra composición sintética, no una captura real.
-- Cronoras:
-  - `cronoras-admin-panel.webp` también era una composición sintética.
-- Aventuras Pixeladas:
-  - `aventuras-control-modular.webp` era una imagen explicativa inventada;
-  - `aventuras-cartuchos.webp` tenía overlay/texto propio y no era una captura limpia.
-- Copy público:
-  - `/casos` decía “trabajos reales de Carlos” y metadata con “construidos por Carlos”.
-  - El hero mostraba `Claude AI` y `Vercel` como stack visible.
-  - `/llms.txt` hablaba de validación por Carlos.
-  - El aviso de construcción mencionaba Cloudflare/Railway como detalle público.
-- Legibilidad:
-  - varias descripciones y bullets dentro de las fichas estaban en `text-sm` y resultaban pequeños.
+Solución elegida:
 
-## Criterio aplicado
+- Mantener el header global.
+- En home, conservar anclas locales: `#servicios`, `#proceso`, `#portfolio`, `#whatsapp`, `#nosotros`, `#contacto`.
+- En páginas internas, convertirlas a anclas absolutas de home: `/#servicios`, `/#proceso`, `/#portfolio`, `/#whatsapp`, `/#nosotros`, `/#contacto`.
+- Aplicar el mismo criterio al footer para evitar enlaces muertos desde `/casos/*`.
+- Reforzar la navegación del caso con:
+  - `Volver a casos`;
+  - `Volver a la home`.
+- Ajustar el padding superior del hero de caso para que el header fijo no tape la navegación en móvil.
 
-- Prioridad a capturas reales de los proyectos, aunque eso implique quitar imágenes de panel si no hay una captura limpia disponible.
-- Sin composiciones inventadas para vender una funcionalidad.
-- Sin overlays añadidos encima de capturas de casos.
-- Capturas mostradas con `object-contain` en la galería para evitar cortes raros.
-- Copy en nombre de Aplaudia, no de Carlos.
-- Tecnología comunicada como capacidad profesional: Next.js, React, TypeScript y SEO técnico.
+## Agente IA flotante
 
-## Imágenes sustituidas o añadidas
+Implementado un agente flotante propio de Aplaudia:
 
-- `arik-producto.webp`: sustituida por captura real de la ficha `kp133` en Arik Custom.
-- `arik-presupuesto.webp`: añadida con captura real del flujo de presupuesto con producto seleccionado.
-- `aventuras-cartuchos.webp`: sustituida por recorte real de la home responsive, sin overlay.
-- `aventuras-paneles.webp`: sustituida por recorte real más limpio de paneles de contenido.
-- `aventuras-responsive.webp`: añadida como vista real responsive.
+- Componente: `components/agent/aplaudia-agent-widget.tsx`.
+- API route: `app/api/agent/route.ts`.
+- Instrucciones editables: `content/agent/aplaudia-agent.md`.
+- Integrado globalmente desde `app/layout.tsx`.
+- Posición:
+  - móvil: botón abajo a la derecha, por encima del aviso de construcción;
+  - escritorio: botón abajo a la izquierda para no chocar con el aviso.
+- Puede abrirse y cerrarse correctamente.
+- El input permite enviar con botón o `Enter`.
+- Si no hay servicio externo configurado, responde con fallback elegante y la web no se rompe.
 
-## Imágenes eliminadas
+Variables necesarias para activarlo:
 
-- `public/portfolio/arik-admin-panel.webp`
-- `public/portfolio/cronoras-admin-panel.webp`
-- `public/portfolio/aventuras-control-modular.webp`
+- `APLAUDIA_AGENT_API_URL`
+- `APLAUDIA_AGENT_API_SECRET`
 
-Motivo: no eran capturas reales limpias; eran composiciones sintéticas y podían dar sensación de proyecto inventado.
+No se añadió ninguna clave real ni secreto al repo.
 
-## Cambios aplicados
+## Imágenes y casos
 
-- `content/showcase.ts`:
-  - Cronoras usa dashboard, proyectos y estadísticas reales.
-  - Arik Custom usa catálogo, ficha real de producto y presupuesto real.
-  - Aventuras Pixeladas usa cartuchos, paneles y responsive reales.
-  - Eliminado `motionDemo`.
-- `app/casos/[slug]/page.tsx`:
-  - Eliminado el bloque de animación modular.
-  - Galería con `object-contain` para no cortar capturas.
-  - Textos de fichas subidos a `text-base` para mejorar legibilidad.
-- `app/casos/page.tsx`:
-  - Copy público reescrito como Aplaudia.
-  - Eliminada mención a Carlos.
-  - Descripciones más legibles.
-- `components/sections/hero.tsx`:
-  - Stack visible cambiado a `Next.js`, `React`, `TypeScript`, `SEO técnico`.
-- `content/site.ts`:
-  - Aviso de construcción sin Cloudflare/Railway como mensaje público.
-- `app/llms.txt/route.ts`:
-  - Estado de construcción redactado sin nombrar a Carlos.
-- `components/sections/construction-notice.tsx`:
-  - Aviso minimizado fijado abajo también en móvil para evitar solapes con antetítulos de casos.
-  - Eliminado listener de scroll que ya no era necesario.
-- `app/globals.css`:
-  - Eliminado CSS de la animación modular.
-- `components/cases/cartucho-motion-demo.tsx`:
-  - Eliminado por no encajar con el criterio de capturas reales.
+Arik Custom:
+
+- `arik-catalogo.webp` sustituida por captura real nueva, más centrada en filtros, buscador, familias y productos.
+- `arik-dashboard.webp` añadida con captura real del panel interno local de Arik Custom usando contraseña temporal de proceso, sin leer ni guardar secretos.
+- La galería de Arik queda con 3 vistas clave:
+  - catálogo filtrable;
+  - panel interno;
+  - solicitud de presupuesto.
+
+Cronoras:
+
+- Mantiene 3 vistas clave reales:
+  - dashboard de producto;
+  - control de proyectos;
+  - estadísticas accionables.
+
+Aventuras Pixeladas:
+
+- Mantiene 3 vistas clave reales:
+  - cartuchos de portada;
+  - paneles de contenido;
+  - experiencia responsive.
+
+## Galería ampliable
+
+Implementado `components/cases/case-gallery.tsx`:
+
+- Cada imagen de `Vistas clave` se puede ampliar.
+- El visor funciona con modal reutilizable.
+- Incluye título, descripción y botón de cierre.
+- Funciona en móvil y escritorio.
+- Añadido `data-case-gallery-item` para validaciones automatizadas.
+
+## Estructura modular
+
+Implementado:
+
+- `components/cases/case-template.tsx`: plantilla reutilizable para páginas de caso.
+- `components/cases/case-gallery.tsx`: galería reutilizable con lightbox.
+- `lib/cases.ts`: punto estable para consumir datos de casos.
+- `content/showcase.ts`: sigue siendo la fuente de datos de proyectos y ahora soporta `stack` y `results` opcionales.
+- `app/casos/[slug]/page.tsx` queda reducido a metadata, `generateStaticParams`, lookup de caso y render de plantilla.
+
+Añadir un nuevo caso queda reducido principalmente a:
+
+- añadir objeto de proyecto;
+- añadir assets en `public/portfolio/`;
+- reutilizar la plantilla existente.
+
+## Archivos modificados
+
+- `README.md`
+- `app/api/agent/route.ts`
+- `app/casos/[slug]/page.tsx`
+- `app/casos/page.tsx`
+- `app/layout.tsx`
+- `components/agent/aplaudia-agent-widget.tsx`
+- `components/cases/case-gallery.tsx`
+- `components/cases/case-template.tsx`
+- `components/sections/footer.tsx`
+- `components/sections/header.tsx`
+- `components/sections/showcase.tsx`
+- `content/agent/aplaudia-agent.md`
+- `content/showcase.ts`
+- `lib/cases.ts`
+- `public/portfolio/arik-catalogo.webp`
+- `public/portfolio/arik-dashboard.webp`
 
 ## Validaciones ejecutadas
 
 - `npm install`: no necesario; no se añadieron dependencias.
-- `npm run build`: OK desde `T:\20-PROYECTOS\APLAUDIA`.
-- `npm run build` desde ruta UNC: falla por limitación de `cmd.exe` con rutas UNC y no representa un fallo del proyecto.
+- `npm run build`: OK.
 - `npm run lint`: no ejecutable; `eslint` no está instalado como dependencia.
-- `npx tsc --noEmit`: falla solo por deuda previa:
-  - tipos/implícitos en `components/ui/calendar.tsx`;
+- `npx tsc --noEmit`: falla por deuda previa ya conocida:
+  - tipos de `react-day-picker` en `components/ui/calendar.tsx`;
   - desalineación antigua de mensajes `about` en `i18n/provider.tsx`.
-- Producción local `http://127.0.0.1:3018`:
-  - `/casos`: aviso visible, sin `Carlos`, `Claude AI`, `Vercel` ni `Cloudflare` en texto renderizado.
-  - `/casos/cronoras`: 3 vistas, sin overflow móvil.
-  - `/casos/arik-custom`: 3 vistas, ficha y presupuesto reales, sin overflow móvil/escritorio.
-  - `/casos/aventuras-pixeladas`: 3 vistas reales, sin animación inventada, sin overflow móvil/escritorio.
-  - `scrollWidth` = `clientWidth` en móvil y escritorio revisados.
-- Producción pública `https://aplaudia.com`:
-  - `/`, `/casos`, `/casos/cronoras`, `/casos/arik-custom`, `/casos/aventuras-pixeladas`, `/robots.txt`, `/llms.txt` y `/sitemap.xml` responden `200`.
-  - Los 12 assets de `public/portfolio/` usados por los casos responden `200 image/webp`.
-  - Revisión móvil en navegador: aviso de construcción visible abajo, sin pisar el antetítulo del caso, sin scroll horizontal.
-  - Arik Custom muestra home, catálogo, ficha real `kp133` y presupuesto real.
-  - Aventuras Pixeladas muestra home, cartuchos reales, paneles de contenido y vista responsive real.
-  - No aparecen los textos públicos retirados: `trabajos reales de Carlos`, `Claude AI`, `Vercel`, `Cloudflare` ni `programación con IA`.
+- Producción local `http://127.0.0.1:3020`:
+  - `/`: OK.
+  - `/casos`: OK.
+  - `/casos/cronoras`: OK.
+  - `/casos/arik-custom`: OK.
+  - `/casos/aventuras-pixeladas`: OK.
+  - `/robots.txt`: OK.
+  - `/llms.txt`: OK.
+  - `/sitemap.xml`: OK.
+- Navegación:
+  - header interno apunta a `/#...`;
+  - `Volver a casos` navega a `/casos`;
+  - `Volver a la home` navega a `/`;
+  - menú móvil mantiene enlaces absolutos correctos.
+- Agente:
+  - abre y cierra;
+  - envía mensaje;
+  - muestra fallback sin API configurada;
+  - sin errores de consola en la prueba local.
+- Lightbox:
+  - abre imagen ampliada;
+  - cierra correctamente;
+  - Arik tiene 3 vistas clave y una de ellas es el panel interno real.
+- Móvil:
+  - sin scroll horizontal;
+  - `Volver a casos` queda por debajo del header fijo;
+  - agente y aviso de construcción no se solapan.
 
 ## Estado de Railway
 
-El CLI de Railway sigue sin sesión válida (`invalid_grant` / `Unauthorized`), así que no se pudo leer el dashboard desde terminal sin volver a autenticar.
+Railway CLI sigue sin sesión válida (`invalid_grant` / `Unauthorized`), por lo que no se pudo leer el dashboard desde terminal.
 
-Estado real comprobado por producción:
+Estado pendiente de confirmar tras integrar en `main`:
 
-- Commit de portfolio real publicado: `0e762d67d853de24224d8e7a939f794f27c71853`.
-- Commit de ajuste móvil del aviso publicado: `19677cc`.
-- `https://aplaudia.com` sirve las rutas y assets nuevos con `200`.
-- El comportamiento móvil corregido ya se observa en producción.
-
-## Estado final
-
-Los casos quedan más sobrios y creíbles:
-
-- Arik Custom ya no usa imagen de camiseta falsa ni panel sintético.
-- Cronoras vuelve a apoyarse en capturas reales de demo/producto.
-- Aventuras Pixeladas usa recortes reales sin overlays añadidos.
-- La tipografía de fichas es más legible.
-- La marca pública habla como Aplaudia.
-- El aviso flotante de construcción sigue visible y ya no pisa el encabezado del caso en móvil.
+- push a GitHub;
+- despliegue automático de Railway;
+- validación por HTTP de `https://aplaudia.com`.
 
 ## Siguiente paso recomendado
 
-Revisar en producción con Carlos, en móvil real y escritorio, si la nueva selección de capturas ya transmite suficiente confianza comercial. Si se valida, el siguiente foco debería ser legal/contacto y datos reales de contacto antes de retirar el aviso de construcción.
+Tras el despliegue, revisar en producción con Carlos:
+
+- si el panel interno real de Arik Custom debe mantenerse visible;
+- si el agente debe conectarse a un servicio real o quedarse como preparación;
+- si legal/contacto está listo para retirar el aviso de construcción.

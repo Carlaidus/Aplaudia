@@ -3,6 +3,7 @@ import { I18nProvider } from '@/i18n'
 import { siteConfig } from '@/content/site'
 import { StructuredData } from '@/components/seo/structured-data'
 import { MotionPerformanceProvider } from '@/components/motion-performance-provider'
+import { AplaudiaAgentWidget } from '@/components/agent/aplaudia-agent-widget'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -55,6 +56,7 @@ export default function RootLayout({
         <I18nProvider>
           <MotionPerformanceProvider>
             {children}
+            <AplaudiaAgentWidget />
           </MotionPerformanceProvider>
         </I18nProvider>
       </body>

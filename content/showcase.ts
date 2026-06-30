@@ -29,6 +29,8 @@ export type PortfolioProject = {
   whyItWorks: string
   highlights: readonly string[]
   deliverables: readonly string[]
+  stack?: readonly string[]
+  results?: readonly string[]
   proofPoints: readonly PortfolioProofPoint[]
   gallery: readonly PortfolioImage[]
 }
@@ -80,6 +82,7 @@ export const portfolioProjects = [
       "Vista de proyecto en curso para registrar sesiones.",
       "Estadísticas, facturas, empresas y base de planes.",
     ],
+    stack: ["Dashboard", "Proyectos", "Estadísticas", "Demo pública"],
     proofPoints: [
       {
         title: "Problema claro",
@@ -158,6 +161,7 @@ export const portfolioProjects = [
       "Flujo de selección y presupuesto.",
       "Panel interno protegido para gestión de productos.",
     ],
+    stack: ["Home comercial", "Catálogo filtrable", "Panel interno", "Presupuesto"],
     proofPoints: [
       {
         title: "Primera impresión de marca",
@@ -178,17 +182,17 @@ export const portfolioProjects = [
     gallery: [
       {
         src: "/portfolio/arik-catalogo.webp",
-        alt: "Catálogo de Arik Custom con filtros por familia, tipo de prenda y tarjetas de producto personalizable.",
+        alt: "Catálogo de Arik Custom centrado en filtros, buscador, familias, tipos de prenda y tarjetas de producto personalizable.",
         title: "Catálogo filtrable",
         description:
-          "Productos, familias y filtros para que el visitante pase de explorar a preparar una solicitud concreta.",
+          "Vista real enfocada en filtros, buscador y familias para que el visitante pase de explorar a preparar una solicitud concreta.",
       },
       {
-        src: "/portfolio/arik-producto.webp",
-        alt: "Ficha real de producto de Arik Custom con una gorra KP133, colores, materiales, técnicas y mínimo de unidades.",
-        title: "Ficha de producto",
+        src: "/portfolio/arik-dashboard.webp",
+        alt: "Panel interno real de Arik Custom con dashboard, productos activos, líneas, familias, acciones rápidas y últimos productos.",
+        title: "Panel interno",
         description:
-          "Producto real con foto, variantes de color, materiales, técnicas y cantidad mínima antes de añadirlo al presupuesto.",
+          "Dashboard real de gestión con productos activos, líneas, familias, accesos rápidos y listado de últimos productos.",
       },
       {
         src: "/portfolio/arik-presupuesto.webp",
@@ -236,6 +240,7 @@ export const portfolioProjects = [
       "Paneles para eventos, directos, música y contenido destacado.",
       "Assets visuales propios de estilo pixel art.",
     ],
+    stack: ["Home modular", "Cartuchos", "Paneles vivos", "Responsive"],
     proofPoints: [
       {
         title: "Sistema de cartuchos",

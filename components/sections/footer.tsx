@@ -3,14 +3,20 @@
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useTranslations } from "@/i18n"
 import { siteConfig } from "@/content/site"
 
 export function Footer() {
   const { t } = useTranslations("footer")
+  const pathname = usePathname()
   const footerRef = useRef<HTMLElement>(null)
   const isInView = useInView(footerRef, { once: true, margin: "-50px" })
-  const whatsappHref = siteConfig.contact.whatsappHref ?? "#whatsapp"
+  const resolveHomeAnchor = (href: string) => {
+    if (!href.startsWith("#")) return href
+    return pathname === "/" ? href : `/${href}`
+  }
+  const whatsappHref = siteConfig.contact.whatsappHref ?? resolveHomeAnchor("#whatsapp")
 
   const footerLinks = {
     servicios: [
@@ -99,7 +105,7 @@ export function Footer() {
                   transition={{ delay: 0.3 + index * 0.05 }}
                 >
                   <Link
-                    href={link.href}
+                    href={resolveHomeAnchor(link.href)}
                     className="group text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2"
                   >
                     <motion.span 
@@ -133,7 +139,7 @@ export function Footer() {
                   transition={{ delay: 0.4 + index * 0.05 }}
                 >
                   <Link
-                    href={link.href}
+                    href={resolveHomeAnchor(link.href)}
                     className="group text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2"
                   >
                     <motion.span 

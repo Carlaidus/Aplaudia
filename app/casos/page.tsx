@@ -7,7 +7,7 @@ import { ConstructionNotice } from "@/components/sections/construction-notice"
 import { Footer } from "@/components/sections/footer"
 import { Header } from "@/components/sections/header"
 import { siteConfig } from "@/content/site"
-import { portfolioProjects, showcaseLabels } from "@/content/showcase"
+import { portfolioProjects, showcaseLabels } from "@/lib/cases"
 
 export const metadata: Metadata = {
   title: `Casos reales | ${siteConfig.name}`,

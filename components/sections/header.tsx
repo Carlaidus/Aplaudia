@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -11,8 +12,14 @@ import { siteConfig } from "@/content/site"
 
 export function Header() {
   const { t } = useTranslations("header")
+  const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  const resolveHomeAnchor = (href: string) => {
+    if (!href.startsWith("#")) return href
+    return pathname === "/" ? href : `/${href}`
+  }
 
   const navLinks = [
     { href: "#servicios", label: t("services") },
@@ -62,7 +69,7 @@ export function Header() {
               transition={{ delay: 0.1 + index * 0.05 }}
             >
               <Link
-                href={link.href}
+                href={resolveHomeAnchor(link.href)}
                 className="relative text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 py-2 group"
               >
                 {link.label}
@@ -84,7 +91,7 @@ export function Header() {
               asChild
               className="bg-primary text-primary-foreground hover:bg-primary/90 px-6"
             >
-              <Link href="#contacto">{t("cta")}</Link>
+              <Link href={resolveHomeAnchor("#contacto")}>{t("cta")}</Link>
             </Button>
           </motion.div>
         </div>
@@ -144,7 +151,7 @@ export function Header() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Link
-                    href={link.href}
+                    href={resolveHomeAnchor(link.href)}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block text-foreground hover:text-primary transition-colors py-3 text-lg font-medium border-b border-border/30"
                   >
@@ -162,7 +169,7 @@ export function Header() {
                   asChild
                   className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  <Link href="#contacto" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Link href={resolveHomeAnchor("#contacto")} onClick={() => setIsMobileMenuOpen(false)}>
                     {t("cta")}
                   </Link>
                 </Button>
