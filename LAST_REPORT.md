@@ -82,6 +82,7 @@ Tarea original: añadir dictado por voz al chatbot de Aplaudia tomando como refe
   - corrección aplicada: el botón de micrófono queda visible siempre junto al textarea;
   - si no hay soporte, al tocarlo muestra el aviso discreto `El dictado por voz no está disponible en este navegador.`;
   - QA local móvil 390x844: micrófono visible, enviar visible, textarea visible, sin solape y sin scroll horizontal.
+  - Producción `https://aplaudia.com` tras el push `44f1ae4`: HTML nuevo servido y QA móvil 390x844 OK; micrófono visible, enviar visible, textarea visible, sin solapes y sin scroll horizontal.
 - `npm install`: no fue necesario; `node_modules` ya existía.
 - `npm run build`: OK.
 - `npm run lint`: falla por deuda previa; `eslint` no está instalado como dependencia ejecutable.
