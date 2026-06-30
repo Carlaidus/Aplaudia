@@ -60,7 +60,26 @@ Carlos pide optimizar al máximo el espacio útil del chatbot abierto: panel cas
 ### Estado
 
 - Cambio local validado.
-- Pendiente de commit, push y comprobación en producción.
+- Commit principal: `e4b5bb0` (`Expand chatbot workspace`).
+- Push a `main`: OK.
+- Producción `https://aplaudia.com`: OK.
+- Browser QA producción móvil 390x844:
+  - panel abierto: 363 x 832 px;
+  - área de mensajes: 704 px de alto;
+  - mensaje de bienvenida: 341 px de ancho;
+  - texto: 15.5 px / 22.475 px;
+  - sin iconos laterales en mensajes;
+  - sin X flotante redundante;
+  - sin scroll horizontal;
+  - sin errores graves en consola.
+- Browser QA producción escritorio 1280x800:
+  - panel abierto: 1009 x 752 px;
+  - área de mensajes: 612 px de alto;
+  - mensaje de bienvenida: 975 px de ancho;
+  - texto: 16 px / 23.2 px;
+  - sin X flotante redundante;
+  - sin scroll horizontal;
+  - sin errores graves en consola.
 
 ### Siguiente paso recomendado
 
