@@ -30,11 +30,20 @@ Carlos detecta en móvil que hay demasiado espacio vacío desde la cabecera hast
   - móvil 360x780: badge top 112 px, H1 top 182 px, subtítulo visible, CTAs visibles, aviso sin solapar CTAs y sin scroll horizontal;
   - móvil 390x844: badge top 112 px, H1 top 182 px, subtítulo visible, CTAs visibles, aviso sin solapar CTAs y sin scroll horizontal;
   - escritorio 1280x800: se conserva la composición amplia original y sin scroll horizontal.
+- QA producción en `https://aplaudia.com`:
+  - HTML final servido con `pt-8` y `mb-6 sm:mb-12`;
+  - móvil 360x780: badge top 112 px, H1 top 182 px, subtítulo visible, CTAs visibles, aviso sin solapar CTAs y sin scroll horizontal;
+  - móvil 390x844: badge top 112 px, H1 top 182 px, subtítulo visible, CTAs visibles, aviso sin solapar CTAs y sin scroll horizontal;
+  - escritorio 1280x800: composición amplia conservada y sin scroll horizontal;
+  - aviso de construcción visible.
 
 ### Estado
 
 - Cambio local validado.
-- Pendiente tras push: comprobar producción en `https://aplaudia.com` con viewport móvil y confirmar que el hueco superior queda reducido también en despliegue.
+- Commit principal: `f58a15d` (`Tighten mobile hero spacing`).
+- Commit de refinamiento: `1cf22c1` (`Refine mobile hero spacing`).
+- Producción `https://aplaudia.com`: OK, sirve la versión final.
+- Railway: despliegue efectivo confirmado por producción sirviendo el HTML final.
 
 ### Siguiente paso recomendado
 
