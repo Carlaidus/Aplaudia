@@ -15,6 +15,7 @@ Activar y probar el envio real por email del formulario corregido, sin guardar s
 ## Contexto confirmado
 
 - `https://aplaudia.com/` funciona.
+- Produccion ya sirve el formulario corregido del commit `b87b594`.
 - La home debe mantener aviso de construccion hasta validacion final de Carlos.
 - El formulario de contacto queda definido asi:
   - titulo de seccion y debajo directamente el panel;
@@ -33,6 +34,7 @@ Activar y probar el envio real por email del formulario corregido, sin guardar s
   - enlace centralizado en `content/site.ts`.
 - `/api/contacto`:
   - solo WhatsApp: OK sin Resend;
+  - sin canal: 400 controlado;
   - solo Email: necesita variables reales de Resend;
   - Email + WhatsApp: necesita Resend para el email y prepara WhatsApp desde el formulario.
 - Variables necesarias para activar email real en Railway:
@@ -45,31 +47,24 @@ Activar y probar el envio real por email del formulario corregido, sin guardar s
 
 ## Proxima tarea
 
-1. Confirmar que produccion sirve el ultimo commit de `main`.
-2. Revisar en produccion:
-   - home;
-   - formulario en escritorio;
-   - formulario en movil;
-   - envio solo WhatsApp hasta la preparacion del mensaje;
-   - ausencia de CTAs y textos tecnicos prohibidos.
-3. Entrar en Railway con sesion valida.
-4. Configurar variables reales, sin copiarlas a archivos:
+1. Entrar en Railway con sesion valida.
+2. Configurar variables reales, sin copiarlas a archivos:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
-5. Confirmar que `EMAIL_FROM` usa un remitente permitido/verificado en Resend.
-6. Enviar una prueba real del formulario por Email.
-7. Enviar una prueba real con Email + WhatsApp.
-8. Confirmar en Resend:
+3. Confirmar que `EMAIL_FROM` usa un remitente permitido/verificado en Resend.
+4. Enviar una prueba real del formulario por Email.
+5. Enviar una prueba real con Email + WhatsApp.
+6. Confirmar en Resend:
    - entrega correcta;
    - remitente permitido;
    - `replyTo` del visitante.
-9. Revisar legal/contacto antes de retirar el aviso de construccion:
+7. Revisar legal/contacto antes de retirar el aviso de construccion:
    - aviso legal;
    - privacidad;
    - cookies si aplica;
    - texto definitivo de consentimiento.
-10. Decidir con Carlos si ya se puede retirar el aviso de construccion.
+8. Decidir con Carlos si ya se puede retirar el aviso de construccion.
 
 ## Deuda tecnica recomendada
 
@@ -90,7 +85,6 @@ Activar y probar el envio real por email del formulario corregido, sin guardar s
 
 ## Cierre esperado de la proxima sesion
 
-- Produccion verificada tras despliegue.
 - Email real del formulario probado o bloqueo documentado por falta de acceso.
 - WhatsApp probado desde el formulario.
 - Resend revisado.

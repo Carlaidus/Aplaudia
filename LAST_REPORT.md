@@ -134,20 +134,43 @@ Corregir definitivamente el formulario de contacto de Aplaudia aplicando el fluj
 
 ## Estado de Railway y produccion
 
-Pendiente de integrar en `main`, hacer push y comprobar `https://aplaudia.com`.
+Push a `main` completado en `b87b594`.
+
+Produccion validada por HTTP en `https://aplaudia.com`:
+
+- `/`: 200;
+- `/casos`: 200;
+- `/robots.txt`: 200;
+- `/llms.txt`: 200;
+- `/sitemap.xml`: 200;
+- home con formulario corregido visible;
+- no aparece `Enviar consulta`;
+- no aparece `Formulario interno`;
+- no aparece `WhatsApp real ya activos`;
+- no aparece `Sin base de datos`;
+- no aparece `Usar guia` ni `Guia activa`;
+- no aparecen `SEO y estructura`, `No lo tengo claro` ni `Negocio o web`;
+- `/api/contacto` con solo WhatsApp: 200, `emailSent:false`;
+- `/api/contacto` sin canal: 400 controlado.
+
+Browser QA en produccion movil 390x844:
+
+- titulo: `Listo para llevar tu negocio al siguiente nivel`;
+- panel: `Primero dime qué necesitas`;
+- cinco opciones exactas;
+- mensaje breve;
+- toggles `Email` y `WhatsApp`;
+- un unico boton `Enviar`;
+- sin scroll horizontal.
+
+Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`), por lo que no se pudo leer el dashboard desde terminal. El estado operativo se valido por el dominio final sirviendo el cambio nuevo tras el push.
 
 ## Siguiente paso recomendado
 
-1. Integrar la rama en `main`.
-2. Hacer push.
-3. Esperar deployment de Railway.
-4. Validar en produccion:
-   - home con formulario corregido;
-   - movil sin solapes ni scroll horizontal;
-   - sin textos prohibidos;
-   - Email, WhatsApp y ambos;
-   - WhatsApp con mensaje final.
-5. Configurar variables reales de Resend en Railway cuando Carlos quiera probar Email real:
+1. Configurar variables reales de Resend en Railway cuando Carlos quiera probar Email real:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
+2. Enviar prueba real solo Email.
+3. Enviar prueba real Email + WhatsApp.
+4. Revisar legal/privacidad antes de retirar el aviso de construccion.
