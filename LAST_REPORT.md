@@ -2,6 +2,65 @@
 
 Fecha: 2026-06-30
 
+## Actualización urgente - Lectura de respuestas largas del chatbot
+
+### Objetivo
+
+Evitar que el chatbot salte al final cuando recibe una respuesta larga. La pregunta del usuario debe quedar visible arriba del área de mensajes y la respuesta debe empezar justo debajo, con un indicador sutil si queda más contenido hacia abajo.
+
+### Cambios aplicados
+
+- `components/agent/aplaudia-agent-widget.tsx`:
+  - se elimina el auto-scroll global al final basado en `bottomRef`;
+  - se añade `messagesViewportRef` para controlar el área real de scroll interno;
+  - al enviar, se guarda el índice del mensaje del usuario que inicia la respuesta;
+  - al pintar la respuesta, el scroll se ancla a ese mensaje de usuario;
+  - la respuesta larga empieza debajo de la pregunta, sin saltar al final;
+  - se mantiene el comportamiento normal en respuestas cortas;
+  - se añade indicador flotante superpuesto abajo a la derecha dentro del área de mensajes;
+  - el indicador aparece solo si queda contenido por leer hacia abajo;
+  - el indicador desaparece al llegar al final;
+  - el indicador permite avanzar por la respuesta sin ocupar espacio ni empujar layout;
+  - se mantiene panel grande, micrófono, envío normal y scroll manual.
+
+### Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existía.
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no está instalado como dependencia ejecutable.
+- `npx tsc --noEmit`: falla por deuda previa ya conocida:
+  - tipos de `react-day-picker` en `components/ui/calendar.tsx`;
+  - desalineación antigua de mensajes `about` en `i18n/provider.tsx`.
+- QA local con agente falso compatible con `/api/agent`:
+  - respuesta larga móvil 390x844:
+    - pregunta visible arriba: top 66 px con viewport de mensajes desde top 64 px;
+    - respuesta empieza debajo: top 137 px;
+    - no salta al final: queda contenido pendiente (`remaining` 3195 px);
+    - indicador visible mientras hay más contenido;
+    - indicador desaparece al llegar al final (`remaining` 0);
+    - sin scroll horizontal;
+    - sin errores de consola.
+  - respuesta corta móvil 390x844:
+    - respuesta recibida correctamente;
+    - sin indicador porque no queda contenido por leer;
+    - sin scroll horizontal;
+    - sin errores de consola.
+  - respuesta larga escritorio 1280x800:
+    - pregunta visible arriba;
+    - respuesta empieza debajo;
+    - indicador visible al quedar contenido pendiente;
+    - sin scroll horizontal;
+    - sin errores de consola.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente de commit, push y comprobación en producción.
+
+### Siguiente paso recomendado
+
+Probar una conversación real larga en `https://aplaudia.com` tras despliegue y confirmar desde móvil real que el indicador se percibe sutil y útil.
+
 ## Actualización urgente - Chatbot casi pantalla completa
 
 ### Objetivo

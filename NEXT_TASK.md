@@ -6,7 +6,7 @@ Nivel de inteligencia recomendado: Alto
 
 ## Objetivo inmediato
 
-Validar en móvil real el chatbot casi a pantalla completa, especialmente con teclado abierto y permiso real de micrófono. Revisar también respuestas reales del agente tras la ampliación de instrucciones y precios orientativos.
+Validar en móvil real el chatbot casi a pantalla completa con respuestas largas reales, teclado abierto y permiso real de micrófono. Revisar también respuestas reales del agente tras la ampliación de instrucciones y precios orientativos.
 
 ## Repo
 
@@ -26,6 +26,11 @@ Validar en móvil real el chatbot casi a pantalla completa, especialmente con te
   - burbuja del asistente a ancho completo;
   - panel ancho en escritorio, no limitado a 390 px;
   - mensajes con tipografía mayor e interlineado más compacto.
+- Las respuestas largas del chatbot ya no saltan automáticamente al final:
+  - la pregunta del usuario queda arriba;
+  - la respuesta empieza justo debajo;
+  - aparece un indicador flotante si queda contenido por leer hacia abajo;
+  - el indicador desaparece al llegar al final.
 - El formulario de contacto no muestra `Actualizar mensaje`.
 - `/api/agent` prioriza OpenAI directamente con `OPENAI_API_KEY`.
 - `OPENAI_API_KEY` está activa en producción.
@@ -47,6 +52,9 @@ Validar en móvil real el chatbot casi a pantalla completa, especialmente con te
    - confirmar que el texto se lee cómodo;
    - confirmar que el textarea, el micrófono y enviar quedan visibles;
    - confirmar que no hay solapes ni scroll horizontal;
+   - enviar una pregunta que produzca respuesta larga;
+   - confirmar que la pregunta queda arriba y la respuesta empieza debajo;
+   - confirmar que el indicador de más contenido aparece y desaparece correctamente;
    - confirmar comportamiento con teclado abierto;
    - decidir si hace falta acortar el saludo inicial.
 2. Probar dictado por voz en producción:

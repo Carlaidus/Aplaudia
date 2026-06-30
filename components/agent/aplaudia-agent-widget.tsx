@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Bot, Loader2, MessageCircle, Mic, MicOff, Send, Sparkles, X } from "lucide-react"
+import { ArrowDown, Bot, Loader2, MessageCircle, Mic, MicOff, Send, Sparkles, X } from "lucide-react"
 
 type AgentMessage = {
   role: "user" | "assistant"
@@ -75,10 +75,12 @@ export function AplaudiaAgentWidget() {
   const [supportsVoiceInput, setSupportsVoiceInput] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const [voiceMessage, setVoiceMessage] = useState("")
+  const [hasMoreMessagesBelow, setHasMoreMessagesBelow] = useState(false)
 
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const messagesViewportRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null)
+  const pendingUserAnchorIndexRef = useRef<number | null>(null)
   const voiceBaseTextRef = useRef("")
 
   useEffect(() => {
@@ -94,9 +96,62 @@ export function AplaudiaAgentWidget() {
     setSupportsVoiceInput(Boolean(getSpeechRecognitionConstructor()))
   }, [])
 
+  const updateMessagesScrollHint = useCallback(() => {
+    const viewport = messagesViewportRef.current
+    if (!viewport) {
+      setHasMoreMessagesBelow(false)
+      return
+    }
+
+    const remaining = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight
+    setHasMoreMessagesBelow(remaining > 12)
+  }, [])
+
+  const scrollUserMessageToTop = useCallback(
+    (messageIndex: number) => {
+      const viewport = messagesViewportRef.current
+      const message = viewport?.querySelector<HTMLElement>(
+        `[data-chat-message-index="${messageIndex}"]`,
+      )
+
+      if (!viewport || !message) return
+
+      const viewportRect = viewport.getBoundingClientRect()
+      const messageRect = message.getBoundingClientRect()
+      const nextTop = viewport.scrollTop + messageRect.top - viewportRect.top
+
+      viewport.scrollTo({
+        top: Math.max(0, nextTop - 2),
+        behavior: "smooth",
+      })
+
+      window.setTimeout(updateMessagesScrollHint, 260)
+    },
+    [updateMessagesScrollHint],
+  )
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages, isLoading])
+    if (!isOpen) {
+      setHasMoreMessagesBelow(false)
+      return
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      const pendingUserIndex = pendingUserAnchorIndexRef.current
+
+      if (pendingUserIndex !== null) {
+        scrollUserMessageToTop(pendingUserIndex)
+
+        if (!isLoading && messages[pendingUserIndex + 1]?.role === "assistant") {
+          pendingUserAnchorIndexRef.current = null
+        }
+      } else {
+        updateMessagesScrollHint()
+      }
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [isLoading, isOpen, messages, scrollUserMessageToTop, updateMessagesScrollHint])
 
   useEffect(() => {
     if (!isOpen) {
@@ -216,7 +271,10 @@ export function AplaudiaAgentWidget() {
     setVoiceMessage("")
 
     const userMessage: AgentMessage = { role: "user", content: text }
-    setMessages((current) => [...current, userMessage])
+    setMessages((current) => {
+      pendingUserAnchorIndexRef.current = current.length
+      return [...current, userMessage]
+    })
     setHasText(false)
     setIsLoading(true)
 
@@ -288,35 +346,61 @@ export function AplaudiaAgentWidget() {
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-2.5 py-3 sm:space-y-3 sm:px-4 sm:py-4">
-          {messages.map((message, index) => (
-            <div
-              key={`${message.role}-${index}`}
-              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-            >
-              <p
-                className={`whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-[15.5px] leading-[1.45] sm:px-3.5 sm:text-base sm:leading-[1.45] ${
-                  message.role === "user"
-                    ? "max-w-[94%] rounded-br-sm bg-primary text-primary-foreground sm:max-w-[88%]"
-                    : "w-full max-w-full rounded-bl-sm bg-card text-foreground"
-                }`}
+        <div className="relative min-h-0 flex-1">
+          <div
+            ref={messagesViewportRef}
+            data-chat-scroll-viewport="true"
+            onScroll={updateMessagesScrollHint}
+            className="h-full min-h-0 space-y-2.5 overflow-y-auto px-2.5 py-3 sm:space-y-3 sm:px-4 sm:py-4"
+          >
+            {messages.map((message, index) => (
+              <div
+                key={`${message.role}-${index}`}
+                data-chat-message-index={index}
+                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                {message.content}
-              </p>
-            </div>
-          ))}
-
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="flex max-w-full items-center gap-1.5 rounded-2xl rounded-bl-sm bg-card px-3.5 py-2.5">
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:0ms]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:160ms]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:320ms]" />
+                <p
+                  className={`whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-[15.5px] leading-[1.45] sm:px-3.5 sm:text-base sm:leading-[1.45] ${
+                    message.role === "user"
+                      ? "max-w-[94%] rounded-br-sm bg-primary text-primary-foreground sm:max-w-[88%]"
+                      : "w-full max-w-full rounded-bl-sm bg-card text-foreground"
+                  }`}
+                >
+                  {message.content}
+                </p>
               </div>
-            </div>
-          )}
+            ))}
 
-          <div ref={bottomRef} />
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="flex max-w-full items-center gap-1.5 rounded-2xl rounded-bl-sm bg-card px-3.5 py-2.5">
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:0ms]" />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:160ms]" />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:320ms]" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {hasMoreMessagesBelow && (
+            <button
+              type="button"
+              onClick={() => {
+                const viewport = messagesViewportRef.current
+                if (!viewport) return
+
+                viewport.scrollBy({
+                  top: Math.max(160, viewport.clientHeight * 0.72),
+                  behavior: "smooth",
+                })
+                window.setTimeout(updateMessagesScrollHint, 260)
+              }}
+              className="absolute bottom-3 right-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-background/60 text-primary/80 shadow-xl shadow-primary/15 backdrop-blur-md transition-colors hover:border-primary/35 hover:bg-background/80 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              aria-label="Hay más respuesta hacia abajo"
+            >
+              <ArrowDown className="h-4 w-4 animate-bounce" aria-hidden="true" />
+            </button>
+          )}
         </div>
 
         <div className="flex items-end gap-2 border-t border-border bg-background/95 p-2.5 sm:p-3">
