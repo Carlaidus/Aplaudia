@@ -94,7 +94,7 @@ Ejecutar la prioridad indicada por Carlos sobre `NEXT_TASK.md`:
   - `Unauthorized`;
   - requiere `railway login` para leer el dashboard.
 - No se pudo confirmar el panel de Railway desde CLI, pero `https://aplaudia.com` ya sirve la version nueva.
-- Falta configurar `OPENAI_API_KEY` en Railway para activar respuestas reales de OpenAI en produccion.
+- `OPENAI_API_KEY` ya esta activa en produccion: `/api/agent` responde con `provider:"openai"` y `unavailable:false`.
 - No se ha tocado DNS, Cloudflare ni configuracion externa desde el repo.
 - No se han guardado secretos.
 
@@ -109,7 +109,7 @@ Ejecutar la prioridad indicada por Carlos sobre `NEXT_TASK.md`:
   - ya no contiene `29 junio 2026`;
   - ya no contiene `Actualizar mensaje`;
   - no expone `OPENAI_API_KEY` en HTML.
-- `POST https://aplaudia.com/api/agent` sin `OPENAI_API_KEY`: OK, devuelve fallback controlado con `unavailable:true`.
+- `POST https://aplaudia.com/api/agent`: OK, devuelve respuesta real de OpenAI con `provider:"openai"` y `unavailable:false`.
 - Browser QA produccion movil 390x844:
   - aviso visible a la izquierda como `En construccion - 30 junio 2026`;
   - chatbot a la derecha;
@@ -129,15 +129,14 @@ Ejecutar la prioridad indicada por Carlos sobre `NEXT_TASK.md`:
 - Aviso de construccion con fecha `30 junio 2026`.
 - Chatbot visible a la derecha.
 - Formulario sin `Actualizar mensaje`.
-- Agente preparado para responder con OpenAI en cuanto Railway tenga `OPENAI_API_KEY`.
+- Agente activo en produccion con OpenAI mediante `OPENAI_API_KEY`.
 
 ## Siguiente paso recomendado
 
-1. Configurar `OPENAI_API_KEY` en Railway.
+1. Revisar conversaciones reales del agente en produccion para ajustar tono, limites y respuestas frecuentes.
 2. Opcionalmente definir `OPENAI_AGENT_MODEL` si Carlos quiere cambiar el modelo por defecto.
-3. Desplegar y probar el agente real en `https://aplaudia.com`.
-4. Despues continuar con Resend:
+3. Continuar con Resend:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
-5. Revisar legal/privacidad antes de retirar el aviso de construccion.
+4. Revisar legal/privacidad antes de retirar el aviso de construccion.

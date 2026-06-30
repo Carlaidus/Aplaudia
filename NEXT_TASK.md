@@ -6,7 +6,7 @@ Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Objetivo inmediato
 
-Activar en produccion el agente IA flotante de Aplaudia configurando `OPENAI_API_KEY` en Railway, probar una conversacion real y despues continuar con el email real por Resend y la revision legal.
+Probar y afinar el agente IA real de Aplaudia ya activo con OpenAI en produccion, y despues continuar con el email real por Resend y la revision legal.
 
 ## Repo
 
@@ -22,6 +22,7 @@ Activar en produccion el agente IA flotante de Aplaudia configurando `OPENAI_API
 - El formulario de contacto no debe mostrar el boton `Actualizar mensaje`.
 - El mensaje del formulario se autocompone al cambiar necesidades mientras el visitante no lo haya editado a mano.
 - `/api/agent` prioriza OpenAI directamente con `OPENAI_API_KEY`.
+- `OPENAI_API_KEY` ya esta activa en produccion.
 - `OPENAI_AGENT_MODEL` es opcional; si falta, se usa el modelo definido en codigo.
 - Las variables heredadas `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET` quedan solo como respaldo opcional.
 - No hay base de datos, auth ni pagos.
@@ -29,25 +30,21 @@ Activar en produccion el agente IA flotante de Aplaudia configurando `OPENAI_API
 
 ## Proxima tarea
 
-1. Entrar en Railway con sesion valida.
-2. Configurar variables reales, sin copiarlas a archivos:
-   - `OPENAI_API_KEY`;
-   - `OPENAI_AGENT_MODEL` solo si Carlos quiere cambiar el modelo por defecto.
-3. Desplegar y comprobar que Railway queda en verde.
-4. Probar el agente en `https://aplaudia.com`:
+1. Probar el agente en `https://aplaudia.com` con conversaciones reales:
    - pregunta sobre webs;
    - pregunta sobre agentes de WhatsApp;
    - pregunta sobre casos reales;
    - comprobar que no inventa precios, plazos, CIF, direccion ni garantias.
-5. Revisar que el aviso de construccion sigue visible a la izquierda.
-6. Revisar que el chatbot sigue visible a la derecha en desktop y movil.
-7. Continuar con email real del formulario si Carlos ya tiene Resend listo:
+2. Ajustar `content/agent/aplaudia-agent.md` solo si las pruebas reales muestran respuestas mejorables.
+3. Revisar que el aviso de construccion sigue visible a la izquierda.
+4. Revisar que el chatbot sigue visible a la derecha en desktop y movil.
+5. Continuar con email real del formulario si Carlos ya tiene Resend listo:
    - `RESEND_API_KEY`;
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`.
-8. Enviar prueba real solo Email.
-9. Enviar prueba real Email + WhatsApp.
-10. Revisar legal/contacto antes de retirar el aviso de construccion:
+6. Enviar prueba real solo Email.
+7. Enviar prueba real Email + WhatsApp.
+8. Revisar legal/contacto antes de retirar el aviso de construccion:
     - aviso legal;
     - privacidad;
     - cookies si aplica;
@@ -72,7 +69,7 @@ Activar en produccion el agente IA flotante de Aplaudia configurando `OPENAI_API
 
 ## Cierre esperado de la proxima sesion
 
-- `OPENAI_API_KEY` configurada en Railway o bloqueo documentado por falta de acceso.
-- Agente probado en produccion con respuesta real de OpenAI.
+- Agente probado en produccion con varias conversaciones reales.
+- Ajustes del prompt documentados si hacen falta.
 - Formulario y WhatsApp comprobados sin regresiones.
 - Siguiente decision clara sobre Resend, legal y retirada del aviso de construccion.
