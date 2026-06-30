@@ -161,7 +161,7 @@ Añadir un nuevo caso queda reducido principalmente a:
 
 Railway CLI sigue sin sesión válida (`invalid_grant` / `Unauthorized`), por lo que no se pudo leer el dashboard desde terminal.
 
-El push a `main` se completó correctamente en el commit `6ac28c2`.
+El push a `main` se completó correctamente.
 
 No se puede afirmar el estado visual del dashboard de Railway desde la CLI por falta de sesión válida, pero la validación HTTP confirma que producción ya está sirviendo la versión nueva en `https://aplaudia.com`.
 
