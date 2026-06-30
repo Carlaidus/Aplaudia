@@ -530,3 +530,82 @@ Tarea original: añadir dictado por voz al chatbot de Aplaudia tomando como refe
    - `CONTACT_RECIPIENT_EMAIL`;
    - `EMAIL_FROM`;
    - privacidad, cookies y consentimiento definitivo.
+# LAST_REPORT - 2026-06-30 - Motor reutilizable de chatbot
+
+## Objetivo
+
+Convertir el chatbot actual de Aplaudia en un patrón reutilizable y dejar Aplaudia preparada como base para adaptar el mismo motor a otras webs, empezando por Arik Custom.
+
+## Cambios aplicados
+
+- Se extrajo el widget monolítico a `components/agent/generic-agent-widget.tsx`.
+- `components/agent/aplaudia-agent-widget.tsx` queda como wrapper de configuración específica de Aplaudia.
+- Se añadieron helpers reutilizables:
+  - `lib/agent/types.ts`;
+  - `lib/agent/build-agent-prompt.ts`;
+  - `lib/agent/read-agent-instructions.ts`.
+- `app/api/agent/route.ts` ahora reutiliza `readAgentInstructions()` y `buildAgentPrompt()` manteniendo el archivo editable `content/agent/aplaudia-agent.md`.
+- Se mantiene el comportamiento actual:
+  - panel grande casi a pantalla completa;
+  - X superior;
+  - sin X flotante redundante al abrir;
+  - mensajes a ancho completo para asistente;
+  - scroll inteligente;
+  - indicador flotante de más contenido;
+  - textarea que se limpia al enviar y vuelve a altura mínima;
+  - micrófono con `SpeechRecognition` / `webkitSpeechRecognition`;
+  - fallback si no hay soporte de voz;
+  - llamada server-side a OpenAI con `OPENAI_API_KEY`;
+  - fallback si falta la API key.
+
+## Archivos modificados
+
+- `app/api/agent/route.ts`
+- `components/agent/aplaudia-agent-widget.tsx`
+- `components/agent/generic-agent-widget.tsx`
+- `lib/agent/types.ts`
+- `lib/agent/build-agent-prompt.ts`
+- `lib/agent/read-agent-instructions.ts`
+- `LAST_REPORT.md`
+
+## Variables de entorno
+
+- `OPENAI_API_KEY`: debe configurarse en Railway o en el entorno del despliegue; no se guarda en Git.
+- `OPENAI_AGENT_MODEL`: opcional, permite cambiar el modelo sin tocar código.
+- `APLAUDIA_AGENT_API_URL` y `APLAUDIA_AGENT_API_SECRET`: se conservan como fallback legado si existieran en entorno.
+
+## Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existía.
+- `npm run build`: OK desde `T:\20-PROYECTOS\APLAUDIA`.
+- `npm run lint`: falla porque `eslint` no está disponible como binario local.
+- `npx tsc --noEmit`: falla por deuda previa no relacionada:
+  - tipos de `react-day-picker` en `components/ui/calendar.tsx`;
+  - desalineación antigua de traducciones `about` en `i18n/provider.tsx`.
+- QA local con `npx next dev --webpack -p 3101`:
+  - home carga en `http://localhost:3101`;
+  - aviso de construcción visible en formato completo o compacto;
+  - chatbot abre y cierra en escritorio;
+  - envío escrito OK;
+  - textarea queda vacío y vuelve a altura mínima tras enviar;
+  - fallback sin `OPENAI_API_KEY` OK;
+  - móvil 390x844: panel casi completo, X superior, sin botón flotante duplicado, textarea a 16px y altura mínima.
+
+## Validaciones limitadas
+
+- Dictado con audio real no se ejecutó porque requiere aceptar permiso de micrófono desde el navegador del usuario.
+- Respuesta larga real no se pudo validar localmente porque el entorno local no tenía `OPENAI_API_KEY` y devolvió fallback corto; el comportamiento de scroll largo queda cubierto por el motor extraído del widget ya probado.
+- `npm run dev` con Turbopack falló por mezcla de ruta UNC/unidad `T:` al evaluar CSS; se validó con webpack, igual que el build del proyecto.
+
+## Estado final
+
+- Aplaudia conserva su comportamiento y diseño del chatbot.
+- El motor reusable queda preparado para copiar/adaptar a otras webs.
+- No se han guardado secretos.
+- No se han tocado DNS, dominios, backend adicional, base de datos, auth ni pagos.
+
+## Siguiente paso recomendado
+
+1. Configurar o confirmar `OPENAI_API_KEY` en el entorno final donde deba responder el asistente.
+2. Probar una respuesta larga real en producción con API key activa.
+3. Probar dictado real desde Chrome/Edge móvil aceptando permiso de micrófono.

@@ -1,6 +1,7 @@
-import { readFile } from "node:fs/promises"
-import path from "node:path"
 import { NextRequest, NextResponse } from "next/server"
+
+import { buildAgentPrompt } from "@/lib/agent/build-agent-prompt"
+import { readAgentInstructions } from "@/lib/agent/read-agent-instructions"
 
 export const runtime = "nodejs"
 
@@ -30,18 +31,7 @@ const DEFAULT_OPENAI_MODEL = "gpt-5.4-mini"
 const MAX_MESSAGE_LENGTH = 900
 const MAX_HISTORY_ITEMS = 8
 const OPENAI_TIMEOUT_MS = 20_000
-
-async function readAgentInstructions() {
-  try {
-    return await readFile(
-      path.join(process.cwd(), "content", "agent", "aplaudia-agent.md"),
-      "utf8",
-    )
-  } catch (error) {
-    console.error("[api/agent] No se pudieron leer las instrucciones:", error)
-    return ""
-  }
-}
+const AGENT_INSTRUCTIONS_PATH = "content/agent/aplaudia-agent.md"
 
 function normalizeText(value: unknown, maxLength = MAX_MESSAGE_LENGTH) {
   if (typeof value !== "string") return ""
@@ -196,7 +186,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Parámetros inválidos" }, { status: 400 })
   }
 
-  const instructions = await readAgentInstructions()
+  const instructions = buildAgentPrompt({
+    brandName: "Aplaudia",
+    instructions: await readAgentInstructions(AGENT_INSTRUCTIONS_PATH),
+  })
   const openAIReply = await requestOpenAIReply(message, history, instructions)
 
   if (openAIReply) {
