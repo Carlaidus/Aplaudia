@@ -28,11 +28,15 @@ Corregir la percepcion de que las imagenes de la galeria quedaban pequenas y dem
 - QA local con `next start` en `http://127.0.0.1:3049`:
   - escritorio 1440x1100: todas las imagenes de escritorio miden 596 px de ancho, sin scroll horizontal y con menos hueco entre piezas;
   - movil 390x844: apilado correcto, piezas inferiores a ancho completo al entrar en vista y sin scroll horizontal.
+- QA produccion en `https://aplaudia.com`:
+  - escritorio 1440x1100: la nueva composicion esta activa, todas las imagenes de escritorio miden 596 px de ancho, sin scroll horizontal y con aviso de construccion visible;
+  - movil 390x844: apilado correcto, sin scroll horizontal, aviso de construccion visible.
 
 ### Estado
 
-- Cambio local validado.
-- Pendiente de commit, push y comprobacion de produccion.
+- Cambio validado, commiteado y enviado a `origin/main`.
+- Commit principal: `8a704d8` (`Reordena galeria visual con piezas mas grandes`).
+- Produccion `https://aplaudia.com`: OK, sirve la composicion nueva.
 
 ### Siguiente paso recomendado
 
