@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
 
-import { siteConfig } from "@/content/site"
-
 export const runtime = "nodejs"
 
 type AgentQuoteHistoryMessage = {
@@ -11,6 +9,7 @@ type AgentQuoteHistoryMessage = {
 }
 
 const FALLBACK_FROM = "Aplaudia <onboarding@resend.dev>"
+const INTERNAL_RECIPIENT_EMAIL = "carlosvfx@gmail.com"
 const MAX_TEXT_LENGTH = 1200
 const MAX_HISTORY_ITEMS = 12
 
@@ -140,7 +139,10 @@ export async function POST(request: Request) {
 
     if (!consent) {
       return NextResponse.json(
-        { error: "Acepta que Aplaudia reciba la solicitud para poder responderte." },
+        {
+          error:
+            "Antes de enviar, el cliente debe aceptar que Aplaudia trate los datos facilitados y el resumen de la solicitud solo para gestionar esta consulta y responder por email.",
+        },
         { status: 400 },
       )
     }
@@ -173,11 +175,7 @@ export async function POST(request: Request) {
 
     const resend = new Resend(apiKey)
     const from = process.env.EMAIL_FROM?.trim() || FALLBACK_FROM
-    const to =
-      process.env.CONTACT_RECIPIENT_EMAIL?.trim() ||
-      process.env.CONTACT_TO_EMAIL?.trim() ||
-      siteConfig.contact.email ||
-      "carlosvfx@gmail.com"
+    const to = INTERNAL_RECIPIENT_EMAIL
 
     const date = new Date().toLocaleString("es-ES", {
       timeZone: "Europe/Madrid",
@@ -210,6 +208,8 @@ export async function POST(request: Request) {
       `Foco en precios: ${priceFocus}`,
       `Session: ${sessionId || "No disponible"}`,
       "Consentimiento: aceptado antes de enviar",
+      "Finalidad: gestionar esta consulta y responder por email. No newsletter, publicidad ni otros fines.",
+      "Persistencia: no se guarda en base de datos desde este endpoint.",
       clientCopy ? "Copia cliente: solicitada" : "Copia cliente: no solicitada",
       "",
       "Interes principal indicado por el cliente:",
@@ -282,7 +282,7 @@ export async function POST(request: Request) {
       <pre style="white-space:pre-wrap;margin:0;background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6">${escapeHtml(summary.transcript.join("\n\n"))}</pre>
     </div>
     <div style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:16px 32px;color:#94a3b8;font-size:11px;line-height:1.6">
-      Correo interno generado automaticamente desde aplaudia.com. Consentimiento aceptado antes del envio. No se guarda en base de datos.
+      Correo interno generado automaticamente desde aplaudia.com. Consentimiento aceptado antes del envio. No se guarda en base de datos. No usar para newsletter, publicidad ni otros fines.
     </div>
   </div>
 </body>
@@ -324,6 +324,7 @@ export async function POST(request: Request) {
         ...clientPriceLines.map((line) => `- ${line}`),
         "",
         "Aplaudia revisara el caso y respondera por email.",
+        "Los datos se usan solo para gestionar esta consulta y responder por email. No se guardan en una base de datos desde este endpoint ni se usan para newsletter o publicidad.",
         "",
         "Nota: cualquier importe comentado es orientativo y sin IVA.",
       ]
@@ -343,6 +344,7 @@ export async function POST(request: Request) {
     <div style="padding:32px;color:#1e293b;font-size:15px;line-height:1.7">
       <p style="margin:0 0 16px">Hola ${safeName},</p>
       <p style="margin:0 0 20px">Hemos recibido tu solicitud para Aplaudia. Revisaremos el caso y responderemos por email.</p>
+      <p style="margin:0 0 20px;color:#64748b;font-size:13px">Los datos se usan solo para gestionar esta consulta y responder por email. No se guardan en una base de datos desde este endpoint ni se usan para newsletter o publicidad.</p>
       <h2 style="margin:0 0 8px;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Interes principal</h2>
       <p style="margin:0 0 20px"><strong>Tipo de negocio/proyecto:</strong> ${safeProjectType}</p>
       <p style="margin:0 0 20px;white-space:pre-wrap">${safeInterest}</p>

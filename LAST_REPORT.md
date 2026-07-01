@@ -2,6 +2,74 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Presupuesto conversacional y saludo neutro
+
+### Objetivo
+
+Ejecutar `NEXT_TASK.md` y convertir la solicitud de presupuesto del chatbot en un flujo conversacional, sin boton fijo, con saludo neutro, consentimiento claro y uso limitado de datos.
+
+### Cambios aplicados
+
+- `components/agent/aplaudia-agent-widget.tsx`:
+  - saludo inicial neutro, sin mencionar Cronoras, Arik Custom ni Aventuras Pixeladas;
+  - etiqueta flotante corta `¿Dudas?`;
+  - configuracion `leadRequest` para activar el envio conversacional a `/api/agent/quote`.
+- `components/agent/generic-agent-widget.tsx`:
+  - eliminado el boton fijo `Presupuesto`;
+  - eliminado el formulario incrustado de solicitud;
+  - añadido flujo conversacional para detectar intencion de enviar resumen o presupuesto;
+  - el textarea se vacia inmediatamente al enviar con boton o Enter y vuelve a altura minima;
+  - antes de llamar al endpoint exige aceptacion clara;
+  - si faltan datos, pide nombre, email, tipo de negocio/proyecto o necesidad principal desde el propio chat;
+  - si el endpoint falla en local por falta de `RESEND_API_KEY`, muestra error controlado sin enviar correo.
+- `lib/agent/types.ts`:
+  - sustituida configuracion `quoteRequest` por `leadRequest`.
+- `lib/agent/build-agent-prompt.ts`:
+  - eliminado mandato de usar boton `Presupuesto`;
+  - casos reales solo si el usuario pide ejemplos o pregunta por ellos;
+  - precios solo bajo pregunta directa;
+  - si el usuario dice que algo es caro o tiene poco presupuesto, preguntar que presupuesto le gustaria no superar;
+  - consentimiento literal antes de enviar datos.
+- `content/agent/aplaudia-agent.md`:
+  - documentado que los casos reales no se mencionan de forma proactiva;
+  - documentado el flujo conversacional de solicitud;
+  - indicado que los datos no se usan para newsletter, publicidad ni otros fines.
+- `app/api/agent/quote/route.ts`:
+  - destinatario interno provisional fijado a `carlosvfx@gmail.com`;
+  - copia interna y copia cliente aclaran finalidad, no base de datos y no uso publicitario.
+- `NEXT_TASK.md`:
+  - actualizado el siguiente foco real: prueba controlada del flujo conversacional en produccion y revision de Resend/legal.
+
+### Validaciones ejecutadas
+
+- `npm run build`: OK.
+- `npm run lint`: no disponible realmente; falla porque `eslint` no esta instalado en el proyecto.
+- `npx tsc --noEmit`: falla por deuda previa fuera de este cambio:
+  - `components/sections/construction-notice.tsx`;
+  - `components/ui/calendar.tsx`;
+  - `i18n/provider.tsx`.
+- `git diff --check`: OK, solo avisos CRLF normales en Windows.
+- QA local en `http://localhost:3060`:
+  - home carga;
+  - aviso de construccion visible con fecha `1 de julio de 2026`;
+  - dialogo del chatbot con saludo neutro;
+  - sin Cronoras, Arik Custom ni Aventuras Pixeladas en el saludo;
+  - sin boton `Presupuesto` ni `Generar presupuesto`;
+  - botones visibles solo: cerrar, dictado por voz y enviar;
+  - al pedir enviar resumen, el textarea se vacia inmediatamente y aparece el consentimiento literal;
+  - al enviar con Enter una aceptacion con datos ficticios, el textarea se vacia y el endpoint responde `503` controlado por falta de `RESEND_API_KEY` local;
+  - movil 390 x 844: panel grande, sin overflow horizontal, sin boton de presupuesto y aviso de construccion visible.
+
+### Estado final
+
+- Cambio local validado.
+- Produccion/Railway pendiente de validar tras push.
+- No se ha enviado ningun email real.
+
+### Siguiente paso recomendado
+
+Tras el push y despliegue, probar en produccion que el saludo sigue neutro, que no hay boton fijo de presupuesto y que el endpoint solo envia con aceptacion clara. Enviar email real de prueba solo con confirmacion explicita de Carlos.
+
 ## Actualizacion - Precios internos y solicitud de presupuesto desde chatbot
 
 ### Objetivo

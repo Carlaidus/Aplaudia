@@ -7,7 +7,7 @@ export function AplaudiaAgentWidget() {
     <GenericAgentWidget
       config={{
         apiEndpoint: "/api/agent",
-        assistantSubtitle: "Orientación rápida · sin datos sensibles",
+        assistantSubtitle: "Orientación rápida - sin datos sensibles",
         assistantTitle: "Asistente Aplaudia",
         brandName: "Aplaudia",
         connectionErrorReply:
@@ -18,13 +18,12 @@ export function AplaudiaAgentWidget() {
         floatingButtonLabel: "Abrir asistente de Aplaudia",
         floatingButtonText: "¿Dudas?",
         inputMaxLength: 500,
-        listeningPlaceholder: "Escuchando...",
-        placeholder: "Cuéntame qué necesitas...",
-        quoteRequest: {
+        leadRequest: {
           apiEndpoint: "/api/agent/quote",
-          buttonLabel: "Presupuesto",
           enabled: true,
         },
+        listeningPlaceholder: "Escuchando...",
+        placeholder: "Cuéntame qué necesitas...",
         sessionStorageKey: "aplaudia_agent_session",
         theme: {
           floatingSparkle: "text-accent-cyan",
@@ -38,7 +37,7 @@ export function AplaudiaAgentWidget() {
         unavailableVoiceMessage: "El dictado por voz no está disponible en este navegador.",
         voiceLanguage: "es-ES",
         welcomeMessage:
-          "Hola, soy el asistente de Aplaudia. Puedo orientarte sobre webs, agentes para WhatsApp, visuales y casos reales como Cronoras, Arik Custom o Aventuras Pixeladas. ¿Qué tienes en mente?",
+          "Hola, soy el asistente de Aplaudia. Puedo orientarte sobre webs, agentes para WhatsApp, visuales, mantenimiento y presencia digital. ¿Qué tienes en mente?",
       }}
     />
   )

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { ArrowDown, Bot, Loader2, MessageCircle, Mic, MicOff, Send, Sparkles, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -49,11 +49,6 @@ type SpeechRecognitionWindow = Window & {
   webkitSpeechRecognition?: SpeechRecognitionConstructorLike
 }
 
-type QuoteRequestStatus = {
-  message: string
-  type: "error" | "success"
-}
-
 const DEFAULT_THEME: Required<AgentWidgetTheme> = {
   assistantAvatar: "border-primary/30 bg-primary/15 text-primary",
   assistantBubble: "w-full max-w-full rounded-bl-sm bg-card text-foreground",
@@ -79,6 +74,169 @@ const VOICE_SILENCE_TIMEOUT_MS = 3600
 const VOICE_RESTART_DELAY_MS = 220
 const VOICE_MAX_AUTO_RESTARTS = 5
 const NON_RETRYABLE_VOICE_ERRORS = new Set(["not-allowed", "service-not-allowed", "audio-capture"])
+const LEAD_CONSENT_TEXT =
+  "Para enviarlo, necesito que aceptes que Aplaudia trate los datos que has facilitado y el resumen de tu solicitud solo para gestionar esta consulta y responderte por email. No se guardarán en una base de datos. Los importes comentados son orientativos y sin IVA. ¿Aceptas?"
+
+type ConversationalLeadDetails = {
+  budget: string
+  clientCopy: boolean
+  email: string
+  hasConsent: boolean
+  interest: string
+  missingFields: string[]
+  name: string
+  phone: string
+  projectType: string
+  shouldHandle: boolean
+}
+
+function hasLeadIntent(text: string) {
+  return [
+    /\b(enviar|envia|envía|envialo|envíalo|mandar|mandalo|mándalo|pasar|pasalo|pásalo)\b[\s\S]{0,100}\b(resumen|solicitud|presupuesto|propuesta|datos|aplaudia|persona)\b/i,
+    /\b(quiero|me gustaria|me gustaría|necesito|podemos|podeis|podéis|puedes)\b[\s\S]{0,90}\b(presupuesto|propuesta|contacto|contactar|hablar con alguien|persona de aplaudia)\b/i,
+    /\b(solicitar|pedir|preparar)\b[\s\S]{0,70}\b(presupuesto|propuesta|solicitud)\b/i,
+    /\b(contactadme|contactarme|escribidme|que lo vea aplaudia|persona de aplaudia)\b/i,
+  ].some((pattern) => pattern.test(text))
+}
+
+function hasRecentLeadContext(messages: AgentMessage[]) {
+  return messages.slice(-8).some((message) =>
+    /para enviarlo|aceptes que aplaudia trate|enviar un resumen|solicitud.*aplaudia|copia limpia/i.test(
+      message.content,
+    ),
+  )
+}
+
+function hasExplicitLeadConsent(text: string) {
+  return /\b(acepto|autorizo|doy mi consentimiento|consiento)\b/i.test(text)
+}
+
+function wantsClientCopy(text: string) {
+  return /\b(copia|copía|enviame copia|envíame copia|mandame copia|mándame copia|recibir copia|quiero copia)\b/i.test(
+    text,
+  )
+}
+
+function cleanExtractedText(value: string) {
+  return value
+    .replace(/\s+/g, " ")
+    .replace(/[.,;:]+$/g, "")
+    .trim()
+}
+
+function extractEmail(source: string) {
+  return source.match(/[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]+/)?.[0]?.trim() ?? ""
+}
+
+function extractPhone(source: string) {
+  const match = source.match(/(?:\+?\d[\d\s().-]{7,}\d)/)
+  if (!match) return ""
+
+  const phone = cleanExtractedText(match[0])
+  const digits = phone.replace(/\D/g, "")
+  return digits.length >= 9 ? phone : ""
+}
+
+function extractName(source: string) {
+  const match = source.match(
+    /(?:me llamo|mi nombre es|nombre\s*:|soy)\s+([A-Za-zÁÉÍÓÚÜÑáéíóúüñ][^,.;\n]{1,70})/i,
+  )
+  if (!match?.[1]) return ""
+
+  const name = cleanExtractedText(match[1].split(/\s+(?:y|con|email|correo|tel[eé]fono|telefono)\b/i)[0] ?? "")
+  if (/^(un|una|el|la|restaurante|bar|tienda|negocio|proyecto|empresa)\b/i.test(name)) return ""
+
+  return name
+}
+
+function extractProjectType(source: string) {
+  const explicitMatch = source.match(
+    /(?:tipo de negocio|tipo de proyecto|negocio|proyecto)\s*:\s*([^.;\n]{3,120})/i,
+  )
+  if (explicitMatch?.[1]) return cleanExtractedText(explicitMatch[1])
+
+  const projectTypes: Array<[RegExp, string]> = [
+    [/restaurante|bar|cafeter[ií]a|carta|reservas/i, "Restaurante, bar o cafetería"],
+    [/tienda|ecommerce|e-commerce|cat[aá]logo|producto|ropa|comercio/i, "Tienda o comercio"],
+    [/freelance|aut[oó]nomo|profesional independiente|consultor/i, "Profesional independiente"],
+    [/cl[ií]nica|salud|fisio|dentista|centro/i, "Centro profesional o servicios"],
+    [/hotel|alojamiento|turismo|apartamento/i, "Turismo o alojamiento"],
+    [/marca|visual|escaparate|pantalla|imagen|v[ií]deo|video/i, "Marca visual o escaparate digital"],
+    [/web|landing|p[aá]gina|seo|presencia digital/i, "Web o presencia digital"],
+    [/whatsapp|chatbot|agente/i, "Agente IA o WhatsApp"],
+  ]
+
+  return projectTypes.find(([pattern]) => pattern.test(source))?.[1] ?? ""
+}
+
+function extractBudget(source: string) {
+  const budgetMatch = source.match(
+    /(?:no superar|presupuesto|rango|m[aá]ximo|maximo|hasta|dispongo de|tengo|invertir|poco presupuesto)[^\d€]{0,45}(\d[\d.\s]*(?:,\d+)?\s*(?:€|eur|euros)?(?:\s*(?:-|a|y)\s*\d[\d.\s]*(?:,\d+)?\s*(?:€|eur|euros)?)?)/i,
+  )
+  return budgetMatch?.[1] ? cleanExtractedText(budgetMatch[1]) : ""
+}
+
+function buildLeadInterest(text: string, messages: AgentMessage[]) {
+  const userMessages = [...messages.filter((message) => message.role === "user").map((message) => message.content), text]
+  const interest = userMessages.slice(-5).join("\n").slice(0, 1100).trim()
+
+  return interest.length >= 10 ? interest : text
+}
+
+function buildConversationalLeadDetails(text: string, messages: AgentMessage[]): ConversationalLeadDetails {
+  const source = [...messages.filter((message) => message.role === "user").map((message) => message.content), text].join(
+    "\n",
+  )
+  const recentLeadContext = hasRecentLeadContext(messages)
+  const hasConsent = hasExplicitLeadConsent(source)
+  const name = extractName(source)
+  const email = extractEmail(source)
+  const phone = extractPhone(source)
+  const projectType = extractProjectType(source)
+  const interest = buildLeadInterest(text, messages)
+  const budget = extractBudget(source)
+  const clientCopy = wantsClientCopy(source)
+  const shouldHandle =
+    hasLeadIntent(text) || (recentLeadContext && (hasConsent || Boolean(name) || Boolean(email) || Boolean(projectType)))
+  const missingFields = [
+    !name ? "nombre" : null,
+    !email ? "email" : null,
+    !projectType ? "tipo de negocio o proyecto" : null,
+    interest.length < 10 ? "necesidad principal" : null,
+  ].filter((item): item is string => Boolean(item))
+
+  return {
+    budget,
+    clientCopy,
+    email,
+    hasConsent,
+    interest,
+    missingFields,
+    name,
+    phone,
+    projectType,
+    shouldHandle,
+  }
+}
+
+function buildLeadRequestReply(details: ConversationalLeadDetails) {
+  if (details.missingFields.length > 0) {
+    const lines = [
+      "### Para poder enviarlo",
+      `Necesito ${details.missingFields.join(", ")}. Puedes responder en una sola frase y decir si quieres recibir copia limpia por email.`,
+    ]
+
+    if (details.hasConsent) {
+      lines.push("", "Ya tengo tu aceptación; faltan esos datos para completar la solicitud.")
+    } else {
+      lines.push("", LEAD_CONSENT_TEXT)
+    }
+
+    return lines.join("\n")
+  }
+
+  return ["### Antes de enviarlo", LEAD_CONSENT_TEXT].join("\n")
+}
 
 function getSafeHref(rawHref: string) {
   const href = rawHref.trim()
@@ -261,12 +419,12 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     apiEndpoint = "/api/agent",
     closeLabel = "Cerrar asistente",
     inputMaxLength = 500,
+    leadRequest,
     listeningPlaceholder = "Escuchando...",
     maxHistoryItems = 8,
-    quoteRequest,
     sendLabel = "Enviar mensaje",
     showFloatingSparkle = true,
-  unavailableVoiceMessage = "El dictado por voz no está disponible en este navegador.",
+    unavailableVoiceMessage = "El dictado por voz no está disponible en este navegador.",
     voiceLanguage = "es-ES",
   } = config
 
@@ -277,9 +435,8 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     }),
     [config.theme],
   )
-  const isQuoteRequestEnabled = quoteRequest?.enabled ?? false
-  const quoteRequestEndpoint = quoteRequest?.apiEndpoint ?? "/api/agent/quote"
-  const quoteRequestButtonLabel = quoteRequest?.buttonLabel ?? "Presupuesto"
+  const isLeadRequestEnabled = leadRequest?.enabled ?? false
+  const leadRequestEndpoint = leadRequest?.apiEndpoint ?? "/api/agent/quote"
 
   const welcomeMessage = useMemo<AgentMessage>(
     () => ({ role: "assistant", content: config.welcomeMessage }),
@@ -296,17 +453,6 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
   const [isListening, setIsListening] = useState(false)
   const [voiceMessage, setVoiceMessage] = useState("")
   const [hasMoreMessagesBelow, setHasMoreMessagesBelow] = useState(false)
-  const [isQuoteFormOpen, setIsQuoteFormOpen] = useState(false)
-  const [isQuoteSending, setIsQuoteSending] = useState(false)
-  const [quoteName, setQuoteName] = useState("")
-  const [quoteEmail, setQuoteEmail] = useState("")
-  const [quotePhone, setQuotePhone] = useState("")
-  const [quoteProjectType, setQuoteProjectType] = useState("")
-  const [quoteInterest, setQuoteInterest] = useState("")
-  const [quoteBudget, setQuoteBudget] = useState("")
-  const [quoteClientCopy, setQuoteClientCopy] = useState(false)
-  const [quoteConsent, setQuoteConsent] = useState(false)
-  const [quoteStatus, setQuoteStatus] = useState<QuoteRequestStatus | null>(null)
 
   const messagesViewportRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -646,115 +792,6 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     startVoiceSession()
   }, [clearVoiceTimers, isListening, startVoiceSession, stopVoiceInput])
 
-  const buildQuoteInterestDraft = useCallback(() => {
-    return messages
-      .filter((message) => message.role === "user")
-      .slice(-4)
-      .map((message) => message.content)
-      .join("\n")
-      .slice(0, 700)
-  }, [messages])
-
-  const toggleQuoteForm = useCallback(() => {
-    if (!isQuoteRequestEnabled) return
-
-    if (isQuoteFormOpen) {
-      setIsQuoteFormOpen(false)
-      return
-    }
-
-    setQuoteInterest((current) => current || buildQuoteInterestDraft())
-    setQuoteStatus(null)
-    setIsQuoteFormOpen(true)
-  }, [buildQuoteInterestDraft, isQuoteFormOpen, isQuoteRequestEnabled])
-
-  const handleQuoteSubmit = useCallback(
-    async (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault()
-
-      if (!sessionId) {
-        setQuoteStatus({ type: "error", message: "No se ha podido preparar la solicitud. Vuelve a abrir el chat." })
-        return
-      }
-
-      if (!quoteConsent) {
-        setQuoteStatus({
-          type: "error",
-          message: "Antes de enviar, acepta que Aplaudia reciba estos datos y el resumen de la conversación.",
-        })
-        return
-      }
-
-      if (!quoteName.trim() || !quoteEmail.trim() || !quoteProjectType.trim() || !quoteInterest.trim()) {
-        setQuoteStatus({ type: "error", message: "Completa nombre, email, tipo de proyecto e interés principal." })
-        return
-      }
-
-      setIsQuoteSending(true)
-      setQuoteStatus(null)
-
-      try {
-        const response = await fetch(quoteRequestEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            budget: quoteBudget,
-            clientCopy: quoteClientCopy,
-            consent: quoteConsent,
-            email: quoteEmail,
-            history: messages.slice(-12),
-            interest: quoteInterest,
-            name: quoteName,
-            phone: quotePhone,
-            projectType: quoteProjectType,
-            sessionId,
-          }),
-        })
-        const data = await response.json().catch(() => ({}))
-
-        if (!response.ok || data?.ok !== true) {
-          throw new Error(typeof data?.error === "string" ? data.error : "No se ha podido enviar la solicitud.")
-        }
-
-        setQuoteStatus({ type: "success", message: "Solicitud enviada a Aplaudia." })
-        setIsQuoteFormOpen(false)
-        setQuoteBudget("")
-        setQuoteInterest("")
-        setQuoteProjectType("")
-        setQuoteConsent(false)
-        setQuoteClientCopy(false)
-        setMessages((current) => [
-          ...current,
-          {
-            role: "assistant",
-            content:
-              "### Solicitud enviada\nAplaudia ha recibido tu solicitud de presupuesto. Si has pedido copia, te llegará un resumen limpio por email.",
-          },
-        ])
-      } catch (error) {
-        setQuoteStatus({
-          type: "error",
-          message: error instanceof Error ? error.message : "No se ha podido enviar la solicitud.",
-        })
-      } finally {
-        setIsQuoteSending(false)
-      }
-    },
-    [
-      messages,
-      quoteBudget,
-      quoteClientCopy,
-      quoteConsent,
-      quoteEmail,
-      quoteInterest,
-      quoteName,
-      quotePhone,
-      quoteProjectType,
-      quoteRequestEndpoint,
-      sessionId,
-    ],
-  )
-
   const sendMessage = useCallback(async () => {
     const text = inputRef.current?.value.trim() ?? ""
     if (!text || isLoading || !sessionId) return
@@ -769,7 +806,54 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     })
     setIsLoading(true)
 
+    let attemptedLeadSend = false
+
     try {
+      const leadDetails = isLeadRequestEnabled ? buildConversationalLeadDetails(text, messages) : null
+
+      if (leadDetails?.shouldHandle) {
+        if (leadDetails.missingFields.length > 0 || !leadDetails.hasConsent) {
+          setMessages((current) => [...current, { role: "assistant", content: buildLeadRequestReply(leadDetails) }])
+          if (!isOpen) setHasUnread(true)
+          return
+        }
+
+        attemptedLeadSend = true
+        const response = await fetch(leadRequestEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            budget: leadDetails.budget,
+            clientCopy: leadDetails.clientCopy,
+            consent: true,
+            email: leadDetails.email,
+            history: [...messages.slice(-11), userMessage],
+            interest: leadDetails.interest,
+            name: leadDetails.name,
+            phone: leadDetails.phone,
+            projectType: leadDetails.projectType,
+            sessionId,
+          }),
+        })
+        const data = await response.json().catch(() => ({}))
+
+        if (!response.ok || data?.ok !== true) {
+          throw new Error(typeof data?.error === "string" ? data.error : "No se ha podido enviar la solicitud.")
+        }
+
+        setMessages((current) => [
+          ...current,
+          {
+            role: "assistant",
+            content: leadDetails.clientCopy
+              ? "### Resumen enviado\nHe enviado el resumen a una persona de Aplaudia y también una copia limpia a tu email."
+              : "### Resumen enviado\nHe enviado el resumen a una persona de Aplaudia para que pueda responderte por email.",
+          },
+        ])
+        if (!isOpen) setHasUnread(true)
+        return
+      }
+
       const res = await fetch(apiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -780,12 +864,16 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
 
       setMessages((current) => [...current, { role: "assistant", content: reply }])
       if (!isOpen) setHasUnread(true)
-    } catch {
+    } catch (error) {
       setMessages((current) => [
         ...current,
         {
           role: "assistant",
-          content: config.connectionErrorReply,
+          content: attemptedLeadSend
+            ? `### No se ha podido enviar\n${
+                error instanceof Error ? error.message : "No se ha podido enviar la solicitud."
+              }`
+            : config.connectionErrorReply,
         },
       ])
     } finally {
@@ -795,8 +883,10 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     apiEndpoint,
     config.connectionErrorReply,
     config.fallbackReply,
+    isLeadRequestEnabled,
     isLoading,
     isOpen,
+    leadRequestEndpoint,
     maxHistoryItems,
     messages,
     resetInput,
@@ -839,16 +929,6 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              {isQuoteRequestEnabled && (
-                <button
-                  type="button"
-                  onClick={toggleQuoteForm}
-                  className="rounded-full border border-white/10 bg-background/70 px-3 py-2 text-xs font-medium text-foreground/90 transition-colors hover:border-primary/35 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                  aria-expanded={isQuoteFormOpen}
-                >
-                  {quoteRequestButtonLabel}
-                </button>
-              )}
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
@@ -929,123 +1009,6 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
               </button>
             )}
           </div>
-
-          {isQuoteRequestEnabled && isQuoteFormOpen && (
-            <form
-              onSubmit={handleQuoteSubmit}
-              className="max-h-[48dvh] space-y-3 overflow-y-auto border-t border-border bg-background/95 px-3 py-3 sm:max-h-[42dvh] sm:px-4"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Solicitud de presupuesto</p>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    Se enviara a Aplaudia para poder responderte. No escribas datos sensibles.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsQuoteFormOpen(false)}
-                  className="rounded-full px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  Cerrar
-                </button>
-              </div>
-
-              <div className="grid gap-2 sm:grid-cols-3">
-                <input
-                  value={quoteName}
-                  onChange={(event) => setQuoteName(event.currentTarget.value)}
-                  className={cn("min-h-11 rounded-xl border px-3 text-sm outline-none transition-colors", theme.input)}
-                  placeholder="Nombre"
-                  autoComplete="name"
-                />
-                <input
-                  value={quoteEmail}
-                  onChange={(event) => setQuoteEmail(event.currentTarget.value)}
-                  className={cn("min-h-11 rounded-xl border px-3 text-sm outline-none transition-colors", theme.input)}
-                  placeholder="Email"
-                  type="email"
-                  autoComplete="email"
-                />
-                <input
-                  value={quotePhone}
-                  onChange={(event) => setQuotePhone(event.currentTarget.value)}
-                  className={cn("min-h-11 rounded-xl border px-3 text-sm outline-none transition-colors", theme.input)}
-                  placeholder="Telefono opcional"
-                  type="tel"
-                  autoComplete="tel"
-                />
-              </div>
-
-              <input
-                value={quoteProjectType}
-                onChange={(event) => setQuoteProjectType(event.currentTarget.value)}
-                className={cn("min-h-11 w-full rounded-xl border px-3 text-sm outline-none transition-colors", theme.input)}
-                placeholder="Tipo de negocio o proyecto"
-              />
-
-              <textarea
-                value={quoteInterest}
-                onChange={(event) => setQuoteInterest(event.currentTarget.value)}
-                className={cn("min-h-24 w-full resize-none rounded-xl border px-3 py-2.5 text-sm leading-6 outline-none transition-colors", theme.input)}
-                placeholder="Interes principal, dudas y contexto del proyecto"
-              />
-
-              <input
-                value={quoteBudget}
-                onChange={(event) => setQuoteBudget(event.currentTarget.value)}
-                className={cn("min-h-11 w-full rounded-xl border px-3 text-sm outline-none transition-colors", theme.input)}
-                placeholder="Presupuesto o rango orientativo, si lo tienes"
-              />
-
-              <label className="flex gap-2 text-xs leading-5 text-muted-foreground">
-                <input
-                  type="checkbox"
-                  checked={quoteConsent}
-                  onChange={(event) => setQuoteConsent(event.currentTarget.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-primary"
-                />
-                <span>
-                  Acepto que Aplaudia reciba esta solicitud con mis datos y el resumen de la conversacion para poder responderme.
-                </span>
-              </label>
-
-              <label className="flex gap-2 text-xs leading-5 text-muted-foreground">
-                <input
-                  type="checkbox"
-                  checked={quoteClientCopy}
-                  onChange={(event) => setQuoteClientCopy(event.currentTarget.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-primary"
-                />
-                <span>Quiero recibir una copia limpia por email.</span>
-              </label>
-
-              {quoteStatus && (
-                <p
-                  className={cn(
-                    "rounded-xl border px-3 py-2 text-xs leading-5",
-                    quoteStatus.type === "success"
-                      ? "border-primary/30 bg-primary/10 text-primary"
-                      : "border-destructive/30 bg-destructive/10 text-destructive",
-                  )}
-                  aria-live="polite"
-                >
-                  {quoteStatus.message}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={isQuoteSending}
-                className={cn(
-                  "inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto",
-                  theme.sendButton,
-                )}
-              >
-                {isQuoteSending ? "Enviando..." : "Enviar solicitud"}
-              </button>
-            </form>
-          )}
 
           <div className="flex items-end gap-2 border-t border-border bg-background/95 p-2.5 sm:p-3">
             <textarea

@@ -37,14 +37,13 @@ export type AgentWidgetConfig = {
   floatingButtonLabel: string
   floatingButtonText?: string
   inputMaxLength?: number
+  leadRequest?: {
+    apiEndpoint?: string
+    enabled?: boolean
+  }
   listeningPlaceholder?: string
   maxHistoryItems?: number
   placeholder: string
-  quoteRequest?: {
-    apiEndpoint?: string
-    buttonLabel?: string
-    enabled?: boolean
-  }
   sendLabel?: string
   sessionStorageKey: string
   showFloatingSparkle?: boolean
