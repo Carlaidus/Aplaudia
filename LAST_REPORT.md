@@ -26,8 +26,9 @@ Corregir la descompensación visual de la galería: la imagen horizontal de la d
 
 ### Estado
 
-- Cambio local validado.
-- Pendiente de commit, push y despliegue.
+- Cambio validado, commiteado y enviado a `origin/main`.
+- Commit: `973f040` (`Reequilibra composicion de galeria visual`).
+- Producción `https://aplaudia.com`: OK, sirve la composición actualizada.
 
 ### Siguiente paso recomendado
 
