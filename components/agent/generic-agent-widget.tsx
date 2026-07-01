@@ -95,7 +95,8 @@ function hasLeadIntent(text: string) {
     /\b(enviar|envia|envía|envialo|envíalo|mandar|mandalo|mándalo|pasar|pasalo|pásalo)\b[\s\S]{0,100}\b(resumen|solicitud|presupuesto|propuesta|datos|aplaudia|persona)\b/i,
     /\b(quiero|me gustaria|me gustaría|necesito|podemos|podeis|podéis|puedes)\b[\s\S]{0,90}\b(presupuesto|propuesta|contacto|contactar|hablar con alguien|persona de aplaudia)\b/i,
     /\b(solicitar|pedir|preparar)\b[\s\S]{0,70}\b(presupuesto|propuesta|solicitud)\b/i,
-    /\b(contactadme|contactarme|escribidme|que lo vea aplaudia|persona de aplaudia)\b/i,
+    /\b(contactadme|escribidme|llamadme|que lo vea aplaudia|persona de aplaudia)\b/i,
+    /\b(que me contacte|que me escriba|que me llame)\b[\s\S]{0,60}\b(aplaudia|alguien|una persona)\b/i,
   ].some((pattern) => pattern.test(text))
 }
 
@@ -189,6 +190,14 @@ function buildConversationalLeadDetails(text: string, messages: AgentMessage[]):
   )
   const recentLeadContext = hasRecentLeadContext(messages)
   const hasConsent = hasExplicitLeadConsent(source)
+  const currentMessageContributesLeadData =
+    hasExplicitLeadConsent(text) ||
+    Boolean(extractName(text)) ||
+    Boolean(extractEmail(text)) ||
+    Boolean(extractPhone(text)) ||
+    Boolean(extractProjectType(text)) ||
+    Boolean(extractBudget(text)) ||
+    wantsClientCopy(text)
   const name = extractName(source)
   const email = extractEmail(source)
   const phone = extractPhone(source)
@@ -196,8 +205,7 @@ function buildConversationalLeadDetails(text: string, messages: AgentMessage[]):
   const interest = buildLeadInterest(text, messages)
   const budget = extractBudget(source)
   const clientCopy = wantsClientCopy(source)
-  const shouldHandle =
-    hasLeadIntent(text) || (recentLeadContext && (hasConsent || Boolean(name) || Boolean(email) || Boolean(projectType)))
+  const shouldHandle = hasLeadIntent(text) || (recentLeadContext && currentMessageContributesLeadData)
   const missingFields = [
     !name ? "nombre" : null,
     !email ? "email" : null,
@@ -445,6 +453,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
 
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<AgentMessage[]>([welcomeMessage])
+  const [inputDraft, setInputDraft] = useState("")
   const [hasText, setHasText] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
@@ -456,6 +465,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
 
   const messagesViewportRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const inputDraftRef = useRef("")
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null)
   const pendingUserAnchorIndexRef = useRef<number | null>(null)
   const voiceBaseTextRef = useRef("")
@@ -602,6 +612,8 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
       input.style.removeProperty("height")
     }
 
+    inputDraftRef.current = ""
+    setInputDraft("")
     clearTextarea(inputRef.current)
     voiceBaseTextRef.current = ""
     setHasText(false)
@@ -614,6 +626,9 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
   const setInputValue = useCallback(
     (value: string) => {
       const input = inputRef.current
+      inputDraftRef.current = value
+      setInputDraft(value)
+
       if (!input) return
 
       input.value = value
@@ -643,7 +658,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
       clearVoiceTimers()
       recognitionRef.current?.stop()
       recognitionRef.current = null
-      voiceBaseTextRef.current = inputRef.current?.value.trim() ?? ""
+      voiceBaseTextRef.current = inputDraftRef.current.trim()
       setIsListening(false)
       setVoiceMessage(nextMessage)
     },
@@ -733,7 +748,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
 
     recognition.onend = () => {
       recognitionRef.current = null
-      voiceBaseTextRef.current = inputRef.current?.value.trim() ?? ""
+      voiceBaseTextRef.current = inputDraftRef.current.trim()
 
       const shouldRestart =
         shouldKeepVoiceListeningRef.current &&
@@ -783,7 +798,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
       return
     }
 
-    voiceBaseTextRef.current = inputRef.current?.value.trim() ?? ""
+    voiceBaseTextRef.current = inputDraftRef.current.trim()
     shouldKeepVoiceListeningRef.current = true
     manuallyStoppedVoiceRef.current = false
     lastVoiceErrorRef.current = null
@@ -793,7 +808,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
   }, [clearVoiceTimers, isListening, startVoiceSession, stopVoiceInput])
 
   const sendMessage = useCallback(async () => {
-    const text = inputRef.current?.value.trim() ?? ""
+    const text = (inputDraftRef.current || inputRef.current?.value || "").trim()
     if (!text || isLoading || !sessionId) return
 
     resetInput()
@@ -1015,8 +1030,12 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
               ref={inputRef}
               rows={1}
               maxLength={inputMaxLength}
-              onInput={(event) => {
-                setHasText(event.currentTarget.value.trim().length > 0)
+              value={inputDraft}
+              onChange={(event) => {
+                const nextValue = event.currentTarget.value
+                inputDraftRef.current = nextValue
+                setInputDraft(nextValue)
+                setHasText(nextValue.trim().length > 0)
                 setVoiceMessage("")
                 resizeInput()
               }}

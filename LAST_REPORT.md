@@ -2,6 +2,36 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Bugfix textarea y bloqueo del chatbot
+
+### Objetivo
+
+Corregir el fallo detectado en escritorio: al enviar un mensaje, el textarea podia conservar el texto anterior y concatenarlo con el siguiente. Corregir tambien el bloqueo por el que el chatbot entraba en modo solicitud de presupuesto al mencionar `contactarme` o `precios`.
+
+### Cambios aplicados
+
+- `components/agent/generic-agent-widget.tsx`:
+  - el textarea pasa a estar controlado por estado React (`inputDraft`) y una ref sincronizada;
+  - `resetInput()` limpia estado, ref, DOM, altura y bandera `hasText`;
+  - envio con boton y Enter usan el mismo valor sincronizado;
+  - el detector de solicitud ya no considera `contactarme` como intencion de enviar datos a Aplaudia;
+  - despues de pedir datos de solicitud, solo continua ese flujo si el nuevo mensaje aporta datos utiles o aceptacion clara.
+
+### Validaciones ejecutadas
+
+- `npm run build`: OK.
+- `npm run lint`: sigue no disponible porque `eslint` no esta instalado en el proyecto.
+- QA local escritorio en `http://localhost:3060`:
+  - caso de la captura con `contactarme` y `precios`: ya no dispara solicitud ni consentimiento;
+  - dos mensajes seguidos: el textarea queda vacio tras cada envio;
+  - flujo real de enviar resumen: sigue pidiendo consentimiento;
+  - despues de una solicitud, un `hola?` normal ya no repite el bloque `Para poder enviarlo`.
+
+### Estado
+
+- Bug corregido localmente.
+- Pendiente push y validacion de produccion.
+
 ## Actualizacion - Presupuesto conversacional y saludo neutro
 
 ### Objetivo
