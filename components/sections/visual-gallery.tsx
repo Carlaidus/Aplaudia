@@ -116,7 +116,7 @@ function GalleryItem({
   lightweightMotion: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const isInView = useInView(ref, { once: true, margin: "-50px" })
+  const isInView = useInView(ref, { once: true, margin: "180px" })
   const [isHovered, setIsHovered] = useState(false)
 
   // Masonry-style staggered reveal with rotation
@@ -307,7 +307,7 @@ export function VisualGallery() {
         </motion.div>
 
         {/* Gallery grid with masonry-style reveals */}
-        <div className="grid gap-6 md:grid-cols-12 md:items-start">
+        <div className="grid gap-6 md:grid-cols-10 md:items-start">
           {visualGalleryItems.map((item, index) => (
             <GalleryItem key={item.id} item={item} index={index} lightweightMotion={lightweightMotion} />
           ))}

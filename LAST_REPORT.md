@@ -2,6 +2,42 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Galeria visual mas llena
+
+### Objetivo
+
+Corregir la percepcion de que las imagenes de la galeria quedaban pequenas y demasiado separadas, especialmente la pieza mas pequena frente al primer escaparate.
+
+### Cambios aplicados
+
+- `content/visual-gallery.ts`:
+  - la composicion de escritorio pasa a dos columnas grandes de 5/10 columnas;
+  - todas las piezas usan el mismo ancho base en escritorio;
+  - se reduce el hueco vertical con solapes/margenes negativos mas controlados;
+  - el segundo escaparate y la imagen de edicion de video dejan de verse como piezas pequenas.
+- `components/sections/visual-gallery.tsx`:
+  - la rejilla de la galeria pasa de 12 a 10 columnas solo para esta zona;
+  - las imagenes activan su animacion un poco antes al entrar en viewport para no aparecer reducidas cuando estan al borde inferior;
+  - se conservan animacion, hover, gradientes, orden de imagenes y apilado movil.
+
+### Validaciones ejecutadas
+
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no esta disponible como ejecutable del proyecto.
+- `git diff --check`: OK; solo aviso normal de CRLF/LF en Windows.
+- QA local con `next start` en `http://127.0.0.1:3049`:
+  - escritorio 1440x1100: todas las imagenes de escritorio miden 596 px de ancho, sin scroll horizontal y con menos hueco entre piezas;
+  - movil 390x844: apilado correcto, piezas inferiores a ancho completo al entrar en vista y sin scroll horizontal.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente de commit, push y comprobacion de produccion.
+
+### Siguiente paso recomendado
+
+Revisar en produccion desde el viewport real de Carlos. Si aun se quiere mas densidad, el siguiente ajuste seria bajar ligeramente el alto de las dos imagenes verticales para que entren mas piezas en el primer pantallazo.
+
 ## Actualizacion - Segundo escaparate en galeria visual
 
 ### Objetivo
