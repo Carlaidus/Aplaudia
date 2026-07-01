@@ -73,6 +73,12 @@ Eliminar la dependencia practica de Resend y dejar Aplaudia con una estrategia d
   - `/api/agent/quote` sin consentimiento: `400`, sin enviar nada;
   - `/api/agent/quote` con consentimiento pero sin Cloudflare: `503` controlado;
   - `/api/contacto` con email pero sin Cloudflare: `503` controlado.
+- Produccion tras push:
+  - `https://aplaudia.com`: `200`;
+  - `POST https://aplaudia.com/api/agent/quote` sin consentimiento: `400`, sin enviar correo real.
+- Railway CLI:
+  - sigue sin sesion valida: `invalid_grant` / `Unauthorized`;
+  - no se ha podido confirmar el deployment desde CLI.
 - No se ha enviado ningun email real.
 - No se ha enviado ningun email a cliente.
 - No se ha tocado DNS ni Cloudflare desde codigo.
@@ -82,7 +88,7 @@ Eliminar la dependencia practica de Resend y dejar Aplaudia con una estrategia d
 - El codigo queda preparado para Cloudflare Email Service.
 - La estrategia activa es gratuita y centrada en envio interno verificado.
 - Cloudflare Email Routing sigue siendo el camino recomendado para `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com`.
-- Produccion queda pendiente de validar tras push porque todavia no se ha hecho el commit/push de esta tarea en el momento de escribir esta seccion.
+- Produccion responde correctamente por HTTP, pero el estado exacto de Railway queda pendiente de confirmar en dashboard por sesion CLI caducada.
 
 ### Actualizar Notion
 
