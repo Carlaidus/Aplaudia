@@ -46,10 +46,10 @@ const galleryItems = [
   {
     id: 3,
     aspect: "aspect-video",
-    span: "md:col-span-3 md:mt-16 lg:mt-24",
+    span: "md:col-span-4 md:col-start-9 md:row-start-2 md:-mt-44 lg:-mt-52",
     gradient: "from-accent-violet/20 to-accent-magenta/20",
     src: "/visuals/real-motion-editing.webp",
-    sizes: "(min-width: 768px) 26vw, 100vw",
+    sizes: "(min-width: 768px) 34vw, 100vw",
     alt: "Edición realista de contenido en vídeo para web y redes",
   },
   {

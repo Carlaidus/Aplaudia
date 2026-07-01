@@ -2,6 +2,37 @@
 
 Fecha: 2026-07-01
 
+## Actualización - Reequilibrio de la galería visual
+
+### Objetivo
+
+Corregir la descompensación visual de la galería: la imagen horizontal de la derecha quedaba demasiado pequeña y demasiado arriba, dejando un hueco negro amplio entre el escaparate superior y la imagen vertical inferior.
+
+### Cambios aplicados
+
+- `components/sections/visual-gallery.tsx`:
+  - la imagen `real-motion-editing.webp` pasa de 3 a 4 columnas en escritorio;
+  - se coloca en segunda fila, desplazada a la derecha;
+  - sube dentro de esa segunda fila con margen negativo para ocupar mejor el hueco entre el escaparate y la imagen vertical inferior;
+  - se mantiene el mismo asset, la animación, el hover y el apilado móvil.
+
+### Validaciones ejecutadas
+
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no está disponible como ejecutable del proyecto.
+- QA local con `next start` en `http://127.0.0.1:3047`:
+  - escritorio 1440x1000: imagen derecha más grande, colocada bajo el escaparate y desplazada a la derecha;
+  - móvil 390x844: galería apilada correctamente, sin scroll horizontal.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente de commit, push y despliegue.
+
+### Siguiente paso recomendado
+
+Revisar en producción si el equilibrio visual ya queda natural en el viewport real de Carlos.
+
 ## Actualización - Fecha diaria en aviso de construcción
 
 ### Objetivo
