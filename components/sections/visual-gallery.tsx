@@ -6,6 +6,7 @@ import { useRef, useState } from "react"
 import { Wand2, Image as ImageIcon, RefreshCw, Tv, Sparkles } from "lucide-react"
 import { useTranslations } from "@/i18n"
 import { useLightweightMotion } from "@/components/motion-performance-provider"
+import { visualGalleryItems, type VisualGalleryItem } from "@/content/visual-gallery"
 
 type CategoryKey = "category1" | "category2" | "category3" | "category4"
 
@@ -22,46 +23,6 @@ const categoryAccents: Record<CategoryKey, string> = {
   category3: "from-accent-violet to-accent-magenta",
   category4: "from-accent-magenta to-primary",
 }
-
-// Gallery items with varied layouts
-const galleryItems = [
-  {
-    id: 1,
-    aspect: "aspect-[4/5]",
-    span: "md:col-span-4 md:mt-14 lg:mt-20",
-    gradient: "from-primary/20 to-accent-cyan/20",
-    src: "/visuals/ai-image-enhancement-real.webp",
-    sizes: "(min-width: 768px) 34vw, 100vw",
-    alt: "Pantalla de edición con una prenda personalizada sobre una persona",
-  },
-  {
-    id: 2,
-    aspect: "aspect-video",
-    span: "md:col-span-5 md:z-10 md:scale-[1.06] lg:scale-[1.08]",
-    gradient: "from-accent-cyan/20 to-accent-violet/20",
-    src: "/visuals/escaparate-01.webp",
-    sizes: "(min-width: 768px) 48vw, 100vw",
-    alt: "Escaparate realista con pantalla comercial para una tienda deportiva",
-  },
-  {
-    id: 3,
-    aspect: "aspect-video",
-    span: "md:col-span-4 md:col-start-9 md:row-start-2 md:-mt-44 lg:-mt-52",
-    gradient: "from-accent-violet/20 to-accent-magenta/20",
-    src: "/visuals/real-motion-editing.webp",
-    sizes: "(min-width: 768px) 34vw, 100vw",
-    alt: "Edición realista de contenido en vídeo para web y redes",
-  },
-  {
-    id: 4,
-    aspect: "aspect-[3/4]",
-    span: "md:col-span-4 md:col-start-5 md:-mt-4 lg:-mt-8",
-    gradient: "from-accent-magenta/20 to-primary/20",
-    src: "/visuals/retail-screen-clothing.webp",
-    sizes: "(min-width: 768px) 34vw, 100vw",
-    alt: "Pantalla vertical en tienda mostrando una prenda sobre una persona",
-  },
-]
 
 function CategoryCard({
   categoryKey,
@@ -150,7 +111,7 @@ function GalleryItem({
   index,
   lightweightMotion,
 }: {
-  item: typeof galleryItems[0]
+  item: VisualGalleryItem
   index: number
   lightweightMotion: boolean
 }) {
@@ -347,7 +308,7 @@ export function VisualGallery() {
 
         {/* Gallery grid with masonry-style reveals */}
         <div className="grid gap-6 md:grid-cols-12 md:items-start">
-          {galleryItems.map((item, index) => (
+          {visualGalleryItems.map((item, index) => (
             <GalleryItem key={item.id} item={item} index={index} lightweightMotion={lightweightMotion} />
           ))}
         </div>

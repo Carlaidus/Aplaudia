@@ -2,6 +2,53 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Segundo escaparate en galeria visual
+
+### Objetivo
+
+Incorporar `Escaparate_02.png` a la galeria de visuales como imagen realista de escaparate, mantener las animaciones actuales y dejar la lista preparada para anadir o cambiar piezas futuras sin tocar el componente.
+
+### Cambios aplicados
+
+- `public/visuals/escaparate-02.webp`:
+  - convertido desde `T:\DESCARGAS\Escaparate_02.png`;
+  - formato WebP lossless;
+  - tamano final: 1449 x 1086 px, 1.920.700 bytes.
+- `content/visual-gallery.ts`:
+  - nuevo archivo de contenido para centralizar las imagenes de la galeria;
+  - preparado para anadir quinta, sexta o nuevas piezas cambiando datos, no el componente.
+- `components/sections/visual-gallery.tsx`:
+  - ahora consume `visualGalleryItems` desde `content/visual-gallery.ts`;
+  - se conserva la animacion de entrada, hover, gradientes y comportamiento responsive;
+  - el nuevo escaparate queda en escritorio en la parte baja derecha, bajo la pieza de edicion de video, evitando el aviso flotante de construccion;
+  - en movil las cinco imagenes se apilan sin cambiar el diseno general.
+
+### Archivos modificados
+
+- `components/sections/visual-gallery.tsx`
+- `content/visual-gallery.ts`
+- `public/visuals/escaparate-02.webp`
+- `LAST_REPORT.md`
+
+### Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existia.
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no esta disponible como ejecutable del proyecto.
+- `git diff --check`: OK; solo aviso normal de CRLF/LF en Windows.
+- QA local con `next start` en `http://127.0.0.1:3048`:
+  - escritorio 1440x1100: cinco imagenes visibles, sin scroll horizontal, escaparate 02 en la parte baja derecha;
+  - movil 390x844: cinco imagenes apiladas, sin scroll horizontal, aviso de construccion y chatbot siguen visibles.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente de commit, push y comprobacion de produccion.
+
+### Siguiente paso recomendado
+
+Revisar en produccion desde movil real si la mezcla de escaparates, pantallas y edicion visual queda comercialmente equilibrada. Si Carlos quiere sumar una quinta o sexta pieza, anadirla en `content/visual-gallery.ts` y guardar el asset en `public/visuals/`.
+
 ## Actualización - Reequilibrio de la galería visual
 
 ### Objetivo
