@@ -51,11 +51,24 @@ Ejecutar la nueva prioridad de Carlos: ajustar la galeria de visuales a una comp
     - microetiqueta `¿Dudas?` visible;
     - no aparece `Preguntame sobre Aplaudia`;
     - chatbot abre correctamente y mantiene el textarea.
+- QA produccion en `https://aplaudia.com` tras push:
+  - home responde `200`;
+  - la home contiene `data-gallery-row-pattern`;
+  - la home mantiene la microetiqueta `¿Dudas?`;
+  - no aparece `Preguntame sobre Aplaudia`;
+  - `https://aplaudia.com/visuals/retail-screen-clothing.webp` responde `200`;
+  - el asset nuevo pesa 129.984 bytes en produccion;
+  - `/robots.txt`, `/llms.txt` y `/sitemap.xml` responden `200`.
+- Railway CLI:
+  - sigue sin sesion valida (`invalid_grant` / `Unauthorized`);
+  - despliegue efectivo confirmado por produccion sirviendo el HTML y el asset nuevos.
 
 ### Estado
 
-- Cambio validado localmente.
-- Pendiente de commit, push y verificacion de produccion/Railway.
+- Cambio validado, commiteado y enviado a `origin/main`.
+- Commit principal: `6d40d3b` (`Reordena galeria visual por filas`).
+- Produccion `https://aplaudia.com`: OK, sirve la nueva galeria y el nuevo WebP.
+- Railway: no consultable por CLI hasta renovar login, pero produccion confirma despliegue efectivo.
 
 ### Siguiente paso recomendado
 
