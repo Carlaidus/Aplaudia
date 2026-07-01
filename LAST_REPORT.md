@@ -2,6 +2,68 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Input limpio, fuente del chatbot y precios sin IVA
+
+### Objetivo
+
+Ejecutar el foco de `NEXT_TASK.md`: mejorar ligeramente la legibilidad del chatbot, asegurar que el textarea se limpia tambien en escritorio y con Enter, y reforzar las reglas del agente para que solo hable de precios cuando el usuario lo pida explicitamente.
+
+### Cambios aplicados
+
+- `components/agent/generic-agent-widget.tsx`:
+  - las burbujas del chat en escritorio suben a `17px` con interlineado compacto;
+  - movil se mantiene en `16px` para no perder espacio;
+  - `resetInput()` limpia `value`, `defaultValue`, scroll interno, altura inline y `hasText`;
+  - el reseteo se repite en el siguiente `requestAnimationFrame` para cubrir timings de escritorio y envio con Enter;
+  - al enviar, primero se limpia el textarea y despues se detiene el dictado;
+  - Enter ignora composicion IME y llama a `sendMessage()` sin dejar salto de linea.
+- `content/agent/aplaudia-agent.md`:
+  - precios solo si el usuario pregunta por precio, coste, presupuesto, tarifa, mensualidad, mantenimiento, cuanto cuesta, barato, economico, minimo o desde cuanto;
+  - cualquier respuesta con precios debe indicar importes orientativos sin IVA;
+  - mantenimiento/mensualidad se describe como servicio mensual, normalmente con pago anual, y con alcance por definir.
+- `lib/agent/build-agent-prompt.ts`:
+  - mismas reglas reforzadas en el prompt prioritario del servidor;
+  - se mantiene el `.md` como fuente editable principal y no se hardcodean tarifas completas en codigo.
+
+### Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existia.
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no esta disponible como ejecutable del proyecto.
+- `git diff --check`: OK, solo avisos CRLF normales de Windows.
+- QA local con `next start`:
+  - escritorio 1280x800: fuente de burbujas `17px`, sin scroll horizontal, aviso de construccion visible;
+  - escritorio con boton: textarea vacio, 48px, enviar desactivado y pregunta solo en historial;
+  - escritorio con Enter: textarea vacio, 48px, enviar desactivado y pregunta solo en historial;
+  - movil 390x844: fuente `16px`, sin scroll horizontal, aviso visible, textarea vacio a 48px tras enviar.
+- QA produccion `https://aplaudia.com`:
+  - home `200`;
+  - `/robots.txt`, `/llms.txt` y `/sitemap.xml` responden `200`;
+  - escritorio 1280x800: fuente `17px`, Enter limpia el textarea y la pregunta queda solo en historial;
+  - movil 390x844: fuente `16px`, boton limpia el textarea y la pregunta queda solo en historial;
+  - `/api/agent` responde con `provider: openai`;
+  - pregunta sin precio (`Quiero una web sencilla para mi restaurante.`): no devuelve importes;
+  - pregunta con precio (`Cuanto cuesta una web sencilla?`): devuelve rangos con `desde` e importes orientativos sin IVA;
+  - mantenimiento mensual: devuelve rangos con `desde`, sin IVA, servicio mensual y mencion de pago anual;
+  - fuera de ambito: redirige a Aplaudia y casos reales.
+- Railway CLI:
+  - sigue sin sesion valida (`invalid_grant` / `Unauthorized`);
+  - despliegue efectivo confirmado por produccion sirviendo UI y API actualizadas.
+
+### Estado
+
+- Cambios commiteados y enviados a `origin/main`.
+- Commits principales:
+  - `e7c6e6e` (`Ajusta envio y precios del chatbot`);
+  - `736bf57` (`Afina disparadores de precios del agente`);
+  - `01c6b48` (`Refuerza regla de mantenimiento del agente`).
+- Produccion `https://aplaudia.com`: OK.
+- Aviso de construccion: sigue visible.
+
+### Siguiente paso recomendado
+
+Probar dictado real desde movil con permiso de microfono y una frase larga con pausas naturales. Despues, revisar respuestas reales del agente durante unos dias y pasar a legal/contacto antes de retirar el aviso de construccion.
+
 ## Actualizacion - Respuestas enriquecidas y dictado mas estable
 
 ### Objetivo
