@@ -39,15 +39,32 @@ Ejecutar `NEXT_TASK.md` y el ajuste urgente de Carlos: etiqueta corta del chatbo
   - lightbox escritorio: abierto, 1382 x 968 px, scroll de fondo bloqueado;
   - lightbox movil: abierto, 366 x 743 px, scroll de fondo bloqueado;
   - chatbot: textarea antes de enviar 96 px, tras enviar queda vacio, 48 px, boton enviar desactivado, pregunta solo como burbuja.
+- QA produccion en `https://aplaudia.com`:
+  - home responde `200`;
+  - contiene `¿Dudas?`;
+  - no contiene `Preguntame sobre Aplaudia`;
+  - referencia `escaparate-02`;
+  - `/robots.txt`, `/llms.txt` y `/sitemap.xml` responden `200`.
+- Pruebas reales de `/api/agent` en produccion:
+  - `Quiero una web sencilla para mi negocio`: responde sin importes;
+  - `¿Cuánto cuesta una web sencilla?`: responde con precio orientativo;
+  - `Tengo 50 productos pero quiero algo barato`: propone fases/reducir alcance;
+  - `Dime curiosidades del universo`: rechaza fuera de ambito y redirige;
+  - `Dime una receta de tortilla`: rechaza fuera de ambito y redirige;
+  - `Háblame de Cronoras`, `Háblame de Arik Custom` y `Háblame de Aventuras Pixeladas`: responde dentro de ambito;
+  - `¿Programáis la web con IA?`: no menciona herramientas internas;
+  - `¿Cuánto cuesta un chatbot?`: responde con agente web desde 500 euros e integracion WhatsApp desde 100 euros adicionales.
+- Railway CLI: sigue sin sesion valida (`invalid_grant` / `Unauthorized`), pero produccion confirma despliegue efectivo.
 
 ### Estado
 
-- Cambio local validado.
-- Pendiente de commit, push y comprobacion final en produccion.
+- Cambio validado, commiteado y enviado a `origin/main`.
+- Commit principal: `1e593ee` (`Ajusta chatbot agente y galeria visual`).
+- Produccion `https://aplaudia.com`: OK, sirve el cambio y el agente responde con `provider: openai`.
 
 ### Siguiente paso recomendado
 
-Validar en produccion con preguntas reales del agente: servicios sin precio, precio explicito, poco presupuesto, fuera de ambito y casos reales.
+Revisar en movil real la etiqueta `¿Dudas?`, el lightbox de visuales y la nueva distribucion masonry. Si Carlos aprueba, el siguiente foco es legal/contacto antes de retirar el aviso de construccion.
 
 ## Actualizacion - Galeria visual mas llena
 
