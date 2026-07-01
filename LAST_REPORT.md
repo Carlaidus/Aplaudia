@@ -2,6 +2,54 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Resend configurado con dominio propio
+
+### Objetivo
+
+Configurar el envio por email del flujo de solicitud del chatbot con Resend, usando dominio propio de Aplaudia en lugar del remitente generico de pruebas.
+
+### Cambios externos aplicados
+
+- Resend:
+  - creado dominio `aplaudia.com`;
+  - region configurada: `Ireland (eu-west-1)`;
+  - Espana no aparece como region disponible en Resend; las opciones visibles eran North Virginia, Ireland, Sao Paulo y Tokyo;
+  - estado final del dominio: `verified`;
+  - creada API key nueva llamada `Aplaudia`;
+  - permiso de la API key: `Sending access`;
+  - la clave no se ha guardado en el repo ni se ha documentado.
+- Cloudflare DNS para `aplaudia.com`:
+  - `TXT` `resend._domainkey` -> DKIM de Resend;
+  - `MX` `send` -> `feedback-smtp.eu-west-1.amazonses.com`, prioridad `10`;
+  - `TXT` `send` -> `v=spf1 include:amazonses.com ~all`;
+  - `TXT` `_dmarc` -> `v=DMARC1; p=none;`;
+  - no se activo receiving en Resend.
+- Railway:
+  - anadida variable `RESEND_API_KEY`;
+  - anadida variable `EMAIL_FROM` con `Aplaudia <hola@aplaudia.com>`;
+  - cambios aplicados con Deploy;
+  - servicio final: `Online`.
+
+### Validaciones ejecutadas
+
+- Resend dashboard: `aplaudia.com` aparece como `verified`.
+- DNS publico:
+  - `resend._domainkey.aplaudia.com` responde con DKIM;
+  - `send.aplaudia.com` responde con MX `feedback-smtp.eu-west-1.amazonses.com`, prioridad `10`;
+  - `send.aplaudia.com` responde con SPF `v=spf1 include:amazonses.com ~all`;
+  - `_dmarc.aplaudia.com` responde con `v=DMARC1; p=none;`.
+- Railway: servicio `Aplaudia` vuelve a `Online` tras aplicar variables.
+- `https://aplaudia.com`: `200`, aviso de construccion visible.
+- `https://aplaudia.com/api/agent/quote` sin consentimiento: `400`, no envia correo.
+
+### Limitacion consciente
+
+No se ha enviado un email real de prueba para evitar una comunicacion externa sin pedirlo de forma explicita. La configuracion queda preparada para probar el envio con un caso controlado y consentimiento.
+
+### Siguiente paso recomendado
+
+Hacer una prueba real controlada del flujo de solicitud desde el chatbot con datos ficticios y consentimiento, verificando recepcion en `carlosvfx@gmail.com`. Despues, valorar Cloudflare Email Routing para que `hola@aplaudia.com` o `contacto@aplaudia.com` tambien reciban respuestas si se quiere bandeja propia.
+
 ## Actualizacion - Imagenes sin precio unitario y Resend pendiente
 
 ### Objetivo

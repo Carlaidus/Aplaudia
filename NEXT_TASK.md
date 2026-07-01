@@ -6,6 +6,15 @@ Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Estado tras la ultima ejecucion
 
+- Resend y correo:
+  - dominio `aplaudia.com` creado y verificado en Resend;
+  - Resend no ofrece region Espana; se uso `Ireland (eu-west-1)` como region UE;
+  - DNS aplicados en Cloudflare: DKIM, MX de envio, SPF y DMARC;
+  - API key `Aplaudia` creada con permiso `Sending access`;
+  - `RESEND_API_KEY` y `EMAIL_FROM` configuradas en Railway;
+  - `EMAIL_FROM`: `Aplaudia <hola@aplaudia.com>`;
+  - Railway vuelve a `Online`;
+  - no se ha enviado email real de prueba todavia.
 - Imagenes/visuales:
   - no dar precios unitarios por imagen;
   - responder que se prepara un pack personalizado;
@@ -42,7 +51,7 @@ Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Proximo foco real
 
-Configurar Resend en Railway y probar el flujo conversacional completo con datos de prueba controlados.
+Probar el envio real controlado del flujo conversacional con datos ficticios, consentimiento visible y recepcion en `carlosvfx@gmail.com`.
 
 ## Tareas recomendadas
 
@@ -54,10 +63,9 @@ Configurar Resend en Railway y probar el flujo conversacional completo con datos
    - aceptar el texto de tratamiento de datos;
    - comprobar recepcion en `carlosvfx@gmail.com`;
    - comprobar copia limpia solo si se pide.
-3. Revisar variables de entorno en Railway:
-   - `RESEND_API_KEY`;
-   - `EMAIL_FROM`.
-   - si el CLI sigue con `invalid_grant`, hacerlo desde el dashboard de Railway.
+3. Comprobar en Resend:
+   - dominio `aplaudia.com` sigue `verified`;
+   - logs del email de prueba aparecen como entregado o con error claro.
 4. Preparar legal/privacidad minima antes de quitar el aviso de construccion:
    - politica de privacidad;
    - tratamiento de datos para solicitudes;
