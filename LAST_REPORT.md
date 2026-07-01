@@ -49,6 +49,18 @@ Mejorar la presentacion visual de las respuestas del chatbot de Aplaudia y corre
   - envio escrito: textarea se limpia, vuelve a 48 px, boton enviar queda desactivado y la pregunta queda solo como burbuja;
   - microfono en navegador sin soporte/permiso: muestra fallback discreto y no rompe UI;
   - galeria y lightbox siguen funcionando en escritorio.
+- QA produccion en `https://aplaudia.com` tras push:
+  - `/api/agent` responde con `provider: openai`;
+  - pregunta explicita de precio devuelve Markdown con negritas;
+  - UI movil renderiza la respuesta con `h3` y `strong`, sin mostrar `**` crudos;
+  - textarea se limpia y vuelve a 48 px tras enviar;
+  - consulta fuera de ambito (`receta de tortilla`) redirige a Aplaudia y casos reales;
+  - consulta de servicio sin precio responde sin importes;
+  - home, chatbot y galeria sin scroll horizontal.
+- Railway CLI:
+  - consultado con `railway deployment list`;
+  - sigue sin sesion valida (`invalid_grant` / `Unauthorized`);
+  - despliegue efectivo confirmado por produccion sirviendo el cambio y por `/api/agent`.
 
 ### Limitaciones conocidas
 
@@ -57,8 +69,10 @@ Mejorar la presentacion visual de las respuestas del chatbot de Aplaudia y corre
 
 ### Estado
 
-- Cambio validado localmente.
-- Pendiente de commit, push y verificacion de produccion/Railway.
+- Cambio validado, commiteado y enviado a `origin/main`.
+- Commit principal: `70057f0` (`Mejora formato y dictado del chatbot`).
+- Produccion `https://aplaudia.com`: OK, sirve respuestas enriquecidas y el agente responde con OpenAI.
+- Railway: despliegue efectivo confirmado por produccion; CLI sigue pendiente de renovar login si se quiere consultar directamente.
 
 ### Siguiente paso recomendado
 
