@@ -2,6 +2,49 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Imagenes sin precio unitario y Resend pendiente
+
+### Objetivo
+
+Ajustar el criterio comercial del agente para imagenes/visuales: no dar precios por imagen ni hablar de tecnica concreta. Revisar el estado de configuracion del correo por Resend.
+
+### Cambios aplicados
+
+- `content/agent/aplaudia-agent.md`:
+  - eliminado el precio unitario de imagenes;
+  - visuales/imagenes se orientan como pack personalizado;
+  - el pack depende de volumen, estilo, dificultad, formatos, uso, integracion en web/marca y revisiones;
+  - se indica que Aplaudia puede adaptar el alcance al presupuesto disponible;
+  - al hablar de imagenes o visuales no debe mencionar IA, prompts, herramientas, Photoshop ni tecnica concreta;
+  - tras orientar sobre precios, puede ofrecer enviar un resumen a una persona de Aplaudia y una copia limpia al cliente si lo desea.
+- `lib/agent/build-agent-prompt.ts`:
+  - regla prioritaria para no dar importes por imagen;
+  - regla prioritaria para ofrecer resumen humano tras hablar de precios sin pedir datos ni privacidad hasta que el usuario quiera enviarlo.
+- `components/agent/generic-agent-widget.tsx`:
+  - se permite que un `si`, `vale`, `envialo` o similar continue el flujo solo cuando ya existe contexto reciente de envio de resumen;
+  - se evita que una nueva pregunta normal sobre servicios o imagenes quede atrapada en el flujo de consentimiento.
+
+### Resend / correo
+
+- El endpoint `/api/agent/quote` ya usa Resend.
+- Destinatario interno actual: `carlosvfx@gmail.com`.
+- Variables necesarias en Railway:
+  - `RESEND_API_KEY`;
+  - `EMAIL_FROM`.
+- No se han guardado secretos en el repo.
+- Railway CLI no permite configurar variables desde esta sesion porque sigue sin login valido: `invalid_grant` / `Unauthorized`.
+- Siguiente accion necesaria: entrar en Railway, configurar `RESEND_API_KEY` y `EMAIL_FROM`, y hacer una prueba controlada con datos ficticios.
+
+### Validaciones ejecutadas
+
+- `npm run build`: OK.
+- `npm run lint`: sigue no disponible porque `eslint` no esta instalado en el proyecto.
+
+### Estado
+
+- Cambio local validado por build.
+- Pendiente push, despliegue y comprobacion en produccion.
+
 ## Actualizacion - Separacion estricta entre precios y solicitud
 
 ### Objetivo

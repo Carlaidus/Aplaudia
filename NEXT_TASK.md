@@ -6,6 +6,11 @@ Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Estado tras la ultima ejecucion
 
+- Imagenes/visuales:
+  - no dar precios unitarios por imagen;
+  - responder que se prepara un pack personalizado;
+  - adaptar alcance al presupuesto disponible;
+  - no mencionar IA, prompts, herramientas, Photoshop ni tecnica concreta al hablar de imagenes o visuales.
 - El chatbot ya no muestra boton fijo de `Presupuesto` ni `Generar presupuesto`.
 - La solicitud de presupuesto queda integrada en la conversacion:
   - el usuario pide avanzar, presupuesto, propuesta o enviar un resumen;
@@ -25,10 +30,15 @@ Nivel de inteligencia recomendado: Extremadamente alto
 - Los datos no se usan para newsletter, publicidad ni otros fines.
 - Produccion `https://aplaudia.com` validada tras el push del commit `6bad907`.
 - Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`); usar dashboard o reloguear CLI si hace falta revisar Railway por dentro.
+- Correo:
+  - `/api/agent/quote` ya usa Resend;
+  - destinatario interno provisional: `carlosvfx@gmail.com`;
+  - faltan variables Railway `RESEND_API_KEY` y `EMAIL_FROM` si no estan ya configuradas;
+  - no guardar secretos en el repo.
 
 ## Proximo foco real
 
-Probar el flujo conversacional completo en produccion con datos de prueba controlados y confirmar si `RESEND_API_KEY` esta activo en Railway.
+Configurar Resend en Railway y probar el flujo conversacional completo con datos de prueba controlados.
 
 ## Tareas recomendadas
 
@@ -43,6 +53,7 @@ Probar el flujo conversacional completo en produccion con datos de prueba contro
 3. Revisar variables de entorno en Railway:
    - `RESEND_API_KEY`;
    - `EMAIL_FROM`.
+   - si el CLI sigue con `invalid_grant`, hacerlo desde el dashboard de Railway.
 4. Preparar legal/privacidad minima antes de quitar el aviso de construccion:
    - politica de privacidad;
    - tratamiento de datos para solicitudes;
@@ -53,6 +64,7 @@ Probar el flujo conversacional completo en produccion con datos de prueba contro
    - precio web -> desde + orientativo sin IVA;
    - mantenimiento -> pago anual + sin IVA;
    - builder/hosting con IA -> diferencia clara;
+   - precio de imagenes/visuales -> pack personalizado sin precio unitario y sin mencionar tecnica;
    - caso real -> solo si se pide ejemplo;
    - caro/poco presupuesto -> preguntar presupuesto maximo deseado.
 6. Mantener aviso de construccion hasta validacion final de Carlos.

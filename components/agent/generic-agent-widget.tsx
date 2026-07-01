@@ -107,6 +107,14 @@ function hasRecentLeadContext(messages: AgentMessage[]) {
   )
 }
 
+function hasShortLeadConfirmation(text: string) {
+  return [
+    /^(s[ií]|vale|ok|de acuerdo|adelante|perfecto)[\s.!]*$/i,
+    /\b(s[ií]|vale|ok|de acuerdo|adelante|perfecto)\b[\s\S]{0,50}\b(envia|envía|envialo|envíalo|mandalo|mándalo|hazlo)\b/i,
+    /\b(envia|envía|envialo|envíalo|mandalo|mándalo)\b/i,
+  ].some((pattern) => pattern.test(text))
+}
+
 function hasExplicitLeadConsent(text: string) {
   return /\b(acepto|autorizo|doy mi consentimiento|consiento)\b/i.test(text)
 }
@@ -169,6 +177,12 @@ function extractProjectType(source: string) {
   return projectTypes.find(([pattern]) => pattern.test(source))?.[1] ?? ""
 }
 
+function hasExplicitProjectData(text: string) {
+  return /\b(tipo de negocio|tipo de proyecto|mi negocio es|mi proyecto es|es un|es una|somos un|somos una)\b/i.test(
+    text,
+  )
+}
+
 function extractBudget(source: string) {
   const budgetMatch = source.match(
     /(?:no superar|presupuesto|rango|m[aá]ximo|maximo|hasta|dispongo de|tengo|invertir|poco presupuesto)[^\d€]{0,45}(\d[\d.\s]*(?:,\d+)?\s*(?:€|eur|euros)?(?:\s*(?:-|a|y)\s*\d[\d.\s]*(?:,\d+)?\s*(?:€|eur|euros)?)?)/i,
@@ -191,10 +205,11 @@ function buildConversationalLeadDetails(text: string, messages: AgentMessage[]):
   const hasConsent = hasExplicitLeadConsent(source)
   const currentMessageContributesLeadData =
     hasExplicitLeadConsent(text) ||
+    hasShortLeadConfirmation(text) ||
     Boolean(extractName(text)) ||
     Boolean(extractEmail(text)) ||
     Boolean(extractPhone(text)) ||
-    Boolean(extractProjectType(text)) ||
+    hasExplicitProjectData(text) ||
     Boolean(extractBudget(text)) ||
     wantsClientCopy(text)
   const name = extractName(source)
