@@ -30,11 +30,16 @@ Corregir el bloqueo reportado: al preguntar por precio o presupuesto, el chatbot
   - `Quiero enviar un resumen a una persona de Aplaudia...`: sí pide nombre/email y consentimiento;
   - tras un `hola?` posterior no se repite el bloque de consentimiento;
   - el textarea queda vacio despues de cada envio.
+- Produccion `https://aplaudia.com`:
+  - `¿Qué precio tiene una web para poner vídeos y reels?`: responde con orientacion de precios, sin privacidad;
+  - `quiero presupuesto para una página moderna con vídeos`: responde con orientacion de precios, sin privacidad;
+  - `Quiero enviar un resumen a una persona de Aplaudia...`: pide nombre/email y consentimiento;
+  - el textarea queda vacio despues de cada envio;
+  - aviso de construccion sigue visible.
 
 ### Estado
 
-- Cambio local validado.
-- Pendiente push y comprobacion de produccion.
+- Cambio pusheado y validado en produccion con commit `e584090`.
 
 ## Actualizacion - Bugfix textarea y bloqueo del chatbot
 
