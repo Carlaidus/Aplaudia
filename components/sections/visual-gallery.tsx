@@ -6,7 +6,12 @@ import { useEffect, useRef, useState } from "react"
 import { Wand2, Image as ImageIcon, RefreshCw, Tv, Sparkles, X } from "lucide-react"
 import { useTranslations } from "@/i18n"
 import { useLightweightMotion } from "@/components/motion-performance-provider"
-import { visualGalleryItems, type VisualGalleryItem } from "@/content/visual-gallery"
+import {
+  visualGalleryItems,
+  visualGalleryRowPattern,
+  type VisualGalleryItem,
+  type VisualGalleryRowPattern,
+} from "@/content/visual-gallery"
 
 type CategoryKey = "category1" | "category2" | "category3" | "category4"
 
@@ -22,6 +27,54 @@ const categoryAccents: Record<CategoryKey, string> = {
   category2: "from-accent-cyan to-accent-violet",
   category3: "from-accent-violet to-accent-magenta",
   category4: "from-accent-magenta to-primary",
+}
+
+type GalleryRow = {
+  id: string
+  pattern: VisualGalleryRowPattern
+  items: VisualGalleryItem[]
+}
+
+function buildGalleryRows(items: VisualGalleryItem[]) {
+  const rows: GalleryRow[] = []
+  let cursor = 0
+  let patternIndex = 0
+
+  while (cursor < items.length) {
+    const pattern = visualGalleryRowPattern[patternIndex % visualGalleryRowPattern.length]
+    const rowItems = items.slice(cursor, cursor + pattern.length)
+
+    rows.push({
+      id: rowItems.map((item) => item.id).join("-"),
+      pattern,
+      items: rowItems,
+    })
+
+    cursor += pattern.length
+    patternIndex += 1
+  }
+
+  return rows
+}
+
+function getGalleryItemClasses(item: VisualGalleryItem, row: GalleryRow) {
+  if (row.items.length === 1) {
+    return "w-full"
+  }
+
+  return item.orientation === "vertical" ? "md:col-span-5" : "md:col-span-7"
+}
+
+function getGalleryItemSizes(item: VisualGalleryItem, row: GalleryRow) {
+  if (row.items.length === 1) {
+    return "(min-width: 1280px) 1040px, (min-width: 768px) 82vw, 100vw"
+  }
+
+  if (item.orientation === "vertical") {
+    return "(min-width: 1280px) 470px, (min-width: 768px) 42vw, 100vw"
+  }
+
+  return "(min-width: 1280px) 650px, (min-width: 768px) 58vw, 100vw"
 }
 
 function CategoryCard({
@@ -109,15 +162,19 @@ function CategoryCard({
 function GalleryItem({
   item,
   index,
+  className,
+  sizes,
   lightweightMotion,
   onOpen,
 }: {
   item: VisualGalleryItem
   index: number
+  className: string
+  sizes: string
   lightweightMotion: boolean
   onOpen: (item: VisualGalleryItem) => void
 }) {
-  const ref = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLButtonElement>(null)
   const isInView = useInView(ref, { once: true, margin: "180px" })
   const [isHovered, setIsHovered] = useState(false)
 
@@ -148,7 +205,9 @@ function GalleryItem({
       onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
       onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
       onClick={() => onOpen(item)}
-      className={`${item.span} ${item.aspect} rounded-2xl overflow-hidden group relative cursor-zoom-in text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
+      data-gallery-item={item.id}
+      data-gallery-orientation={item.orientation}
+      className={`${className} ${item.aspectClass ?? "aspect-[4/3]"} group relative overflow-hidden rounded-2xl text-left cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
       aria-label={`Ampliar imagen: ${item.alt}`}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient}`} />
@@ -162,8 +221,8 @@ function GalleryItem({
           src={item.src}
           alt={item.alt}
           fill
-          sizes={item.sizes}
-          className="object-cover"
+          sizes={sizes}
+          className={`object-cover ${item.objectPosition ?? "object-center"}`}
         />
       </motion.div>
 
@@ -189,6 +248,7 @@ export function VisualGallery() {
   const isHeaderInView = useInView(headerRef, { once: true, margin: "-100px" })
   const lightweightMotion = useLightweightMotion()
   const [activeItem, setActiveItem] = useState<VisualGalleryItem | null>(null)
+  const galleryRows = buildGalleryRows(visualGalleryItems)
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -330,16 +390,30 @@ export function VisualGallery() {
           />
         </motion.div>
 
-        {/* Gallery grid with masonry-style reveals */}
-        <div className="columns-1 gap-6 md:columns-2">
-          {visualGalleryItems.map((item, index) => (
-            <GalleryItem
-              key={item.id}
-              item={item}
-              index={index}
-              lightweightMotion={lightweightMotion}
-              onOpen={setActiveItem}
-            />
+        {/* Gallery rows with predictable vertical/horizontal pairing. */}
+        <div className="space-y-6 md:space-y-8">
+          {galleryRows.map((row, rowIndex) => (
+            <div
+              key={row.id}
+              className={
+                row.items.length === 1
+                  ? "mx-auto grid max-w-5xl grid-cols-1"
+                  : "grid grid-cols-1 gap-6 md:grid-cols-12 md:items-center md:gap-8"
+              }
+              data-gallery-row-pattern={row.pattern.join("-")}
+            >
+              {row.items.map((item, itemIndex) => (
+                <GalleryItem
+                  key={item.id}
+                  item={item}
+                  index={rowIndex * 2 + itemIndex}
+                  className={getGalleryItemClasses(item, row)}
+                  sizes={getGalleryItemSizes(item, row)}
+                  lightweightMotion={lightweightMotion}
+                  onOpen={setActiveItem}
+                />
+              ))}
+            </div>
           ))}
         </div>
       </div>

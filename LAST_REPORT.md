@@ -2,6 +2,65 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Layout modular de galeria visual
+
+### Objetivo
+
+Ejecutar la nueva prioridad de Carlos: ajustar la galeria de visuales a una composicion concreta, dejarla preparada para crecer facilmente y sustituir la imagen de pantalla en tienda que no parecia un display real.
+
+### Cambios aplicados
+
+- `content/visual-gallery.ts`:
+  - cada pieza declara ahora `orientation` (`vertical` u `horizontal`);
+  - se documenta el patron actual de filas:
+    - primera fila: vertical + horizontal;
+    - segunda fila: horizontal + vertical;
+    - ultimo bloque: horizontal sola;
+  - se elimina la dependencia de clases `span`/masonry en el contenido.
+- `components/sections/visual-gallery.tsx`:
+  - la galeria deja de usar columnas automaticas y pasa a filas controladas;
+  - no hay margenes negativos ni solapes intencionados;
+  - el componente construye filas a partir de `visualGalleryRowPattern`, preparado para anadir nuevas piezas cambiando datos;
+  - se mantienen animaciones, hover y lightbox casi a pantalla completa;
+  - se anaden atributos internos `data-gallery-*` para QA y futuras comprobaciones sin impacto visual.
+- `public/visuals/retail-screen-clothing.webp`:
+  - sustituido por una escena nueva generada con `imagegen`;
+  - ahora muestra una pantalla digital fisica integrada en una tienda de moda, con marco real, reflejos, ropa, luz de tienda y una persona desenfocada en primer plano;
+  - WebP optimizado: 1003 x 1568 px, 129.984 bytes.
+
+### Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existia.
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no esta disponible como ejecutable del proyecto.
+- QA local en `http://localhost:3052`:
+  - escritorio 1440 x 1100:
+    - 5 imagenes detectadas;
+    - fila 1: `vertical:studio-editing` + `horizontal:sport-storefront`;
+    - fila 2: `horizontal:motion-editing` + `vertical:retail-screen-clothing`;
+    - fila 3: `horizontal:pet-storefront`;
+    - sin scroll horizontal;
+    - sin solapes entre imagenes;
+    - lightbox visible con marco de 1382 x 968 px y fondo bloqueado.
+  - movil 390 x 844:
+    - imagenes apiladas a ancho util completo tras animacion;
+    - sin scroll horizontal;
+    - sin solapes;
+    - lightbox visible con marco de 366 x 743 px y fondo bloqueado;
+    - aviso de construccion visible;
+    - microetiqueta `¿Dudas?` visible;
+    - no aparece `Preguntame sobre Aplaudia`;
+    - chatbot abre correctamente y mantiene el textarea.
+
+### Estado
+
+- Cambio validado localmente.
+- Pendiente de commit, push y verificacion de produccion/Railway.
+
+### Siguiente paso recomendado
+
+Desplegar y revisar en movil real `https://aplaudia.com` la nueva composicion. Si Carlos aprueba el enfoque, el siguiente foco visual sera decidir nuevas piezas 6/7 o preparar un primer video corto usando esta misma linea realista.
+
 ## Actualizacion - Chatbot, agente y visuales
 
 ### Objetivo

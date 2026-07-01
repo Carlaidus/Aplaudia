@@ -17,14 +17,27 @@ Nivel de inteligencia recomendado: Extremadamente alto
   - galeria visual sin solapes raros;
   - lightbox de visuales a pantalla casi completa.
 
+## Estado adicional tras la galeria visual
+
+- Composicion por filas preparada para crecer:
+  - primera fila: vertical + horizontal;
+  - segunda fila: horizontal + vertical;
+  - ultimo bloque: horizontal sola.
+- `content/visual-gallery.ts` permite cambiar orden y orientacion sin tocar el componente.
+- Sustituida la pantalla de tienda problematica por una version mas realista.
+- QA local escritorio y movil sin solapes ni scroll horizontal.
+
 ## Proximo foco real
 
-1. Revisar en movil real `https://aplaudia.com`:
-   - etiqueta `¿Dudas?`;
-   - galeria de visuales;
+1. Revisar en movil real `https://aplaudia.com` tras el despliegue:
+   - nueva composicion de la galeria visual;
+   - nueva imagen de pantalla integrada en tienda;
    - lightbox de visuales;
    - aviso de construccion y chatbot sin solapes.
-2. Ajustar si Carlos quiere otra distribucion visual de las imagenes.
+2. Si la linea visual queda aprobada, decidir siguientes piezas:
+   - sexta/septima imagen;
+   - primer video corto o animacion con los escaparates;
+   - variantes mas luminosas si se quiere reducir tono oscuro.
 3. Probar mas conversaciones reales del agente en produccion y afinar `content/agent/aplaudia-agent.md` si alguna respuesta se sale de tono, precio o ambito.
 4. Continuar con legal/contacto antes de retirar el aviso de construccion.
 
