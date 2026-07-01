@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server"
-import { Resend } from "resend"
+import {
+  CloudflareEmailConfigurationError,
+  getInternalEmailRecipient,
+  sendInternalEmail,
+} from "@/lib/email/cloudflare-email"
 
 export const runtime = "nodejs"
 
@@ -8,8 +12,6 @@ type AgentQuoteHistoryMessage = {
   content: string
 }
 
-const FALLBACK_FROM = "Aplaudia <onboarding@resend.dev>"
-const DEFAULT_INTERNAL_RECIPIENT_EMAIL = "carlosvfx@gmail.com"
 const MAX_TEXT_LENGTH = 1200
 const MAX_HISTORY_ITEMS = 12
 
@@ -113,15 +115,6 @@ function listHtml(items: string[]) {
   return items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")
 }
 
-function getInternalRecipientEmail() {
-  return (
-    process.env.AGENT_QUOTE_RECIPIENT_EMAIL?.trim() ||
-    process.env.CONTACT_RECIPIENT_EMAIL?.trim() ||
-    process.env.CONTACT_TO_EMAIL?.trim() ||
-    DEFAULT_INTERNAL_RECIPIENT_EMAIL
-  )
-}
-
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -171,20 +164,6 @@ export async function POST(request: Request) {
     if (!interest || interest.length < 10) {
       return NextResponse.json({ error: "Resume un poco el proyecto o la necesidad principal." }, { status: 400 })
     }
-
-    const apiKey = process.env.RESEND_API_KEY
-
-    if (!apiKey) {
-      console.error("[api/agent/quote] RESEND_API_KEY no configurada")
-      return NextResponse.json(
-        { error: "El envio por email no esta configurado todavia." },
-        { status: 503 },
-      )
-    }
-
-    const resend = new Resend(apiKey)
-    const from = process.env.EMAIL_FROM?.trim() || FALLBACK_FROM
-    const to = getInternalRecipientEmail()
 
     const date = new Date().toLocaleString("es-ES", {
       timeZone: "Europe/Madrid",
@@ -308,17 +287,26 @@ export async function POST(request: Request) {
 </body>
 </html>`
 
-    const internalResult = await resend.emails.send({
-      from,
-      to,
-      subject: `Solicitud de presupuesto Aplaudia - ${name}`,
-      html: internalHtml,
-      text: internalText,
-      replyTo: email,
-    })
+    try {
+      const to = getInternalEmailRecipient("AGENT_QUOTE_RECIPIENT_EMAIL")
 
-    if (internalResult.error) {
-      console.error("[api/agent/quote] Error Resend interno:", internalResult.error)
+      await sendInternalEmail({
+        subject: `Solicitud de presupuesto Aplaudia - ${name}`,
+        html: internalHtml,
+        text: internalText,
+        replyTo: email,
+        to,
+      })
+    } catch (error) {
+      if (error instanceof CloudflareEmailConfigurationError) {
+        console.error("[api/agent/quote] Cloudflare Email Service no configurado:", error.message)
+        return NextResponse.json(
+          { error: "El envio interno por email no esta configurado todavia." },
+          { status: 503 },
+        )
+      }
+
+      console.error("[api/agent/quote] Error Cloudflare Email Service:", error)
       return NextResponse.json({ error: "No se ha podido enviar la solicitud." }, { status: 500 })
     }
 

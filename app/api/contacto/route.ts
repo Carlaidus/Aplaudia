@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import { Resend } from "resend"
 import {
   contactNeeds,
   defaultContactDeliveryChannel,
@@ -9,11 +8,14 @@ import {
   type ContactDeliveryChannel,
   type ContactNeedId,
 } from "@/content/contact"
+import {
+  CloudflareEmailConfigurationError,
+  getInternalEmailRecipient,
+  sendInternalEmail,
+} from "@/lib/email/cloudflare-email"
 
 export const runtime = "nodejs"
 
-const FALLBACK_FROM = "Aplaudia <onboarding@resend.dev>"
-const DEFAULT_CONTACT_RECIPIENT_EMAIL = "carlosvfx@gmail.com"
 type ContactDeliveryMode = ContactDeliveryChannel | "both"
 
 function isValidEmail(email: string) {
@@ -138,23 +140,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, emailSent: false })
     }
 
-    const apiKey = process.env.RESEND_API_KEY
-
-    if (!apiKey) {
-      console.error("[api/contacto] RESEND_API_KEY no configurada")
-      return NextResponse.json(
-        { error: "El envío por formulario no está configurado todavía." },
-        { status: 503 },
-      )
-    }
-
-    const resend = new Resend(apiKey)
-    const from = process.env.EMAIL_FROM?.trim() || FALLBACK_FROM
-    const to =
-      process.env.CONTACT_RECIPIENT_EMAIL?.trim() ||
-      process.env.CONTACT_TO_EMAIL?.trim() ||
-      DEFAULT_CONTACT_RECIPIENT_EMAIL
-
     const date = new Date().toLocaleString("es-ES", {
       timeZone: "Europe/Madrid",
       day: "2-digit",
@@ -228,17 +213,26 @@ export async function POST(request: Request) {
 </body>
 </html>`
 
-    const { error } = await resend.emails.send({
-      from,
-      to,
-      subject: `Nuevo contacto Aplaudia - ${primaryNeed}`,
-      html,
-      text,
-      replyTo: email,
-    })
+    try {
+      const to = getInternalEmailRecipient("CONTACT_RECIPIENT_EMAIL")
 
-    if (error) {
-      console.error("[api/contacto] Error Resend:", error)
+      await sendInternalEmail({
+        html,
+        replyTo: email,
+        subject: `Nuevo contacto Aplaudia - ${primaryNeed}`,
+        text,
+        to,
+      })
+    } catch (error) {
+      if (error instanceof CloudflareEmailConfigurationError) {
+        console.error("[api/contacto] Cloudflare Email Service no configurado:", error.message)
+        return NextResponse.json(
+          { error: "El envio interno por email no esta configurado todavia." },
+          { status: 503 },
+        )
+      }
+
+      console.error("[api/contacto] Error Cloudflare Email Service:", error)
       return NextResponse.json({ error: "No se ha podido enviar el mensaje." }, { status: 500 })
     }
 

@@ -6,14 +6,12 @@ Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Estado tras la ultima ejecucion
 
-- Resend y correo:
-  - dominio `aplaudia.com` creado y verificado en Resend;
-  - Resend no ofrece region Espana; se uso `Ireland (eu-west-1)` como region UE;
-  - DNS aplicados en Cloudflare: DKIM, MX de envio, SPF y DMARC;
-  - API key `Aplaudia` creada con permiso `Sending access`;
-  - `RESEND_API_KEY` y `EMAIL_FROM` configuradas en Railway;
-  - `EMAIL_FROM`: `Aplaudia <hola@aplaudia.com>`;
-  - Railway vuelve a `Online`;
+- Email:
+  - Resend no se usa actualmente como proveedor activo de Aplaudia;
+  - se ha eliminado la dependencia `resend` del codigo;
+  - `/api/contacto` y `/api/agent/quote` usan Cloudflare Email Service para envio interno;
+  - Cloudflare Email Routing queda como recepcion/redireccion de aliases publicos;
+  - no se envia copia automatica al cliente;
   - no se ha enviado email real de prueba todavia.
 - Imagenes/visuales:
   - no dar precios unitarios por imagen;
@@ -34,23 +32,28 @@ Nivel de inteligencia recomendado: Extremadamente alto
 - Los casos reales solo deben aparecer si el usuario pide ejemplos o pregunta por esos proyectos.
 - El textarea del chatbot se vacia inmediatamente al enviar con boton o Enter y vuelve a altura minima.
 - Si el usuario dice que algo es caro o tiene poco presupuesto, el agente debe preguntar que presupuesto le gustaria no superar.
-- El endpoint `/api/agent/quote` mantiene Resend, no guarda en base de datos y envia el email interno provisional a `carlosvfx@gmail.com`.
+- El endpoint `/api/agent/quote` usa Cloudflare Email Service, no guarda en base de datos y envia solo email interno a una direccion verificada.
 - Si el cliente pide copia, no se envia copia automatica: se anade una nota interna para que una persona de Aplaudia le responda o le envie copia manualmente.
 - Los datos no se usan para newsletter, publicidad ni otros fines.
 - Produccion `https://aplaudia.com` validada tras el push del commit `676584e`.
 - Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`); usar dashboard o reloguear CLI si hace falta revisar Railway por dentro.
 - Correo:
-  - `/api/agent/quote` ya usa Resend;
+  - `/api/agent/quote` y `/api/contacto` usan `lib/email/cloudflare-email.ts`;
+  - variables necesarias: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_EMAIL_API_TOKEN`, `EMAIL_FROM`, `INTERNAL_EMAIL_RECIPIENT`;
   - destinatario interno provisional: `carlosvfx@gmail.com`;
-  - `RESEND_API_KEY` y `EMAIL_FROM` quedaron configuradas en Railway en la ejecucion anterior;
-  - el receptor interno puede configurarse con `AGENT_QUOTE_RECIPIENT_EMAIL`, `CONTACT_RECIPIENT_EMAIL` o `CONTACT_TO_EMAIL`;
+  - el receptor interno puede configurarse con `AGENT_QUOTE_RECIPIENT_EMAIL`, `INTERNAL_EMAIL_RECIPIENT`, `CONTACT_RECIPIENT_EMAIL` o `CONTACT_TO_EMAIL`;
   - la direccion logica recomendada para solicitudes es `presupuestos@aplaudia.com` cuando Cloudflare Email Routing este probado;
+  - Resend puede quedar dormido en Railway/DNS, pero no es camino activo;
   - no guardar secretos en el repo.
 - Cloudflare Email Routing:
   - recomendado para aliases publicos gratuitos: `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com`, `legal@aplaudia.com`;
   - debe reenviar a `carlosvfx@gmail.com`;
   - no crea buzones ni permite responder como `@aplaudia.com` sin Google Workspace, SMTP o proveedor equivalente;
   - pasos documentados en `docs/email-strategy-aplaudia.md`.
+- Cloudflare Email Service:
+  - debe activarse/verificarse en Cloudflare;
+  - debe verificar el remitente `hola@aplaudia.com` o el remitente elegido;
+  - debe poder enviar solo a destinos internos verificados.
 - Produccion validada:
   - precio de imagenes/visuales responde con pack personalizado, sin precio unitario;
   - tras orientar en precios puede ofrecer enviar resumen a una persona de Aplaudia;
@@ -59,7 +62,7 @@ Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Proximo foco real
 
-Confirmar Cloudflare Email Routing para aliases publicos y hacer una prueba real controlada del flujo conversacional solo si Carlos autoriza enviar un email de prueba.
+Confirmar Cloudflare Email Routing + Cloudflare Email Service y hacer una prueba real controlada solo si Carlos autoriza enviar un email de prueba.
 
 ## Tareas recomendadas
 
@@ -71,9 +74,10 @@ Confirmar Cloudflare Email Routing para aliases publicos y hacer una prueba real
    - aceptar el texto de tratamiento de datos;
    - comprobar recepcion en el receptor interno configurado;
    - si el usuario pide copia, comprobar que solo aparece como nota interna y que no se envia copia automatica al cliente.
-3. Comprobar en Resend:
-   - dominio `aplaudia.com` sigue `verified`;
-   - logs del email de prueba aparecen como entregado o con error claro.
+3. Comprobar en Cloudflare Email Service:
+   - `hola@aplaudia.com` o remitente elegido aparece verificado;
+   - `carlosvfx@gmail.com` o destino interno aparece verificado;
+   - logs del email de prueba aparecen como entregado, en cola o con error claro.
 4. Preparar legal/privacidad minima antes de quitar el aviso de construccion:
    - politica de privacidad;
    - tratamiento de datos para solicitudes;
@@ -83,7 +87,11 @@ Confirmar Cloudflare Email Routing para aliases publicos y hacer una prueba real
    - verificar `carlosvfx@gmail.com` como destino;
    - crear `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com`;
    - probar recepcion externa sin tocar codigo.
-6. Probar conversaciones reales del agente:
+6. Si Carlos quiere limpiar Resend:
+   - revisar manualmente variables Railway historicas;
+   - revisar manualmente registros DNS historicos de Resend;
+   - no borrar nada sin confirmar que Cloudflare Email Service ya funciona.
+7. Probar conversaciones reales del agente:
    - servicios sin precio -> sin importes;
    - precio web -> desde + orientativo sin IVA;
    - mantenimiento -> pago anual + sin IVA;
@@ -91,7 +99,7 @@ Confirmar Cloudflare Email Routing para aliases publicos y hacer una prueba real
    - precio de imagenes/visuales -> pack personalizado sin precio unitario y sin mencionar tecnica;
    - caso real -> solo si se pide ejemplo;
    - caro/poco presupuesto -> preguntar presupuesto maximo deseado.
-7. Mantener aviso de construccion hasta validacion final de Carlos.
+8. Mantener aviso de construccion hasta validacion final de Carlos.
 
 ## Validaciones base para la proxima tarea
 

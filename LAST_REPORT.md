@@ -1,6 +1,117 @@
 # LAST REPORT
 
-Fecha: 2026-07-01
+Fecha: 2026-07-02
+
+## Actualizacion - Cloudflare Email Service como envio interno
+
+### Objetivo
+
+Eliminar la dependencia practica de Resend y dejar Aplaudia con una estrategia de email gratuita basada en Cloudflare: Email Routing para recepcion/redireccion y Email Service para envio interno a direcciones verificadas.
+
+### Cambios aplicados
+
+- `lib/email/cloudflare-email.ts`:
+  - nuevo helper reutilizable para Cloudflare Email Service REST API;
+  - usa `POST https://api.cloudflare.com/client/v4/accounts/{account_id}/email/sending/send`;
+  - valida configuracion, remitente y destinatario interno;
+  - solo permite enviar a destinatarios internos configurados o al fallback `carlosvfx@gmail.com`;
+  - soporta `reply_to` si el email del cliente es valido, pero el cliente no recibe ningun email automatico.
+- `app/api/agent/quote/route.ts`:
+  - quitada dependencia directa de Resend;
+  - envia solo email interno mediante Cloudflare Email Service;
+  - mantiene validaciones de nombre, email cliente, tipo de proyecto, interes y consentimiento;
+  - mantiene `clientCopySent: false`;
+  - si el cliente pide copia, solo se anade una nota interna.
+- `app/api/contacto/route.ts`:
+  - quitada dependencia directa de Resend;
+  - el formulario envia solo email interno mediante Cloudflare Email Service;
+  - WhatsApp sigue funcionando sin email configurado.
+- `package.json` y `package-lock.json`:
+  - eliminada dependencia `resend`.
+- `docs/email-strategy-aplaudia.md`:
+  - estrategia vigente reescrita: Cloudflare Email Routing + Cloudflare Email Service;
+  - Resend queda como proveedor no usado actualmente;
+  - pasos manuales pendientes para Cloudflare;
+  - referencias oficiales de Cloudflare.
+- `README.md`, `PROJECT_STATE.md`, `DECISIONS.md` y `NEXT_TASK.md`:
+  - actualizados con variables Cloudflare y estado actual.
+
+### Variables vigentes
+
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_EMAIL_API_TOKEN`
+- `EMAIL_FROM`
+- `INTERNAL_EMAIL_RECIPIENT`
+- `AGENT_QUOTE_RECIPIENT_EMAIL` opcional
+- `CONTACT_RECIPIENT_EMAIL` opcional
+- `CONTACT_TO_EMAIL` heredada/opcional
+
+### Resend
+
+- Resend no se usa actualmente como proveedor activo.
+- No quedan imports ni llamadas vivas a Resend en `app/` o `lib/`.
+- No queda la dependencia `resend` instalada.
+- No se han eliminado variables externas ni registros DNS: Carlos puede retirarlos manualmente si decide limpiar la configuracion anterior.
+
+### Validaciones ejecutadas
+
+- `npm run build`: OK.
+- `npm run lint`: no disponible; el script llama a `eslint .`, pero `eslint` no esta instalado.
+- `npm uninstall resend`: ejecutado para retirar la dependencia.
+  - aviso local: Node actual `v24.14.0` no coincide con `engines.node = 22.x`;
+  - `npm` informa 2 vulnerabilidades ya existentes tras auditar dependencias.
+- `npm ls resend`: vacio.
+- `rg` de control en `app`, `lib`, `package.json` y `package-lock.json`:
+  - sin `from "resend"`;
+  - sin `new Resend`;
+  - sin `resend.emails.send`;
+  - sin `RESEND_API_KEY`;
+  - sin `onboarding@resend`.
+- `git diff --check`: OK, solo avisos CRLF normales en Windows.
+- QA local con `next start` en puerto `3067`, forzando variables Cloudflare vacias:
+  - home local: `200`;
+  - `/api/agent/quote` sin consentimiento: `400`, sin enviar nada;
+  - `/api/agent/quote` con consentimiento pero sin Cloudflare: `503` controlado;
+  - `/api/contacto` con email pero sin Cloudflare: `503` controlado.
+- No se ha enviado ningun email real.
+- No se ha enviado ningun email a cliente.
+- No se ha tocado DNS ni Cloudflare desde codigo.
+
+### Estado final
+
+- El codigo queda preparado para Cloudflare Email Service.
+- La estrategia activa es gratuita y centrada en envio interno verificado.
+- Cloudflare Email Routing sigue siendo el camino recomendado para `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com`.
+- Produccion queda pendiente de validar tras push porque todavia no se ha hecho el commit/push de esta tarea en el momento de escribir esta seccion.
+
+### Actualizar Notion
+
+Cuando se actualice Notion, registrar:
+
+- Resend: no usar actualmente; queda como alternativa futura o configuracion historica dormida.
+- Cloudflare: recepcion con Email Routing y envio interno con Email Service.
+- Emails recomendados:
+  - `hola@aplaudia.com`;
+  - `presupuestos@aplaudia.com`;
+  - `soporte@aplaudia.com`;
+  - `legal@aplaudia.com`;
+  - `facturas@aplaudia.com` opcional futuro.
+- Variables necesarias:
+  - `CLOUDFLARE_ACCOUNT_ID`;
+  - `CLOUDFLARE_EMAIL_API_TOKEN`;
+  - `EMAIL_FROM`;
+  - `INTERNAL_EMAIL_RECIPIENT`;
+  - `AGENT_QUOTE_RECIPIENT_EMAIL` opcional;
+  - `CONTACT_RECIPIENT_EMAIL` opcional.
+- Estado pendiente:
+  - activar/verificar Email Routing;
+  - activar/verificar Email Service;
+  - verificar remitente y destino interno;
+  - hacer prueba real solo con autorizacion explicita de Carlos.
+
+### Siguiente paso recomendado
+
+Configurar manualmente Cloudflare Email Routing y Cloudflare Email Service en Cloudflare/Railway, sin guardar secretos en el repo, y hacer una prueba real con datos ficticios solo si Carlos autoriza expresamente el envio.
 
 ## Actualizacion - Estrategia email y sin copia automatica
 

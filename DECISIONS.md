@@ -7,6 +7,8 @@
 - No tocar configuracion de Cloudflare ni Railway manualmente sin instruccion clara.
 - El formulario interno de contacto queda preparado por instruccion de Carlos, con consentimiento explicito, envio por proveedor configurado y sin guardar mensajes en base de datos. Legal/privacidad sigue pendiente antes de retirar el aviso de construccion.
 - Cloudflare Email Routing se usara como estrategia gratuita para recibir y reenviar aliases `@aplaudia.com`, pero no sustituye a un proveedor de envio automatico.
+- Cloudflare Email Service es el proveedor activo previsto para el envio automatico interno desde formulario/chatbot a una direccion verificada.
+- Resend no se usa actualmente como proveedor activo; puede quedar como configuracion externa historica/dormida hasta que Carlos decida retirarla manualmente.
 - El chatbot no envia copia automatica al cliente. Si el cliente pide copia, se anade una nota interna para que una persona de Aplaudia responda manualmente.
 
 ## Git y despliegue
@@ -25,6 +27,7 @@
 - Cloudflare es el lugar donde vive la compra y DNS del dominio.
 - Emails publicos recomendados: `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com`, reenviados a `carlosvfx@gmail.com` mediante Cloudflare Email Routing cuando quede activado.
 - No prometer respuesta desde `@aplaudia.com` hasta configurar Google Workspace, SMTP o proveedor de envio equivalente.
+- No tocar DNS ni Cloudflare desde codigo: aplicar solo registros o ajustes exactos indicados por Cloudflare cuando Carlos lo autorice.
 
 ## UX publica mientras no este lanzada
 

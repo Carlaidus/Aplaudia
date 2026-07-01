@@ -1,6 +1,6 @@
 # PROJECT STATE - Aplaudia
 
-Ultima actualizacion: 2026-07-01
+Ultima actualizacion: 2026-07-02
 
 ## Identificacion
 
@@ -104,16 +104,17 @@ Ultima actualizacion: 2026-07-01
   - permite enviar por email, por WhatsApp o por ambos canales;
   - unico boton de envio visible: `Enviar`;
   - sin CTAs intermedios ni textos tecnicos visibles en el bloque;
-  - envio por Resend si existe `RESEND_API_KEY`;
-  - variables previstas: `RESEND_API_KEY`, `CONTACT_RECIPIENT_EMAIL`, `CONTACT_TO_EMAIL`, `EMAIL_FROM`;
+  - envio interno por Cloudflare Email Service si existen variables Cloudflare;
+  - variables previstas: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_EMAIL_API_TOKEN`, `EMAIL_FROM`, `INTERNAL_EMAIL_RECIPIENT`, `CONTACT_RECIPIENT_EMAIL`, `CONTACT_TO_EMAIL`;
   - fallback tecnico de receptor: `carlosvfx@gmail.com`;
   - sin base de datos y sin guardar mensajes en el repo.
 - Solicitud conversacional desde chatbot:
   - endpoint `app/api/agent/quote/route.ts`;
-  - envio interno solo si existe `RESEND_API_KEY`;
-  - receptor por `AGENT_QUOTE_RECIPIENT_EMAIL`, `CONTACT_RECIPIENT_EMAIL`, `CONTACT_TO_EMAIL` o fallback provisional `carlosvfx@gmail.com`;
+  - envio interno solo si Cloudflare Email Service esta configurado;
+  - receptor por `AGENT_QUOTE_RECIPIENT_EMAIL`, `INTERNAL_EMAIL_RECIPIENT`, `CONTACT_RECIPIENT_EMAIL`, `CONTACT_TO_EMAIL` o fallback provisional `carlosvfx@gmail.com`;
   - no envia copia automatica al cliente;
-  - si el cliente pide copia, se anade solo una nota interna para que Aplaudia responda manualmente.
+  - si el cliente pide copia, se anade solo una nota interna para que Aplaudia responda manualmente;
+  - Resend no se usa actualmente como proveedor activo.
 
 ## Estado de despliegue
 
@@ -148,7 +149,9 @@ Ultima actualizacion: 2026-07-01
   - alias recomendado para solicitudes: `presupuestos@aplaudia.com`;
   - estrategia documentada en `docs/email-strategy-aplaudia.md`;
   - Cloudflare Email Routing queda como recepcion/redireccion gratuita pendiente de confirmar/activar manualmente;
-  - Cloudflare Email Routing no crea buzones ni permite responder como `@aplaudia.com` sin proveedor adicional.
+  - Cloudflare Email Service queda como envio interno gratuito a destinos verificados;
+  - Cloudflare Email Routing no crea buzones ni permite responder como `@aplaudia.com` sin proveedor adicional;
+  - Resend queda como configuracion historica/dormida, no como camino activo.
 - Canonico operativo:
   - `https://aplaudia.com` como dominio principal.
   - `https://www.aplaudia.com` redirige a raiz.
@@ -181,12 +184,15 @@ Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 - Revisar contenido comercial antes de lanzar.
 - Revisar textos ES / CA / EN.
 - Crear legal basico: aviso legal, privacidad y cookies si se va a captar contacto.
-- Confirmar o configurar variables reales de envio en Railway para activar el formulario/chatbot:
-  - `RESEND_API_KEY`;
+- Confirmar o configurar variables reales de Cloudflare Email Service en Railway para activar el formulario/chatbot:
+  - `CLOUDFLARE_ACCOUNT_ID`;
+  - `CLOUDFLARE_EMAIL_API_TOKEN`;
+  - `EMAIL_FROM`;
+  - `INTERNAL_EMAIL_RECIPIENT`;
   - `AGENT_QUOTE_RECIPIENT_EMAIL` opcional;
   - `CONTACT_RECIPIENT_EMAIL`;
-  - `EMAIL_FROM`.
 - Activar o confirmar Cloudflare Email Routing para `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com` hacia `carlosvfx@gmail.com`.
+- Activar o confirmar Cloudflare Email Service y verificar el remitente/destino necesarios.
 - Revisar legal/privacidad antes de retirar el aviso de construccion, porque ya existe captacion de contacto.
 - Revisar en produccion con Carlos la nueva version de portfolio/casos ya desplegada.
 - Validar con Carlos si el panel interno real de Arik Custom debe mostrarse publicamente.

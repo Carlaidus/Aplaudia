@@ -64,21 +64,25 @@ Estrategia de dominio:
 - Alias recomendado para solicitudes: `presupuestos@aplaudia.com`.
 - Cloudflare Email Routing debe reenviar los aliases publicos a `carlosvfx@gmail.com`.
 - Cloudflare Email Routing solo recibe y reenvia; no crea buzones ni permite responder como `@aplaudia.com` por si solo.
+- Cloudflare Email Service envia solo emails internos desde la web/chatbot a una direccion verificada.
+- Resend no se usa actualmente como proveedor activo.
 - La estrategia completa esta documentada en `docs/email-strategy-aplaudia.md`.
 
 Variables de entorno necesarias para activar el envio real:
 
-- `RESEND_API_KEY`: clave privada de Resend.
-- `CONTACT_RECIPIENT_EMAIL`: email receptor de las consultas.
-- `EMAIL_FROM`: remitente verificado en Resend.
+- `CLOUDFLARE_ACCOUNT_ID`: cuenta Cloudflare.
+- `CLOUDFLARE_EMAIL_API_TOKEN`: token privado con permiso de Email Service.
+- `EMAIL_FROM`: remitente verificado en Cloudflare Email Service.
+- `INTERNAL_EMAIL_RECIPIENT`: receptor interno verificado, por defecto `carlosvfx@gmail.com`.
 - `AGENT_QUOTE_RECIPIENT_EMAIL`: receptor opcional especifico para solicitudes del chatbot.
+- `CONTACT_RECIPIENT_EMAIL`: receptor opcional especifico del formulario.
 
 Fallbacks sin secreto:
 
-- Si falta `RESEND_API_KEY`, la web sigue cargando y el formulario muestra un error controlado.
-- El canal WhatsApp sigue operativo sin Resend.
-- Si falta `CONTACT_RECIPIENT_EMAIL`, el formulario usa provisionalmente `carlosvfx@gmail.com` como receptor tecnico.
-- Si falta `AGENT_QUOTE_RECIPIENT_EMAIL`, el chatbot usa `CONTACT_RECIPIENT_EMAIL`, `CONTACT_TO_EMAIL` o provisionalmente `carlosvfx@gmail.com`.
+- Si falta configuracion de Cloudflare Email Service, la web sigue cargando y el formulario/chatbot muestran error controlado.
+- El canal WhatsApp sigue operativo sin email configurado.
+- Si falta `CONTACT_RECIPIENT_EMAIL`, el formulario usa `INTERNAL_EMAIL_RECIPIENT` o provisionalmente `carlosvfx@gmail.com`.
+- Si falta `AGENT_QUOTE_RECIPIENT_EMAIL`, el chatbot usa `INTERNAL_EMAIL_RECIPIENT`, `CONTACT_RECIPIENT_EMAIL`, `CONTACT_TO_EMAIL` o provisionalmente `carlosvfx@gmail.com`.
 - El chatbot no envia copias automaticas al cliente; si el cliente pide copia, queda como nota interna para Aplaudia.
 - El WhatsApp real esta centralizado en `content/site.ts`.
 
