@@ -59,16 +59,27 @@ Ejecutar `NEXT_TASK.md` y convertir la solicitud de presupuesto del chatbot en u
   - al pedir enviar resumen, el textarea se vacia inmediatamente y aparece el consentimiento literal;
   - al enviar con Enter una aceptacion con datos ficticios, el textarea se vacia y el endpoint responde `503` controlado por falta de `RESEND_API_KEY` local;
   - movil 390 x 844: panel grande, sin overflow horizontal, sin boton de presupuesto y aviso de construccion visible.
+- Produccion `https://aplaudia.com` tras push:
+  - home carga y mantiene aviso de construccion;
+  - chatbot con saludo neutro;
+  - sin boton fijo `Presupuesto` ni `Generar presupuesto`;
+  - botones visibles solo: cerrar, dictado por voz y enviar;
+  - al pedir enviar resumen, el textarea se vacia y aparece el consentimiento literal;
+  - `/api/agent/quote` sin consentimiento responde `400` y no envia nada.
+- Railway CLI:
+  - sigue sin sesion valida (`invalid_grant` / `Unauthorized`);
+  - despliegue efectivo confirmado por produccion actualizada.
 
 ### Estado final
 
-- Cambio local validado.
-- Produccion/Railway pendiente de validar tras push.
+- Cambio local y produccion validados.
+- Produccion `https://aplaudia.com`: OK con commit `6bad907`.
+- Railway CLI sin acceso por sesion caducada, pero despliegue efectivo confirmado.
 - No se ha enviado ningun email real.
 
 ### Siguiente paso recomendado
 
-Tras el push y despliegue, probar en produccion que el saludo sigue neutro, que no hay boton fijo de presupuesto y que el endpoint solo envia con aceptacion clara. Enviar email real de prueba solo con confirmacion explicita de Carlos.
+Hacer una prueba real controlada del envio por email solo con confirmacion explicita de Carlos y revisar `RESEND_API_KEY` / `EMAIL_FROM` en Railway antes de retirar el aviso de construccion.
 
 ## Actualizacion - Precios internos y solicitud de presupuesto desde chatbot
 

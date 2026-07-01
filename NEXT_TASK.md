@@ -23,7 +23,8 @@ Nivel de inteligencia recomendado: Extremadamente alto
 - El endpoint `/api/agent/quote` mantiene Resend, no guarda en base de datos y envia el email interno provisional a `carlosvfx@gmail.com`.
 - Si el cliente pide copia, la copia debe ser limpia, sin notas internas.
 - Los datos no se usan para newsletter, publicidad ni otros fines.
-- Railway CLI seguia sin sesion valida en ejecuciones anteriores; validar produccion tras cada push.
+- Produccion `https://aplaudia.com` validada tras el push del commit `6bad907`.
+- Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`); usar dashboard o reloguear CLI si hace falta revisar Railway por dentro.
 
 ## Proximo foco real
 
