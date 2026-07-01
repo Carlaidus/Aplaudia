@@ -28,13 +28,17 @@ Nivel de inteligencia recomendado: Extremadamente alto
 - El endpoint `/api/agent/quote` mantiene Resend, no guarda en base de datos y envia el email interno provisional a `carlosvfx@gmail.com`.
 - Si el cliente pide copia, la copia debe ser limpia, sin notas internas.
 - Los datos no se usan para newsletter, publicidad ni otros fines.
-- Produccion `https://aplaudia.com` validada tras el push del commit `6bad907`.
+- Produccion `https://aplaudia.com` validada tras el push del commit `676584e`.
 - Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`); usar dashboard o reloguear CLI si hace falta revisar Railway por dentro.
 - Correo:
   - `/api/agent/quote` ya usa Resend;
   - destinatario interno provisional: `carlosvfx@gmail.com`;
   - faltan variables Railway `RESEND_API_KEY` y `EMAIL_FROM` si no estan ya configuradas;
   - no guardar secretos en el repo.
+- Produccion validada:
+  - precio de imagenes/visuales responde con pack personalizado, sin precio unitario;
+  - tras orientar en precios ofrece enviar resumen a una persona de Aplaudia y copia limpia por email;
+  - `/api/agent/quote` corta sin consentimiento con `400`.
 
 ## Proximo foco real
 

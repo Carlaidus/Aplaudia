@@ -39,11 +39,24 @@ Ajustar el criterio comercial del agente para imagenes/visuales: no dar precios 
 
 - `npm run build`: OK.
 - `npm run lint`: sigue no disponible porque `eslint` no esta instalado en el proyecto.
+- Produccion `https://aplaudia.com/api/agent`:
+  - pregunta `¿Cuánto cuesta hacer imágenes para mi web?`;
+  - no devuelve importes por imagen;
+  - no menciona IA ni herramientas concretas;
+  - responde con pack personalizado segun volumen, estilo, uso, retoque e integracion;
+  - ofrece enviar un resumen a una persona de Aplaudia y copia limpia por email si el cliente quiere.
+- Produccion `https://aplaudia.com/api/agent/quote`:
+  - payload sin consentimiento: `400`;
+  - no envia correo sin aceptacion.
+- Produccion `https://aplaudia.com`: `200`, aviso de construccion visible.
+- `robots.txt`, `llms.txt` y `sitemap.xml`: `200`.
 
 ### Estado
 
-- Cambio local validado por build.
-- Pendiente push, despliegue y comprobacion en produccion.
+- Cambio commiteado y enviado a `origin/main`.
+- Commit: `676584e` (`Ajusta precios de imagenes del chatbot`).
+- Produccion validada con la nueva respuesta del agente.
+- Resend queda preparado en codigo, pero pendiente de confirmar/configurar variables `RESEND_API_KEY` y `EMAIL_FROM` en Railway.
 
 ## Actualizacion - Separacion estricta entre precios y solicitud
 
