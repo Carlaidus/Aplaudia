@@ -2,6 +2,47 @@
 
 Fecha: 2026-06-30
 
+## Actualización - Galería visual con escaparate real
+
+### Objetivo
+
+Aplicar el ajuste visual pedido en la galería de imágenes generadas: quitar la imagen horizontal inferior suelta, dejar cuatro piezas, dar más protagonismo a la imagen central e incorporar el nuevo escaparate convertido a WebP.
+
+### Cambios aplicados
+
+- `components/sections/visual-gallery.tsx`:
+  - la galería pasa de cinco a cuatro imágenes;
+  - se elimina la pieza horizontal inferior;
+  - se mantiene la animación de entrada y hover existente;
+  - se reorganiza la composición de escritorio con una rejilla de 12 columnas;
+  - quedan dos imágenes verticales y dos horizontales;
+  - la imagen del escaparate queda como pieza horizontal central con más tamaño;
+  - las piezas laterales se desplazan ligeramente hacia abajo para que la composición quede menos rígida.
+- `public/visuals/escaparate-01.webp`:
+  - se añade el WebP lossless generado desde `Escaparate_01.png`.
+- `public/visuals/real-campaign-system.webp`:
+  - eliminado porque era la imagen inferior descartada.
+- `public/visuals/real-web-composition.webp`:
+  - eliminado porque ha sido sustituido por el escaparate.
+
+### Validaciones ejecutadas
+
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no está disponible como ejecutable del proyecto.
+- QA local con `next start` en `http://127.0.0.1:3045`:
+  - escritorio 1440x1000: cuatro imágenes visibles, escaparate presente, imagen inferior retirada, sin scroll horizontal;
+  - móvil 390x844: cuatro imágenes apiladas correctamente, escaparate presente, sin scroll horizontal;
+  - el aviso de construcción sigue visible.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente de commit, push y despliegue de Railway.
+
+### Siguiente paso recomendado
+
+Revisar en móvil real si el escaparate tiene el protagonismo adecuado. Si se ve demasiado panorámico, preparar una segunda versión recortada específica para la galería.
+
 ## Actualización - Segunda tanda de visuales generados más realistas
 
 ### Objetivo
