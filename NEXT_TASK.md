@@ -6,7 +6,7 @@ Nivel de inteligencia recomendado: Extremadamente alto
 
 ## Objetivo inmediato
 
-Cerrar ajustes del chatbot/agente de Aplaudia: validar que el input se limpia al enviar, dejar los precios bien estructurados en `content/agent/aplaudia-agent.md`, añadir referencias de mercado separadas de los precios propios y limitar estrictamente el ámbito de conversación para que el agente no responda temas ajenos a Aplaudia y sus proyectos relacionados.
+Cerrar ajustes del chatbot/agente de Aplaudia: validar que el input se limpia al enviar, dejar los precios bien estructurados en `content/agent/aplaudia-agent.md`, añadir referencias de mercado separadas de los precios propios, limitar estrictamente el ámbito de conversación y hacer más evidente el botón flotante del chatbot con una microfrase tipo `Pregúntame sobre Aplaudia`.
 
 ## Repo
 
@@ -25,6 +25,7 @@ Cerrar ajustes del chatbot/agente de Aplaudia: validar que el input se limpia al
 - Carlos quiere que esos precios queden todavía más ordenados y visualmente fáciles de cambiar dentro del `.md`.
 - Carlos quiere añadir también los precios/referencias de mercado investigados en Notion, pero separados de los precios propios de Aplaudia.
 - Carlos quiere que el agente NO responda preguntas fuera del ámbito de Aplaudia, Cronoras, Arik Custom, Aventuras Pixeladas y los servicios que ofrece Aplaudia.
+- Carlos quiere que el botón flotante del chatbot no sea solo un icono: debe quedar claro que se puede pulsar para preguntar sobre la página.
 
 ## Tarea 1: validar y reforzar limpieza del input del chatbot
 
@@ -39,7 +40,33 @@ Cerrar ajustes del chatbot/agente de Aplaudia: validar que el input se limpia al
 3. Confirmar que funciona también si el texto viene del dictado por voz.
 4. Si ya está implementado, no reescribir innecesariamente: solo corregir si falla algún caso.
 
-## Tarea 2: ordenar precios propios en `content/agent/aplaudia-agent.md`
+## Tarea 2: hacer más claro el botón flotante del chatbot
+
+Objetivo: que el usuario entienda que el icono flotante es un asistente al que puede preguntar sobre Aplaudia.
+
+1. Revisar `components/agent/generic-agent-widget.tsx` y `components/agent/aplaudia-agent-widget.tsx`.
+2. Añadir una microfrase junto al botón flotante cuando el chat está cerrado.
+3. Texto recomendado:
+   - `Pregúntame sobre Aplaudia`
+   - o `¿Dudas? Pregúntame`
+   - o `Pregunta sobre la web`
+4. Mejor opción recomendada: `Pregúntame sobre Aplaudia`.
+5. La microfrase debe:
+   - aparecer junto al icono flotante;
+   - parecer una etiqueta/píldora integrada;
+   - no tapar contenido importante;
+   - no solaparse con el aviso de construcción;
+   - funcionar en móvil y escritorio;
+   - poder cerrarse/ocultarse si molesta o desaparecer tras abrir el chat por primera vez si lo ves mejor;
+   - mantener estilo premium oscuro actual.
+6. En móvil, si falta espacio, usar una versión más corta:
+   - `Pregúntame`
+   - o mostrar la etiqueta solo durante unos segundos al cargar.
+7. El botón flotante debe seguir siendo claro, accesible y pulsable.
+8. Mantener `aria-label` descriptivo.
+9. No mostrar esa etiqueta cuando el chat está abierto.
+
+## Tarea 3: ordenar precios propios en `content/agent/aplaudia-agent.md`
 
 Reorganizar la sección de precios para que Carlos pueda entrar y cambiarlos fácilmente.
 
@@ -106,7 +133,7 @@ Norma importante:
 - Vídeo corto con IA: desde 150-300 €.
 - Vídeo con rodaje, fotografía real, edición y mezcla con IA: desde 500 € en adelante o presupuesto a medida.
 
-## Tarea 3: añadir referencias de mercado separadas
+## Tarea 4: añadir referencias de mercado separadas
 
 En `content/agent/aplaudia-agent.md`, añadir una sección separada de referencias de mercado.
 
@@ -137,7 +164,7 @@ Referencias que deben aparecer de forma resumida:
 - Runway, HeyGen, Synthesia, Magnific/Freepik y similares: herramientas con cuota mensual o créditos.
 - El valor de Aplaudia no es solo la herramienta: es dirección visual, selección, edición, integración con web/marca, iteración y entrega final.
 
-## Tarea 4: limitar estrictamente el ámbito del agente
+## Tarea 5: limitar estrictamente el ámbito del agente
 
 Actualizar `content/agent/aplaudia-agent.md` con una sección nueva:
 
@@ -160,7 +187,7 @@ Reglas obligatorias:
 5. No debe contestar curiosidades generales aunque sepa la respuesta.
 6. Sí puede hacer analogías simples si ayudan a explicar un servicio de Aplaudia, pero debe volver al contexto del proyecto.
 
-## Tarea 5: asegurar que el route respeta el `.md`
+## Tarea 6: asegurar que el route respeta el `.md`
 
 Revisar `app/api/agent/route.ts` y helpers del motor reutilizable.
 
@@ -172,7 +199,7 @@ Revisar `app/api/agent/route.ts` y helpers del motor reutilizable.
 3. No hardcodear todos los precios en código si ya están en el `.md`; el `.md` debe seguir siendo el archivo editable.
 4. No guardar claves ni secretos.
 
-## Tarea 6: pruebas obligatorias
+## Tarea 7: pruebas obligatorias
 
 Probar en producción o local equivalente:
 
@@ -187,19 +214,24 @@ Probar en producción o local equivalente:
    - enviar;
    - confirmar textarea vacío;
    - confirmar altura mínima.
-3. Precios:
+3. Botón flotante:
+   - confirmar que aparece microfrase junto al icono;
+   - confirmar que se entiende que se puede preguntar;
+   - confirmar que no se solapa en móvil;
+   - confirmar que no aparece cuando el chat está abierto.
+4. Precios:
    - `Quiero una web sencilla` -> NO debe hablar de precios.
    - `¿Cuánto cuesta una web sencilla?` -> sí puede hablar de precios.
    - `Tengo 50 productos pero quiero algo barato` -> debe proponer fases/reducir alcance.
    - `¿Cuánto cuesta un chatbot?` -> agente web desde 500 €, WhatsApp desde +100 €, orientativo.
-4. Fuera de ámbito:
+5. Fuera de ámbito:
    - `Dime curiosidades del universo` -> debe rechazar y redirigir a Aplaudia.
    - `Dime una receta de tortilla` -> debe rechazar y redirigir a Aplaudia.
    - `Háblame de Cronoras` -> sí debe responder.
    - `Háblame de Arik Custom` -> sí debe responder.
    - `Háblame de Aventuras Pixeladas` -> sí debe responder.
-5. Confirmar que no menciona programación con IA.
-6. Confirmar que no inventa precios cerrados, plazos, garantías, datos legales ni clientes.
+6. Confirmar que no menciona programación con IA.
+7. Confirmar que no inventa precios cerrados, plazos, garantías, datos legales ni clientes.
 
 ## Validaciones técnicas
 
@@ -214,6 +246,7 @@ Probar en producción o local equivalente:
 Actualizar `LAST_REPORT.md` con:
 
 - estado real del input limpio tras enviar;
+- cambio visual en botón flotante del chatbot;
 - cambios hechos en `content/agent/aplaudia-agent.md`;
 - nueva estructura de precios propios;
 - nueva sección de referencias de mercado;
@@ -237,6 +270,7 @@ Actualizar `NEXT_TASK.md` con el siguiente foco real.
 ## Cierre esperado
 
 - Input del chatbot confirmado limpio tras enviar.
+- Botón flotante con microfrase clara para que el usuario entienda que puede preguntar.
 - Precios propios de Aplaudia ordenados y fáciles de editar en el `.md`.
 - Referencias de mercado separadas de los precios propios.
 - Agente limitado estrictamente al ámbito de Aplaudia y proyectos relacionados.
