@@ -57,6 +57,16 @@ Ajustar el flujo de emails y solicitudes del chatbot para trabajar con una estra
   - `/api/agent/quote` contiene una unica llamada a `resend.emails.send`;
   - no queda asunto ni plantilla de `Copia de tu solicitud`;
   - no queda oferta de `copia limpia` en el flujo vivo.
+- Produccion publica:
+  - `https://aplaudia.com`: `200`;
+  - `https://aplaudia.com/robots.txt`: `200`;
+  - `https://aplaudia.com/llms.txt`: `200`;
+  - `https://aplaudia.com/sitemap.xml`: `200`;
+  - `POST https://aplaudia.com/api/agent/quote` sin consentimiento: `400`, sin enviar correo real.
+- Railway/GitHub:
+  - cambios commiteados y enviados a GitHub;
+  - `railway deployment list` no se pudo usar por sesion caducada: `invalid_grant` / `Unauthorized`;
+  - `gh` no esta instalado en este entorno, asi que no se pudo consultar checks/deployments por GitHub CLI.
 
 ### Estado final
 
@@ -64,6 +74,7 @@ Ajustar el flujo de emails y solicitudes del chatbot para trabajar con una estra
 - La copia automatica al cliente queda desactivada.
 - Si el visitante pide copia, Aplaudia recibe esa peticion como nota interna.
 - Cloudflare Email Routing queda documentado como siguiente configuracion manual para aliases publicos.
+- Railway queda pendiente de confirmacion visual en dashboard por limitacion de sesion CLI, aunque la web publica responde correctamente.
 
 ### Siguiente paso recomendado
 
