@@ -426,16 +426,23 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
   }, [])
 
   const resetInput = useCallback(() => {
-    const input = inputRef.current
+    const clearTextarea = (input: HTMLTextAreaElement | null) => {
+      if (!input) return
 
-    if (input) {
       input.value = ""
+      input.defaultValue = ""
       input.scrollTop = 0
       input.style.height = "auto"
+      input.style.removeProperty("height")
     }
 
+    clearTextarea(inputRef.current)
     voiceBaseTextRef.current = ""
     setHasText(false)
+
+    window.requestAnimationFrame(() => {
+      clearTextarea(inputRef.current)
+    })
   }, [])
 
   const setInputValue = useCallback(
@@ -623,8 +630,8 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     const text = inputRef.current?.value.trim() ?? ""
     if (!text || isLoading || !sessionId) return
 
-    stopVoiceInput()
     resetInput()
+    stopVoiceInput()
 
     const userMessage: AgentMessage = { role: "user", content: text }
     setMessages((current) => {
@@ -669,9 +676,9 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
   ])
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === "Enter" && !event.shiftKey) {
+    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
       event.preventDefault()
-      sendMessage()
+      void sendMessage()
     }
   }
 
@@ -728,7 +735,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
                   {message.role === "user" ? (
                     <p
                       className={cn(
-                        "whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-base leading-[1.45] sm:px-3.5 sm:text-[16.5px] sm:leading-[1.45]",
+                        "whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-base leading-[1.45] sm:px-3.5 sm:text-[17px] sm:leading-[1.42]",
                         theme.userBubble,
                       )}
                     >
@@ -737,7 +744,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
                   ) : (
                     <div
                       className={cn(
-                        "break-words rounded-2xl px-3 py-2 text-base leading-[1.45] sm:px-3.5 sm:text-[16.5px] sm:leading-[1.45]",
+                        "break-words rounded-2xl px-3 py-2 text-base leading-[1.45] sm:px-3.5 sm:text-[17px] sm:leading-[1.42]",
                         theme.assistantBubble,
                       )}
                     >
