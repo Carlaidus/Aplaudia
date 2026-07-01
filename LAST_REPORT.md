@@ -29,11 +29,15 @@ Hacer que la fecha del aviso flotante de construcción deje de estar fija en `30
   - el aviso muestra `1 DE JULIO DE 2026`;
   - no aparece `30 JUNIO 2026`;
   - el aviso de construcción sigue visible.
+- QA producción en `https://aplaudia.com`:
+  - la home contiene `1 de julio de 2026`;
+  - la home ya no contiene `30 junio 2026`.
 
 ### Estado
 
-- Cambio local validado.
-- Pendiente de commit, push y despliegue.
+- Cambio validado, commiteado y enviado a `origin/main`.
+- Commit: `2cc2c37` (`Actualiza fecha dinamica del aviso de construccion`).
+- Producción `https://aplaudia.com`: OK, sirve la fecha nueva.
 
 ### Siguiente paso recomendado
 
