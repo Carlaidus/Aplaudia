@@ -2,6 +2,40 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Separacion estricta entre precios y solicitud
+
+### Objetivo
+
+Corregir el bloqueo reportado: al preguntar por precio o presupuesto, el chatbot no debe pedir privacidad ni entrar en flujo de envio de datos. Tambien reforzar el borrado del textarea tras enviar.
+
+### Cambios aplicados
+
+- `components/agent/generic-agent-widget.tsx`:
+  - `quiero presupuesto`, `puedes darme presupuesto` o preguntas de precio ya no activan el flujo de consentimiento;
+  - el consentimiento solo salta con intencion clara de enviar datos/resumen a Aplaudia o pedir contacto humano;
+  - se añade un segundo `resetInput()` al finalizar cada envio para reforzar que el cajon queda vacio.
+- `lib/agent/build-agent-prompt.ts`:
+  - si el usuario pregunta por precio, presupuesto, coste o tarifa, el agente debe responder precios sin pedir datos ni privacidad.
+- `content/agent/aplaudia-agent.md`:
+  - se aclara que preguntar precios no equivale a enviar una solicitud;
+  - el resumen a una persona de Aplaudia solo procede si el usuario pide contacto, revision humana o envio de solicitud.
+
+### Validaciones ejecutadas
+
+- `npm run build`: OK.
+- `npm run lint`: sigue no disponible porque `eslint` no esta instalado en el proyecto.
+- QA local en `http://localhost:3060`:
+  - `¿Qué precio tiene una web para poner vídeos y reels?`: no muestra privacidad ni `Para poder enviarlo`;
+  - `quiero presupuesto para una página moderna con vídeos`: no muestra privacidad ni `Para poder enviarlo`;
+  - `Quiero enviar un resumen a una persona de Aplaudia...`: sí pide nombre/email y consentimiento;
+  - tras un `hola?` posterior no se repite el bloque de consentimiento;
+  - el textarea queda vacio despues de cada envio.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente push y comprobacion de produccion.
+
 ## Actualizacion - Bugfix textarea y bloqueo del chatbot
 
 ### Objetivo

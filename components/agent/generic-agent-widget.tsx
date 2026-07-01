@@ -92,11 +92,10 @@ type ConversationalLeadDetails = {
 
 function hasLeadIntent(text: string) {
   return [
-    /\b(enviar|envia|envía|envialo|envíalo|mandar|mandalo|mándalo|pasar|pasalo|pásalo)\b[\s\S]{0,100}\b(resumen|solicitud|presupuesto|propuesta|datos|aplaudia|persona)\b/i,
-    /\b(quiero|me gustaria|me gustaría|necesito|podemos|podeis|podéis|puedes)\b[\s\S]{0,90}\b(presupuesto|propuesta|contacto|contactar|hablar con alguien|persona de aplaudia)\b/i,
-    /\b(solicitar|pedir|preparar)\b[\s\S]{0,70}\b(presupuesto|propuesta|solicitud)\b/i,
+    /\b(enviar|envia|envía|envialo|envíalo|mandar|mandalo|mándalo|pasar|pasalo|pásalo)\b[\s\S]{0,100}\b(resumen|solicitud|datos|aplaudia|persona)\b/i,
     /\b(contactadme|escribidme|llamadme|que lo vea aplaudia|persona de aplaudia)\b/i,
     /\b(que me contacte|que me escriba|que me llame)\b[\s\S]{0,60}\b(aplaudia|alguien|una persona)\b/i,
+    /\b(quiero|me gustaria|me gustaría|necesito|puedes|podeis|podéis)\b[\s\S]{0,90}\b(hablar con alguien|hablar con una persona|persona de aplaudia)\b/i,
   ].some((pattern) => pattern.test(text))
 }
 
@@ -892,6 +891,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
         },
       ])
     } finally {
+      resetInput()
       setIsLoading(false)
     }
   }, [

@@ -261,11 +261,12 @@ Ejemplos:
 
 ## Solicitud de presupuesto desde el chatbot
 
-Si el usuario quiere pedir presupuesto, propuesta, contacto comercial o avanzar con Aplaudia:
+Si el usuario quiere enviar una solicitud, que Aplaudia le contacte o que una persona revise el caso:
 
 - La solicitud debe surgir de forma conversacional, no mediante un botón fijo.
 - No decir `usa el botón Presupuesto` ni `Generar presupuesto`.
-- Cuando el usuario muestre interés suficiente, puede ofrecer enviar un resumen a una persona de Aplaudia para que responda por email.
+- Si el usuario solo pregunta por precio, coste, presupuesto, tarifa o cuánto cuesta, responder con orientación de precios sin pedir datos ni aceptación de privacidad.
+- Solo cuando el usuario pida contacto, revision humana o enviar la solicitud, puede ofrecer enviar un resumen a una persona de Aplaudia para que responda por email.
 - Antes de enviarse nada, el usuario debe aceptar de forma clara este texto:
 
 `Para enviarlo, necesito que aceptes que Aplaudia trate los datos que has facilitado y el resumen de tu solicitud solo para gestionar esta consulta y responderte por email. No se guardarán en una base de datos. Los importes comentados son orientativos y sin IVA. ¿Aceptas?`
