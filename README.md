@@ -44,7 +44,7 @@ Si falta `OPENAI_API_KEY` y no hay servicio legado configurado, la web no se rom
 
 No guardar valores reales de estas variables en el repo.
 
-## Contacto y Resend
+## Contacto y correo
 
 La seccion `#contacto` incluye un formulario de contacto con seleccion multiple de necesidades y mensaje editable autocompuesto.
 
@@ -54,21 +54,32 @@ Fuente editable de textos y opciones:
 
 Canales disponibles:
 
-- Email: envia mediante `/api/contacto` y Resend.
+- Email: envia mediante `/api/contacto` si hay proveedor de envio configurado.
 - WhatsApp: prepara un enlace `wa.me` con el mensaje editado por el visitante.
 - Email + WhatsApp: se activa marcando los dos toggles finales.
+
+Estrategia de dominio:
+
+- Email publico principal: `hola@aplaudia.com`.
+- Alias recomendado para solicitudes: `presupuestos@aplaudia.com`.
+- Cloudflare Email Routing debe reenviar los aliases publicos a `carlosvfx@gmail.com`.
+- Cloudflare Email Routing solo recibe y reenvia; no crea buzones ni permite responder como `@aplaudia.com` por si solo.
+- La estrategia completa esta documentada en `docs/email-strategy-aplaudia.md`.
 
 Variables de entorno necesarias para activar el envio real:
 
 - `RESEND_API_KEY`: clave privada de Resend.
 - `CONTACT_RECIPIENT_EMAIL`: email receptor de las consultas.
 - `EMAIL_FROM`: remitente verificado en Resend.
+- `AGENT_QUOTE_RECIPIENT_EMAIL`: receptor opcional especifico para solicitudes del chatbot.
 
 Fallbacks sin secreto:
 
 - Si falta `RESEND_API_KEY`, la web sigue cargando y el formulario muestra un error controlado.
 - El canal WhatsApp sigue operativo sin Resend.
-- Si falta `CONTACT_RECIPIENT_EMAIL`, se usa el email publico definido en `siteConfig`.
+- Si falta `CONTACT_RECIPIENT_EMAIL`, el formulario usa provisionalmente `carlosvfx@gmail.com` como receptor tecnico.
+- Si falta `AGENT_QUOTE_RECIPIENT_EMAIL`, el chatbot usa `CONTACT_RECIPIENT_EMAIL`, `CONTACT_TO_EMAIL` o provisionalmente `carlosvfx@gmail.com`.
+- El chatbot no envia copias automaticas al cliente; si el cliente pide copia, queda como nota interna para Aplaudia.
 - El WhatsApp real esta centralizado en `content/site.ts`.
 
 No guardar valores reales de estas variables en el repo.

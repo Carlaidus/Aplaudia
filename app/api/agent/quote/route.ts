@@ -9,7 +9,7 @@ type AgentQuoteHistoryMessage = {
 }
 
 const FALLBACK_FROM = "Aplaudia <onboarding@resend.dev>"
-const INTERNAL_RECIPIENT_EMAIL = "carlosvfx@gmail.com"
+const DEFAULT_INTERNAL_RECIPIENT_EMAIL = "carlosvfx@gmail.com"
 const MAX_TEXT_LENGTH = 1200
 const MAX_HISTORY_ITEMS = 12
 
@@ -113,6 +113,15 @@ function listHtml(items: string[]) {
   return items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")
 }
 
+function getInternalRecipientEmail() {
+  return (
+    process.env.AGENT_QUOTE_RECIPIENT_EMAIL?.trim() ||
+    process.env.CONTACT_RECIPIENT_EMAIL?.trim() ||
+    process.env.CONTACT_TO_EMAIL?.trim() ||
+    DEFAULT_INTERNAL_RECIPIENT_EMAIL
+  )
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -175,7 +184,7 @@ export async function POST(request: Request) {
 
     const resend = new Resend(apiKey)
     const from = process.env.EMAIL_FROM?.trim() || FALLBACK_FROM
-    const to = INTERNAL_RECIPIENT_EMAIL
+    const to = getInternalRecipientEmail()
 
     const date = new Date().toLocaleString("es-ES", {
       timeZone: "Europe/Madrid",
@@ -210,7 +219,9 @@ export async function POST(request: Request) {
       "Consentimiento: aceptado antes de enviar",
       "Finalidad: gestionar esta consulta y responder por email. No newsletter, publicidad ni otros fines.",
       "Persistencia: no se guarda en base de datos desde este endpoint.",
-      clientCopy ? "Copia cliente: solicitada" : "Copia cliente: no solicitada",
+      clientCopy
+        ? "Peticion del cliente: quiere recibir una copia o respuesta por email. No se envia copia automatica desde el chatbot."
+        : "Peticion del cliente: no ha pedido copia. No se envia copia automatica desde el chatbot.",
       "",
       "Interes principal indicado por el cliente:",
       interest,
@@ -272,6 +283,15 @@ export async function POST(request: Request) {
         <p style="margin:12px 0 0;color:#64748b;font-size:12px;line-height:1.6">Los importes tratados por el agente son orientativos y sin IVA.</p>
       </div>
 
+      <div style="background:#f8fafc;border-radius:10px;padding:16px 18px;margin-bottom:24px">
+        <p style="margin:0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Copia o respuesta al cliente</p>
+        <p style="margin:10px 0 0;color:#0f172a;font-size:15px;line-height:1.7">${
+          clientCopy
+            ? "El cliente ha pedido recibir una copia o respuesta por email. Revisarlo manualmente desde Aplaudia."
+            : "El cliente no ha pedido copia. El chatbot no envia copias automaticas al cliente."
+        }</p>
+      </div>
+
       <h2 style="margin:0 0 10px;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Dudas detectadas</h2>
       <ul style="margin:0 0 24px;padding-left:18px;color:#1e293b;font-size:14px;line-height:1.7">${listHtml(summary.questions)}</ul>
 
@@ -302,84 +322,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No se ha podido enviar la solicitud." }, { status: 500 })
     }
 
-    if (clientCopy) {
-      const clientPriceLines = summary.priceLines.length > 0 ? summary.priceLines : []
-      const clientText = [
-        `Hola ${name},`,
-        "",
-        "Hemos recibido tu solicitud para Aplaudia.",
-        "",
-        "Datos enviados:",
-        `Nombre: ${name}`,
-        `Email: ${email}`,
-        phone ? `Telefono: ${phone}` : null,
-        `Tipo de negocio/proyecto: ${projectType}`,
-        "",
-        "Interes principal:",
-        interest,
-        "",
-        `Presupuesto o rango indicado: ${budgetLabel}`,
-        clientPriceLines.length > 0 ? "" : null,
-        clientPriceLines.length > 0 ? "Referencias comentadas en el chat:" : null,
-        ...clientPriceLines.map((line) => `- ${line}`),
-        "",
-        "Aplaudia revisara el caso y respondera por email.",
-        "Los datos se usan solo para gestionar esta consulta y responder por email. No se guardan en una base de datos desde este endpoint ni se usan para newsletter o publicidad.",
-        "",
-        "Nota: cualquier importe comentado es orientativo y sin IVA.",
-      ]
-        .filter(Boolean)
-        .join("\n")
-
-      const clientHtml = `
-<!DOCTYPE html>
-<html lang="es">
-<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /></head>
-<body style="margin:0;padding:0;background:#f8fafc;font-family:Arial,Helvetica,sans-serif">
-  <div style="max-width:640px;margin:32px auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
-    <div style="background:#0b1220;padding:28px 32px">
-      <p style="margin:0;color:#67e8f9;font-size:11px;text-transform:uppercase;letter-spacing:0.16em">Aplaudia</p>
-      <h1 style="margin:8px 0 0;color:#ffffff;font-size:22px;font-weight:700">Copia de tu solicitud</h1>
-    </div>
-    <div style="padding:32px;color:#1e293b;font-size:15px;line-height:1.7">
-      <p style="margin:0 0 16px">Hola ${safeName},</p>
-      <p style="margin:0 0 20px">Hemos recibido tu solicitud para Aplaudia. Revisaremos el caso y responderemos por email.</p>
-      <p style="margin:0 0 20px;color:#64748b;font-size:13px">Los datos se usan solo para gestionar esta consulta y responder por email. No se guardan en una base de datos desde este endpoint ni se usan para newsletter o publicidad.</p>
-      <h2 style="margin:0 0 8px;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Interes principal</h2>
-      <p style="margin:0 0 20px"><strong>Tipo de negocio/proyecto:</strong> ${safeProjectType}</p>
-      <p style="margin:0 0 20px;white-space:pre-wrap">${safeInterest}</p>
-      <h2 style="margin:0 0 8px;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Presupuesto o rango indicado</h2>
-      <p style="margin:0 0 20px">${safeBudget}</p>
-      ${
-        clientPriceLines.length > 0
-          ? `<h2 style="margin:0 0 8px;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Referencias comentadas en el chat</h2><ul style="margin:0 0 20px;padding-left:18px">${clientPriceLines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`
-          : ""
-      }
-      <p style="margin:0;color:#64748b;font-size:13px">Cualquier importe comentado es orientativo y sin IVA.</p>
-    </div>
-  </div>
-</body>
-</html>`
-
-      const clientResult = await resend.emails.send({
-        from,
-        to: email,
-        subject: "Copia de tu solicitud a Aplaudia",
-        html: clientHtml,
-        text: clientText,
-        replyTo: to,
-      })
-
-      if (clientResult.error) {
-        console.error("[api/agent/quote] Error Resend copia cliente:", clientResult.error)
-        return NextResponse.json(
-          { error: "La solicitud se ha enviado, pero no se ha podido enviar la copia al cliente." },
-          { status: 500 },
-        )
-      }
-    }
-
-    return NextResponse.json({ clientCopySent: clientCopy, ok: true })
+    return NextResponse.json({ clientCopyRequested: clientCopy, clientCopySent: false, ok: true })
   } catch (error) {
     console.error("[api/agent/quote] Error inesperado:", error)
     return NextResponse.json({ error: "No se ha podido enviar la solicitud." }, { status: 500 })

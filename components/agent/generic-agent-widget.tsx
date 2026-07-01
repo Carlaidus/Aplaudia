@@ -101,7 +101,7 @@ function hasLeadIntent(text: string) {
 
 function hasRecentLeadContext(messages: AgentMessage[]) {
   return messages.slice(-8).some((message) =>
-    /para enviarlo|aceptes que aplaudia trate|enviar un resumen|solicitud.*aplaudia|copia limpia/i.test(
+    /para enviarlo|aceptes que aplaudia trate|enviar un resumen|solicitud.*aplaudia|copia o respuesta/i.test(
       message.content,
     ),
   )
@@ -245,8 +245,15 @@ function buildLeadRequestReply(details: ConversationalLeadDetails) {
   if (details.missingFields.length > 0) {
     const lines = [
       "### Para poder enviarlo",
-      `Necesito ${details.missingFields.join(", ")}. Puedes responder en una sola frase y decir si quieres recibir copia limpia por email.`,
+      `Necesito ${details.missingFields.join(", ")}. Puedes responder en una sola frase.`,
     ]
+
+    if (details.clientCopy) {
+      lines.push(
+        "",
+        "Perfecto, incluiré en la solicitud que quieres recibir una copia o respuesta por email. Una persona de Aplaudia revisará el caso y se pondrá en contacto contigo.",
+      )
+    }
 
     if (details.hasConsent) {
       lines.push("", "Ya tengo tu aceptación; faltan esos datos para completar la solicitud.")
@@ -875,7 +882,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
           {
             role: "assistant",
             content: leadDetails.clientCopy
-              ? "### Resumen enviado\nHe enviado el resumen a una persona de Aplaudia y también una copia limpia a tu email."
+              ? "### Resumen enviado\nHe enviado el resumen a una persona de Aplaudia. También he incluido que quieres recibir una copia o respuesta por email."
               : "### Resumen enviado\nHe enviado el resumen a una persona de Aplaudia para que pueda responderte por email.",
           },
         ])

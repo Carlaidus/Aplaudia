@@ -5,7 +5,9 @@
 - No guardar secretos, tokens, claves, contrasenas ni variables privadas en los `.md`.
 - No guardar datos reales de clientes salvo instruccion explicita de Carlos.
 - No tocar configuracion de Cloudflare ni Railway manualmente sin instruccion clara.
-- El formulario interno de contacto queda preparado por instruccion de Carlos, con consentimiento explicito, envio por Resend y sin guardar mensajes en base de datos. Legal/privacidad sigue pendiente antes de retirar el aviso de construccion.
+- El formulario interno de contacto queda preparado por instruccion de Carlos, con consentimiento explicito, envio por proveedor configurado y sin guardar mensajes en base de datos. Legal/privacidad sigue pendiente antes de retirar el aviso de construccion.
+- Cloudflare Email Routing se usara como estrategia gratuita para recibir y reenviar aliases `@aplaudia.com`, pero no sustituye a un proveedor de envio automatico.
+- El chatbot no envia copia automatica al cliente. Si el cliente pide copia, se anade una nota interna para que una persona de Aplaudia responda manualmente.
 
 ## Git y despliegue
 
@@ -21,6 +23,8 @@
 - `www.aplaudia.com` debe redirigir a `https://aplaudia.com`.
 - El dominio temporal de Railway debe redirigir a `https://aplaudia.com` cuando el dominio final este verificado.
 - Cloudflare es el lugar donde vive la compra y DNS del dominio.
+- Emails publicos recomendados: `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com`, reenviados a `carlosvfx@gmail.com` mediante Cloudflare Email Routing cuando quede activado.
+- No prometer respuesta desde `@aplaudia.com` hasta configurar Google Workspace, SMTP o proveedor de envio equivalente.
 
 ## UX publica mientras no este lanzada
 

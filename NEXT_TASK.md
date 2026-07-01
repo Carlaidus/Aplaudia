@@ -35,23 +35,31 @@ Nivel de inteligencia recomendado: Extremadamente alto
 - El textarea del chatbot se vacia inmediatamente al enviar con boton o Enter y vuelve a altura minima.
 - Si el usuario dice que algo es caro o tiene poco presupuesto, el agente debe preguntar que presupuesto le gustaria no superar.
 - El endpoint `/api/agent/quote` mantiene Resend, no guarda en base de datos y envia el email interno provisional a `carlosvfx@gmail.com`.
-- Si el cliente pide copia, la copia debe ser limpia, sin notas internas.
+- Si el cliente pide copia, no se envia copia automatica: se anade una nota interna para que una persona de Aplaudia le responda o le envie copia manualmente.
 - Los datos no se usan para newsletter, publicidad ni otros fines.
 - Produccion `https://aplaudia.com` validada tras el push del commit `676584e`.
 - Railway CLI sigue sin sesion valida (`invalid_grant` / `Unauthorized`); usar dashboard o reloguear CLI si hace falta revisar Railway por dentro.
 - Correo:
   - `/api/agent/quote` ya usa Resend;
   - destinatario interno provisional: `carlosvfx@gmail.com`;
-  - faltan variables Railway `RESEND_API_KEY` y `EMAIL_FROM` si no estan ya configuradas;
+  - `RESEND_API_KEY` y `EMAIL_FROM` quedaron configuradas en Railway en la ejecucion anterior;
+  - el receptor interno puede configurarse con `AGENT_QUOTE_RECIPIENT_EMAIL`, `CONTACT_RECIPIENT_EMAIL` o `CONTACT_TO_EMAIL`;
+  - la direccion logica recomendada para solicitudes es `presupuestos@aplaudia.com` cuando Cloudflare Email Routing este probado;
   - no guardar secretos en el repo.
+- Cloudflare Email Routing:
+  - recomendado para aliases publicos gratuitos: `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com`, `legal@aplaudia.com`;
+  - debe reenviar a `carlosvfx@gmail.com`;
+  - no crea buzones ni permite responder como `@aplaudia.com` sin Google Workspace, SMTP o proveedor equivalente;
+  - pasos documentados en `docs/email-strategy-aplaudia.md`.
 - Produccion validada:
   - precio de imagenes/visuales responde con pack personalizado, sin precio unitario;
-  - tras orientar en precios ofrece enviar resumen a una persona de Aplaudia y copia limpia por email;
+  - tras orientar en precios puede ofrecer enviar resumen a una persona de Aplaudia;
+  - no ofrece copia automatica al cliente;
   - `/api/agent/quote` corta sin consentimiento con `400`.
 
 ## Proximo foco real
 
-Probar el envio real controlado del flujo conversacional con datos ficticios, consentimiento visible y recepcion en `carlosvfx@gmail.com`.
+Confirmar Cloudflare Email Routing para aliases publicos y hacer una prueba real controlada del flujo conversacional solo si Carlos autoriza enviar un email de prueba.
 
 ## Tareas recomendadas
 
@@ -61,8 +69,8 @@ Probar el envio real controlado del flujo conversacional con datos ficticios, co
    - pedir conversacionalmente enviar un resumen;
    - facilitar datos ficticios claros;
    - aceptar el texto de tratamiento de datos;
-   - comprobar recepcion en `carlosvfx@gmail.com`;
-   - comprobar copia limpia solo si se pide.
+   - comprobar recepcion en el receptor interno configurado;
+   - si el usuario pide copia, comprobar que solo aparece como nota interna y que no se envia copia automatica al cliente.
 3. Comprobar en Resend:
    - dominio `aplaudia.com` sigue `verified`;
    - logs del email de prueba aparecen como entregado o con error claro.
@@ -71,7 +79,11 @@ Probar el envio real controlado del flujo conversacional con datos ficticios, co
    - tratamiento de datos para solicitudes;
    - cookies si aplica;
    - aviso de que no se guardan solicitudes en base de datos.
-5. Probar conversaciones reales del agente:
+5. Confirmar Cloudflare Email Routing:
+   - verificar `carlosvfx@gmail.com` como destino;
+   - crear `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com`;
+   - probar recepcion externa sin tocar codigo.
+6. Probar conversaciones reales del agente:
    - servicios sin precio -> sin importes;
    - precio web -> desde + orientativo sin IVA;
    - mantenimiento -> pago anual + sin IVA;
@@ -79,7 +91,7 @@ Probar el envio real controlado del flujo conversacional con datos ficticios, co
    - precio de imagenes/visuales -> pack personalizado sin precio unitario y sin mencionar tecnica;
    - caso real -> solo si se pide ejemplo;
    - caro/poco presupuesto -> preguntar presupuesto maximo deseado.
-6. Mantener aviso de construccion hasta validacion final de Carlos.
+7. Mantener aviso de construccion hasta validacion final de Carlos.
 
 ## Validaciones base para la proxima tarea
 

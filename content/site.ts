@@ -18,7 +18,7 @@ export const siteConfig = {
   contactCta:
     "Enviar el formulario interno de contacto o escribir por WhatsApp.",
   contact: {
-    email: "carlosvfx@gmail.com",
+    email: "hola@aplaudia.com",
     whatsappNumber: "659304487",
     whatsappInternational: "34659304487",
     whatsappHref:

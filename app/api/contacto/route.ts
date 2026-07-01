@@ -9,11 +9,11 @@ import {
   type ContactDeliveryChannel,
   type ContactNeedId,
 } from "@/content/contact"
-import { siteConfig } from "@/content/site"
 
 export const runtime = "nodejs"
 
 const FALLBACK_FROM = "Aplaudia <onboarding@resend.dev>"
+const DEFAULT_CONTACT_RECIPIENT_EMAIL = "carlosvfx@gmail.com"
 type ContactDeliveryMode = ContactDeliveryChannel | "both"
 
 function isValidEmail(email: string) {
@@ -153,7 +153,7 @@ export async function POST(request: Request) {
     const to =
       process.env.CONTACT_RECIPIENT_EMAIL?.trim() ||
       process.env.CONTACT_TO_EMAIL?.trim() ||
-      siteConfig.contact.email
+      DEFAULT_CONTACT_RECIPIENT_EMAIL
 
     const date = new Date().toLocaleString("es-ES", {
       timeZone: "Europe/Madrid",

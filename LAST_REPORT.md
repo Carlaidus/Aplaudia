@@ -2,6 +2,73 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Estrategia email y sin copia automatica
+
+### Objetivo
+
+Ajustar el flujo de emails y solicitudes del chatbot para trabajar con una estrategia gratuita de recepcion mediante Cloudflare Email Routing, mantener el envio interno solo cuando haya proveedor configurado y eliminar cualquier copia automatica al cliente.
+
+### Cambios aplicados
+
+- `app/api/agent/quote/route.ts`:
+  - eliminado el segundo envio automatico de Resend al cliente;
+  - el endpoint solo envia email interno a Aplaudia;
+  - si el cliente pide copia, queda como nota interna: quiere recibir copia o respuesta por email;
+  - el receptor interno puede venir de `AGENT_QUOTE_RECIPIENT_EMAIL`, `CONTACT_RECIPIENT_EMAIL`, `CONTACT_TO_EMAIL` o fallback provisional `carlosvfx@gmail.com`;
+  - la respuesta del endpoint marca `clientCopySent: false`.
+- `components/agent/generic-agent-widget.tsx`:
+  - quitada la invitacion proactiva a pedir copia limpia;
+  - si el usuario pide copia, el chat indica que se incluira esa peticion en la solicitud;
+  - tras enviar, no promete copia automatica al cliente.
+- `lib/agent/build-agent-prompt.ts` y `content/agent/aplaudia-agent.md`:
+  - reforzada la regla de no ofrecer copia automatica;
+  - mantenido el flujo conversacional sin boton fijo de presupuesto;
+  - actualizados los precios internos de mantenimiento como base + IVA.
+- `content/site.ts`:
+  - email publico de marca cambiado a `hola@aplaudia.com`.
+- `app/api/contacto/route.ts`:
+  - el formulario mantiene fallback tecnico a `carlosvfx@gmail.com` aunque el email publico sea `hola@aplaudia.com`.
+- `docs/email-strategy-aplaudia.md`:
+  - nuevo documento sin secretos con aliases recomendados, uso de Cloudflare Email Routing, limites de recepcion/envio y pasos manuales.
+- `README.md`, `PROJECT_STATE.md`, `DECISIONS.md` y `NEXT_TASK.md`:
+  - documentado el estado real: Cloudflare Routing para recibir/reenviar, proveedor aparte para enviar, sin copia automatica al cliente.
+
+### Estrategia de email documentada
+
+- Aliases recomendados:
+  - `hola@aplaudia.com` -> `carlosvfx@gmail.com`;
+  - `presupuestos@aplaudia.com` -> `carlosvfx@gmail.com`;
+  - `soporte@aplaudia.com` -> `carlosvfx@gmail.com`;
+  - `legal@aplaudia.com` -> `carlosvfx@gmail.com`.
+- Cloudflare Email Routing solo recibe y reenvia; no crea buzones ni permite responder como `@aplaudia.com` sin Google Workspace, SMTP o proveedor equivalente.
+- No se han tocado DNS ni Cloudflare desde codigo.
+- No se ha enviado ningun email real de prueba.
+- No se han guardado secretos.
+
+### Validaciones ejecutadas
+
+- `npm run build`:
+  - primer intento desde ruta UNC `\\pinocho\Trabajo\20-PROYECTOS\APLAUDIA`: fallo de entorno porque CMD no permite UNC como directorio actual e intento usar `C:\Windows\.next`;
+  - intentos posteriores desde `T:\20-PROYECTOS\APLAUDIA`: correctos.
+- `npm run lint`:
+  - no disponible en el entorno actual porque el script llama a `eslint .`, pero `eslint` no esta instalado en dependencias;
+  - confirmado con `npm ls eslint`, resultado vacio.
+- Busqueda de control:
+  - `/api/agent/quote` contiene una unica llamada a `resend.emails.send`;
+  - no queda asunto ni plantilla de `Copia de tu solicitud`;
+  - no queda oferta de `copia limpia` en el flujo vivo.
+
+### Estado final
+
+- El chatbot puede seguir enviando solicitud interna si `RESEND_API_KEY` y remitente verificado estan configurados.
+- La copia automatica al cliente queda desactivada.
+- Si el visitante pide copia, Aplaudia recibe esa peticion como nota interna.
+- Cloudflare Email Routing queda documentado como siguiente configuracion manual para aliases publicos.
+
+### Siguiente paso recomendado
+
+Activar o confirmar Cloudflare Email Routing manualmente para los aliases publicos y, solo con autorizacion explicita de Carlos, hacer una prueba real controlada con datos ficticios y consentimiento visible.
+
 ## Actualizacion - Resend configurado con dominio propio
 
 ### Objetivo
