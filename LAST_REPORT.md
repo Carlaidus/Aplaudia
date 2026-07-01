@@ -39,11 +39,20 @@ Incorporar `Escaparate_02.png` a la galeria de visuales como imagen realista de 
 - QA local con `next start` en `http://127.0.0.1:3048`:
   - escritorio 1440x1100: cinco imagenes visibles, sin scroll horizontal, escaparate 02 en la parte baja derecha;
   - movil 390x844: cinco imagenes apiladas, sin scroll horizontal, aviso de construccion y chatbot siguen visibles.
+- QA produccion en `https://aplaudia.com`:
+  - home responde `200`;
+  - `https://aplaudia.com/visuals/escaparate-02.webp` responde `200`;
+  - la home referencia `escaparate-02`;
+  - escritorio 1440x1100: cinco imagenes detectadas, sin scroll horizontal y aviso de construccion visible;
+  - movil 390x844: galeria apilada, sin scroll horizontal y aviso de construccion visible.
+- Railway CLI: no permite leer deployments por sesion caducada (`invalid_grant` / `Unauthorized`), pero el despliegue efectivo queda confirmado por produccion sirviendo el nuevo asset y la home actualizada.
 
 ### Estado
 
-- Cambio local validado.
-- Pendiente de commit, push y comprobacion de produccion.
+- Cambio validado, commiteado y enviado a `origin/main`.
+- Commit principal: `432aa83` (`Añade segundo escaparate a galeria visual`).
+- Produccion `https://aplaudia.com`: OK, sirve la galeria actualizada y el nuevo WebP.
+- Railway: despliegue efectivo confirmado por produccion; CLI sin sesion valida para listar deployments.
 
 ### Siguiente paso recomendado
 
