@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { ArrowDown, Bot, Loader2, MessageCircle, Mic, MicOff, Send, Sparkles, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -22,6 +22,7 @@ type SpeechRecognitionResultListLike = {
 }
 
 type SpeechRecognitionEventLike = Event & {
+  readonly resultIndex?: number
   results: SpeechRecognitionResultListLike
 }
 
@@ -66,6 +67,181 @@ const DEFAULT_THEME: Required<AgentWidgetTheme> = {
   unreadBadge: "bg-accent text-accent-foreground",
   userBubble: "max-w-[94%] rounded-br-sm bg-primary text-primary-foreground sm:max-w-[88%]",
   voiceStatusActive: "text-accent",
+}
+
+const INLINE_MARKDOWN_PATTERN = /(\*\*[^*]+?\*\*|\[[^\]]+?\]\([^)]+?\)|https?:\/\/[^\s<>()]+)/g
+const VOICE_SILENCE_TIMEOUT_MS = 3600
+const VOICE_RESTART_DELAY_MS = 220
+const VOICE_MAX_AUTO_RESTARTS = 5
+const NON_RETRYABLE_VOICE_ERRORS = new Set(["not-allowed", "service-not-allowed", "audio-capture"])
+
+function getSafeHref(rawHref: string) {
+  const href = rawHref.trim()
+
+  if (href.startsWith("/") || href.startsWith("#")) return href
+
+  try {
+    const url = new URL(href)
+    if (["http:", "https:", "mailto:", "tel:"].includes(url.protocol)) return href
+  } catch {
+    return null
+  }
+
+  return null
+}
+
+function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
+  const nodes: ReactNode[] = []
+  let cursor = 0
+
+  for (const match of text.matchAll(INLINE_MARKDOWN_PATTERN)) {
+    const token = match[0]
+    const index = match.index ?? 0
+
+    if (index > cursor) {
+      nodes.push(text.slice(cursor, index))
+    }
+
+    if (token.startsWith("**") && token.endsWith("**")) {
+      const strongText = token.slice(2, -2).trim()
+      nodes.push(
+        <strong key={`${keyPrefix}-strong-${index}`} className="font-semibold text-foreground">
+          {renderInlineMarkdown(strongText, `${keyPrefix}-strong-${index}`)}
+        </strong>,
+      )
+    } else if (token.startsWith("[")) {
+      const linkMatch = token.match(/^\[([^\]]+?)\]\(([^)]+?)\)$/)
+      const label = linkMatch?.[1]?.trim() ?? token
+      const href = linkMatch ? getSafeHref(linkMatch[2]) : null
+
+      nodes.push(
+        href ? (
+          <a
+            key={`${keyPrefix}-link-${index}`}
+            href={href}
+            target={href.startsWith("http") ? "_blank" : undefined}
+            rel={href.startsWith("http") ? "noreferrer noopener" : undefined}
+            className="font-medium text-primary underline decoration-primary/40 underline-offset-4 transition-colors hover:text-primary/80"
+          >
+            {renderInlineMarkdown(label, `${keyPrefix}-link-${index}`)}
+          </a>
+        ) : (
+          label
+        ),
+      )
+    } else {
+      const trailingPunctuation = token.match(/[.,;:!?]$/)?.[0] ?? ""
+      const hrefCandidate = trailingPunctuation ? token.slice(0, -1) : token
+      const href = getSafeHref(hrefCandidate)
+
+      nodes.push(
+        href ? (
+          <a
+            key={`${keyPrefix}-url-${index}`}
+            href={href}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="font-medium text-primary underline decoration-primary/40 underline-offset-4 transition-colors hover:text-primary/80"
+          >
+            {hrefCandidate}
+          </a>
+        ) : (
+          hrefCandidate
+        ),
+      )
+
+      if (trailingPunctuation) nodes.push(trailingPunctuation)
+    }
+
+    cursor = index + token.length
+  }
+
+  if (cursor < text.length) {
+    nodes.push(text.slice(cursor))
+  }
+
+  return nodes
+}
+
+function renderInlineLines(lines: string[], keyPrefix: string) {
+  return lines.flatMap((line, index) => {
+    const nodes = renderInlineMarkdown(line, `${keyPrefix}-line-${index}`)
+    if (index === lines.length - 1) return nodes
+    return [...nodes, <br key={`${keyPrefix}-br-${index}`} />]
+  })
+}
+
+function AgentMessageContent({ content }: { content: string }) {
+  const lines = content.replace(/\r\n/g, "\n").split("\n")
+  const blocks: ReactNode[] = []
+  let paragraphLines: string[] = []
+  let listItems: string[] = []
+
+  const flushParagraph = () => {
+    if (paragraphLines.length === 0) return
+
+    const blockIndex = blocks.length
+    blocks.push(
+      <p key={`paragraph-${blockIndex}`} className="text-pretty">
+        {renderInlineLines(paragraphLines, `paragraph-${blockIndex}`)}
+      </p>,
+    )
+    paragraphLines = []
+  }
+
+  const flushList = () => {
+    if (listItems.length === 0) return
+
+    const blockIndex = blocks.length
+    blocks.push(
+      <ul key={`list-${blockIndex}`} className="space-y-1.5 pl-4">
+        {listItems.map((item, index) => (
+          <li key={`list-${blockIndex}-item-${index}`} className="list-disc pl-1 text-pretty marker:text-primary/80">
+            {renderInlineMarkdown(item, `list-${blockIndex}-item-${index}`)}
+          </li>
+        ))}
+      </ul>,
+    )
+    listItems = []
+  }
+
+  lines.forEach((line) => {
+    const trimmed = line.trim()
+
+    if (!trimmed) {
+      flushParagraph()
+      flushList()
+      return
+    }
+
+    const headingMatch = trimmed.match(/^#{1,4}\s+(.+)$/)
+    if (headingMatch) {
+      flushParagraph()
+      flushList()
+      const blockIndex = blocks.length
+      blocks.push(
+        <h3 key={`heading-${blockIndex}`} className="text-[0.95em] font-semibold leading-snug text-foreground">
+          {renderInlineMarkdown(headingMatch[1].trim(), `heading-${blockIndex}`)}
+        </h3>,
+      )
+      return
+    }
+
+    const listMatch = trimmed.match(/^[-*]\s+(.+)$/)
+    if (listMatch) {
+      flushParagraph()
+      listItems.push(listMatch[1].trim())
+      return
+    }
+
+    flushList()
+    paragraphLines.push(trimmed)
+  })
+
+  flushParagraph()
+  flushList()
+
+  return <div className="space-y-2.5 break-words">{blocks}</div>
 }
 
 function getSpeechRecognitionConstructor() {
@@ -117,6 +293,13 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null)
   const pendingUserAnchorIndexRef = useRef<number | null>(null)
   const voiceBaseTextRef = useRef("")
+  const shouldKeepVoiceListeningRef = useRef(false)
+  const manuallyStoppedVoiceRef = useRef(false)
+  const lastVoiceErrorRef = useRef<string | null>(null)
+  const voiceRestartAttemptsRef = useRef(0)
+  const voiceSilenceTimeoutRef = useRef<number | null>(null)
+  const voiceRestartTimeoutRef = useRef<number | null>(null)
+  const startVoiceSessionRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     setMessages((current) => {
@@ -197,7 +380,19 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
 
   useEffect(() => {
     if (!isOpen) {
+      shouldKeepVoiceListeningRef.current = false
+      manuallyStoppedVoiceRef.current = true
+      if (voiceSilenceTimeoutRef.current !== null) {
+        window.clearTimeout(voiceSilenceTimeoutRef.current)
+        voiceSilenceTimeoutRef.current = null
+      }
+      if (voiceRestartTimeoutRef.current !== null) {
+        window.clearTimeout(voiceRestartTimeoutRef.current)
+        voiceRestartTimeoutRef.current = null
+      }
       recognitionRef.current?.stop()
+      recognitionRef.current = null
+      setIsListening(false)
       setVoiceMessage("")
       return
     }
@@ -210,6 +405,13 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
 
   useEffect(() => {
     return () => {
+      shouldKeepVoiceListeningRef.current = false
+      if (voiceSilenceTimeoutRef.current !== null) {
+        window.clearTimeout(voiceSilenceTimeoutRef.current)
+      }
+      if (voiceRestartTimeoutRef.current !== null) {
+        window.clearTimeout(voiceRestartTimeoutRef.current)
+      }
       recognitionRef.current?.stop()
       recognitionRef.current = null
     }
@@ -249,37 +451,81 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     [resizeInput],
   )
 
-  const toggleVoiceInput = useCallback(() => {
-    if (isListening) {
-      recognitionRef.current?.stop()
-      return
+  const clearVoiceTimers = useCallback(() => {
+    if (voiceSilenceTimeoutRef.current !== null) {
+      window.clearTimeout(voiceSilenceTimeoutRef.current)
+      voiceSilenceTimeoutRef.current = null
     }
 
+    if (voiceRestartTimeoutRef.current !== null) {
+      window.clearTimeout(voiceRestartTimeoutRef.current)
+      voiceRestartTimeoutRef.current = null
+    }
+  }, [])
+
+  const stopVoiceInput = useCallback(
+    (nextMessage = "") => {
+      shouldKeepVoiceListeningRef.current = false
+      manuallyStoppedVoiceRef.current = true
+      clearVoiceTimers()
+      recognitionRef.current?.stop()
+      recognitionRef.current = null
+      voiceBaseTextRef.current = inputRef.current?.value.trim() ?? ""
+      setIsListening(false)
+      setVoiceMessage(nextMessage)
+    },
+    [clearVoiceTimers],
+  )
+
+  const scheduleVoiceSilenceStop = useCallback(() => {
+    if (voiceSilenceTimeoutRef.current !== null) {
+      window.clearTimeout(voiceSilenceTimeoutRef.current)
+    }
+
+    voiceSilenceTimeoutRef.current = window.setTimeout(() => {
+      shouldKeepVoiceListeningRef.current = false
+      manuallyStoppedVoiceRef.current = false
+      voiceSilenceTimeoutRef.current = null
+      recognitionRef.current?.stop()
+      setIsListening(false)
+      setVoiceMessage("")
+    }, VOICE_SILENCE_TIMEOUT_MS)
+  }, [])
+
+  const startVoiceSession = useCallback(() => {
     const SpeechRecognitionConstructor = getSpeechRecognitionConstructor()
 
     if (!SpeechRecognitionConstructor) {
+      shouldKeepVoiceListeningRef.current = false
       setSupportsVoiceInput(false)
+      setIsListening(false)
       setVoiceMessage(unavailableVoiceMessage)
       return
     }
 
     const recognition = new SpeechRecognitionConstructor()
     recognition.lang = voiceLanguage
-    recognition.continuous = false
+    recognition.continuous = true
     recognition.interimResults = true
 
-    voiceBaseTextRef.current = inputRef.current?.value.trim() ?? ""
-
     recognition.onstart = () => {
+      lastVoiceErrorRef.current = null
+      setSupportsVoiceInput(true)
       setIsListening(true)
-      setVoiceMessage(listeningPlaceholder)
+      setVoiceMessage("Puedes hablar, paro cuando detecte silencio.")
+      scheduleVoiceSilenceStop()
     }
 
     recognition.onresult = (event) => {
+      voiceRestartAttemptsRef.current = 0
+      lastVoiceErrorRef.current = null
+      scheduleVoiceSilenceStop()
+
       const transcript = Array.from({ length: event.results.length }, (_, index) => {
         return event.results[index]?.[0]?.transcript ?? ""
       })
         .join("")
+        .replace(/\s+/g, " ")
         .trim()
 
       const baseText = voiceBaseTextRef.current
@@ -288,23 +534,58 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     }
 
     recognition.onerror = (event) => {
-      setIsListening(false)
-      recognitionRef.current = null
+      const error = event.error ?? "unknown"
+      lastVoiceErrorRef.current = error
 
-      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-        setVoiceMessage("No se ha podido acceder al micrófono.")
-      } else if (event.error === "no-speech") {
+      if (NON_RETRYABLE_VOICE_ERRORS.has(error)) {
+        shouldKeepVoiceListeningRef.current = false
+        clearVoiceTimers()
+        setIsListening(false)
+        setVoiceMessage(
+          error === "audio-capture"
+            ? "No se ha encontrado un microfono disponible."
+            : "No se ha podido acceder al microfono.",
+        )
+        return
+      }
+
+      if (shouldKeepVoiceListeningRef.current) {
+        setVoiceMessage("Sigo escuchando...")
+      } else if (error === "no-speech") {
         setVoiceMessage("No se ha detectado voz. Puedes intentarlo de nuevo.")
       } else {
-        setVoiceMessage("El dictado por voz no está disponible ahora mismo.")
+        setVoiceMessage("El dictado por voz no esta disponible ahora mismo.")
       }
     }
 
     recognition.onend = () => {
-      setIsListening(false)
       recognitionRef.current = null
       voiceBaseTextRef.current = inputRef.current?.value.trim() ?? ""
-      setVoiceMessage((current) => (current === listeningPlaceholder ? "" : current))
+
+      const shouldRestart =
+        shouldKeepVoiceListeningRef.current &&
+        !manuallyStoppedVoiceRef.current &&
+        !NON_RETRYABLE_VOICE_ERRORS.has(lastVoiceErrorRef.current ?? "")
+
+      if (shouldRestart && voiceRestartAttemptsRef.current < VOICE_MAX_AUTO_RESTARTS) {
+        voiceRestartAttemptsRef.current += 1
+        voiceRestartTimeoutRef.current = window.setTimeout(() => {
+          startVoiceSessionRef.current?.()
+        }, VOICE_RESTART_DELAY_MS)
+        return
+      }
+
+      clearVoiceTimers()
+      shouldKeepVoiceListeningRef.current = false
+      setIsListening(false)
+
+      if (voiceRestartAttemptsRef.current >= VOICE_MAX_AUTO_RESTARTS) {
+        setVoiceMessage("El dictado se ha detenido. Puedes tocar el microfono para seguir.")
+      } else {
+        setVoiceMessage((current) =>
+          current === listeningPlaceholder || current === "Puedes hablar, paro cuando detecte silencio." ? "" : current,
+        )
+      }
     }
 
     recognitionRef.current = recognition
@@ -312,18 +593,37 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     try {
       recognition.start()
     } catch {
+      shouldKeepVoiceListeningRef.current = false
       recognitionRef.current = null
       setIsListening(false)
       setVoiceMessage("No se ha podido iniciar el dictado por voz.")
     }
-  }, [isListening, listeningPlaceholder, setInputValue, unavailableVoiceMessage, voiceLanguage])
+  }, [clearVoiceTimers, listeningPlaceholder, scheduleVoiceSilenceStop, setInputValue, unavailableVoiceMessage, voiceLanguage])
+
+  useEffect(() => {
+    startVoiceSessionRef.current = startVoiceSession
+  }, [startVoiceSession])
+
+  const toggleVoiceInput = useCallback(() => {
+    if (isListening) {
+      stopVoiceInput()
+      return
+    }
+
+    voiceBaseTextRef.current = inputRef.current?.value.trim() ?? ""
+    shouldKeepVoiceListeningRef.current = true
+    manuallyStoppedVoiceRef.current = false
+    lastVoiceErrorRef.current = null
+    voiceRestartAttemptsRef.current = 0
+    clearVoiceTimers()
+    startVoiceSession()
+  }, [clearVoiceTimers, isListening, startVoiceSession, stopVoiceInput])
 
   const sendMessage = useCallback(async () => {
     const text = inputRef.current?.value.trim() ?? ""
     if (!text || isLoading || !sessionId) return
 
-    recognitionRef.current?.stop()
-    setVoiceMessage("")
+    stopVoiceInput()
     resetInput()
 
     const userMessage: AgentMessage = { role: "user", content: text }
@@ -365,6 +665,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     messages,
     resetInput,
     sessionId,
+    stopVoiceInput,
   ])
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -424,14 +725,25 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
                   data-chat-message-index={index}
                   className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <p
-                    className={cn(
-                      "whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-base leading-[1.45] sm:px-3.5 sm:text-[16.5px] sm:leading-[1.45]",
-                      message.role === "user" ? theme.userBubble : theme.assistantBubble,
-                    )}
-                  >
-                    {message.content}
-                  </p>
+                  {message.role === "user" ? (
+                    <p
+                      className={cn(
+                        "whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-base leading-[1.45] sm:px-3.5 sm:text-[16.5px] sm:leading-[1.45]",
+                        theme.userBubble,
+                      )}
+                    >
+                      {message.content}
+                    </p>
+                  ) : (
+                    <div
+                      className={cn(
+                        "break-words rounded-2xl px-3 py-2 text-base leading-[1.45] sm:px-3.5 sm:text-[16.5px] sm:leading-[1.45]",
+                        theme.assistantBubble,
+                      )}
+                    >
+                      <AgentMessageContent content={message.content} />
+                    </div>
+                  )}
                 </div>
               ))}
 

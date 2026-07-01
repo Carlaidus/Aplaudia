@@ -27,18 +27,31 @@ Nivel de inteligencia recomendado: Extremadamente alto
 - Sustituida la pantalla de tienda problematica por una version mas realista.
 - QA local escritorio y movil sin solapes ni scroll horizontal.
 
+## Estado adicional tras chatbot enriquecido
+
+- Mensajes del asistente renderizan Markdown simple en la UI web:
+  - titulos `###`;
+  - negritas `**texto**`;
+  - listas con guiones;
+  - saltos de linea;
+  - enlaces seguros.
+- Mensajes del usuario siguen como texto plano.
+- Dictado por voz usa escucha continua, margen de silencio de 3,6 segundos y reinicio controlado si el navegador corta la sesion.
+- El agente tiene reglas nuevas para responder en formato web, no estilo WhatsApp.
+
 ## Proximo foco real
 
 1. Revisar en movil real `https://aplaudia.com` tras el despliegue:
-   - nueva composicion de la galeria visual;
-   - nueva imagen de pantalla integrada en tienda;
-   - lightbox de visuales;
+   - respuestas del chatbot con negritas, listas y precios sin asteriscos visibles;
+   - dictado por voz con una frase larga y pausas naturales;
+   - parada manual del microfono;
+   - envio despues de dictar;
    - aviso de construccion y chatbot sin solapes.
-2. Si la linea visual queda aprobada, decidir siguientes piezas:
+2. Probar mas conversaciones reales del agente en produccion y afinar `content/agent/aplaudia-agent.md` si alguna respuesta se sale de tono, precio, formato o ambito.
+3. Si la linea visual queda aprobada, decidir siguientes piezas:
    - sexta/septima imagen;
    - primer video corto o animacion con los escaparates;
    - variantes mas luminosas si se quiere reducir tono oscuro.
-3. Probar mas conversaciones reales del agente en produccion y afinar `content/agent/aplaudia-agent.md` si alguna respuesta se sale de tono, precio o ambito.
 4. Continuar con legal/contacto antes de retirar el aviso de construccion.
 
 ## Objetivo inmediato

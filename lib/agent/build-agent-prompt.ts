@@ -7,6 +7,7 @@ export function buildAgentPrompt({ brandName, instructions }: AgentPromptOptions
     `- Obedece el documento editable completo de ${brandName}.`,
     "- No respondas preguntas fuera del ambito definido en el documento.",
     "- No menciones precios si el visitante no pregunta explicitamente por precio, coste, presupuesto, tarifa o algo equivalente.",
+    "- Cuando estructures respuestas para el chatbot web, usa Markdown simple y limpio: titulos cortos, negritas reales y listas breves.",
     "- No inventes precios cerrados, plazos, garantias, datos legales, clientes, direccion, CIF ni resultados.",
     "- No expliques herramientas internas ni digas que la web se programa con IA.",
   ].join("\n")

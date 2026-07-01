@@ -2,6 +2,68 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Respuestas enriquecidas y dictado mas estable
+
+### Objetivo
+
+Mejorar la presentacion visual de las respuestas del chatbot de Aplaudia y corregir el dictado por voz para que no se corte al primer silencio corto.
+
+### Cambios aplicados
+
+- `components/agent/generic-agent-widget.tsx`:
+  - los mensajes del asistente pasan de texto plano a un renderer seguro `AgentMessageContent`;
+  - se soporta Markdown simple sin `dangerouslySetInnerHTML`:
+    - titulos cortos con `###`;
+    - negritas con `**texto**`;
+    - listas con guiones;
+    - saltos de linea;
+    - enlaces Markdown y URLs `http/https` con `rel="noreferrer noopener"`;
+  - los mensajes del usuario siguen siendo texto plano;
+  - la burbuja del asistente mantiene el estilo oscuro/premium del chat.
+- Dictado por voz:
+  - `continuous = true`;
+  - `interimResults = true`;
+  - temporizador de silencio de 3,6 segundos desde el ultimo resultado;
+  - si el navegador corta la sesion antes de tiempo, intenta reiniciar de forma controlada mientras el usuario siga escuchando;
+  - se separa parada manual, parada por silencio y errores no recuperables;
+  - no reintenta en `not-allowed`, `service-not-allowed` ni `audio-capture`;
+  - conserva el texto parcial del input entre reinicios para evitar duplicados;
+  - al enviar o cerrar el chat, detiene el dictado y limpia timers.
+- `content/agent/aplaudia-agent.md`:
+  - nueva seccion `Formato de respuesta en el chatbot web`;
+  - reglas para responder como interfaz web, no como WhatsApp;
+  - precios orientativos en bloques breves con negritas y listas;
+  - se mantiene la regla de no dar precios si no se preguntan explicitamente.
+- `lib/agent/build-agent-prompt.ts`:
+  - regla prioritaria para que el modelo use Markdown simple y limpio en el chatbot web.
+
+### Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existia.
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no esta disponible como ejecutable del proyecto.
+- `git diff --check`: OK.
+- QA local en `http://localhost:3053`:
+  - movil 390 x 844: home sin scroll horizontal, aviso de construccion visible, etiqueta `¿Dudas?` visible;
+  - chatbot movil: panel abre, burbuja del asistente usa contenedor enriquecido, textarea y botones sin solape;
+  - envio escrito: textarea se limpia, vuelve a 48 px, boton enviar queda desactivado y la pregunta queda solo como burbuja;
+  - microfono en navegador sin soporte/permiso: muestra fallback discreto y no rompe UI;
+  - galeria y lightbox siguen funcionando en escritorio.
+
+### Limitaciones conocidas
+
+- El dictado real con audio no puede validarse completamente desde Codex porque requiere permiso de microfono y hablar desde el dispositivo real.
+- Safari/iOS puede cortar o no exponer Web Speech API; el fallback sigue siendo visible y controlado.
+
+### Estado
+
+- Cambio validado localmente.
+- Pendiente de commit, push y verificacion de produccion/Railway.
+
+### Siguiente paso recomendado
+
+Probar en movil real el dictado hablando con pausas naturales. Si todavia corta antes de tiempo, ajustar `VOICE_SILENCE_TIMEOUT_MS` entre 4000 y 4500 ms o aumentar el margen de reinicio para el navegador concreto.
+
 ## Actualizacion - Layout modular de galeria visual
 
 ### Objetivo
