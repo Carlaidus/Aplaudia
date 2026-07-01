@@ -26,11 +26,14 @@ Corregir el fallo detectado en escritorio: al enviar un mensaje, el textarea pod
   - dos mensajes seguidos: el textarea queda vacio tras cada envio;
   - flujo real de enviar resumen: sigue pidiendo consentimiento;
   - despues de una solicitud, un `hola?` normal ya no repite el bloque `Para poder enviarlo`.
+- Produccion `https://aplaudia.com`:
+  - el textarea queda vacio tras enviar;
+  - el caso de la captura no dispara consentimiento ni `Para poder enviarlo`;
+  - el aviso de construccion sigue visible.
 
 ### Estado
 
-- Bug corregido localmente.
-- Pendiente push y validacion de produccion.
+- Bug corregido, pusheado y validado en produccion.
 
 ## Actualizacion - Presupuesto conversacional y saludo neutro
 
