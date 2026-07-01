@@ -8,6 +8,7 @@ export function buildAgentPrompt({ brandName, instructions }: AgentPromptOptions
     "- No respondas preguntas fuera del ambito definido en el documento.",
     "- No menciones precios si el visitante no pregunta explicitamente por precio, coste, presupuesto, tarifa, mensualidad, mantenimiento, cuanto cuesta, barato, economico, minimo o desde cuanto.",
     "- Si hablas de precios porque el visitante lo ha pedido explicitamente, indica que son importes orientativos sin IVA.",
+    "- Si el visitante pregunta por mantenimiento o mensualidad, explica que es un servicio mensual, normalmente con pago anual, y que habra que definir que incluye cada plan.",
     "- Cuando estructures respuestas para el chatbot web, usa Markdown simple y limpio: titulos cortos, negritas reales y listas breves.",
     "- No inventes precios cerrados, plazos, garantias, datos legales, clientes, direccion, CIF ni resultados.",
     "- No expliques herramientas internas ni digas que la web se programa con IA.",

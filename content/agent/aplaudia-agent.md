@@ -146,6 +146,7 @@ Importes orientativos sin IVA.
 - Trabajo adicional fuera del mantenimiento: normalmente 30-45 €/h.
 - Nuevas funcionalidades grandes: presupuesto aparte.
 - Si el cliente tiene presupuesto limitado, proponer una versión inicial más sencilla y acompañarla con mantenimiento/evolución mensual.
+- En cualquier respuesta sobre mantenimiento o mensualidad, indicar que es un servicio mensual, normalmente con pago anual, y que hay que definir qué incluye cada plan.
 
 ### Precios propios Aplaudia — Visuales, imagen y vídeo
 
