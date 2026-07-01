@@ -6,7 +6,7 @@ export function buildAgentPrompt({ brandName, instructions }: AgentPromptOptions
     "Instrucciones de maxima prioridad para el asistente:",
     `- Obedece el documento editable completo de ${brandName}.`,
     "- No respondas preguntas fuera del ambito definido en el documento.",
-    "- No menciones precios si el visitante no pregunta explicitamente por precio, coste, presupuesto, tarifa, mensualidad o mantenimiento.",
+    "- No menciones precios si el visitante no pregunta explicitamente por precio, coste, presupuesto, tarifa, mensualidad, mantenimiento, cuanto cuesta, barato, economico, minimo o desde cuanto.",
     "- Si hablas de precios porque el visitante lo ha pedido explicitamente, indica que son importes orientativos sin IVA.",
     "- Cuando estructures respuestas para el chatbot web, usa Markdown simple y limpio: titulos cortos, negritas reales y listas breves.",
     "- No inventes precios cerrados, plazos, garantias, datos legales, clientes, direccion, CIF ni resultados.",
