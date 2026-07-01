@@ -2,6 +2,87 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Precios internos y solicitud de presupuesto desde chatbot
+
+### Objetivo
+
+Actualizar el conocimiento comercial interno del agente, impedir precios en la web publica, reforzar precios solo bajo pregunta directa y crear un flujo corto de solicitud de presupuesto desde el chatbot con consentimiento visible.
+
+### Cambios aplicados
+
+- `content/agent/aplaudia-agent.md`:
+  - la seccion pasa a `Precios internos vigentes`;
+  - se explicita que los precios no deben publicarse como tabla visible en la web publica;
+  - el chatbot solo puede hablar de importes si el usuario pregunta directamente por precio, coste, presupuesto, tarifa, mensualidad, mantenimiento o expresiones equivalentes;
+  - todos los importes se marcan como orientativos y sin IVA;
+  - mantenimiento actualizado:
+    - esencial: desde 29 €/mes, pago anual 348 €/año, sin IVA;
+    - activo: desde 59 €/mes, pago anual 708 €/año, sin IVA;
+    - evolucion: desde 119 €/mes, pago anual 1.428 €/año, sin IVA;
+    - a medida: desde 199 €/mes, pago anual desde 2.388 €/año, sin IVA;
+  - se elimina tarifa/hora publica de mantenimiento y se indica que trabajos fuera de alcance van aparte;
+  - se añade comparativa clara entre Aplaudia y builders/hosting con IA;
+  - se documenta el flujo `Presupuesto` del chatbot, consentimiento, copia interna y copia limpia para cliente.
+- `components/agent/generic-agent-widget.tsx` y `components/agent/aplaudia-agent-widget.tsx`:
+  - nuevo boton compacto `Presupuesto` dentro del panel del chatbot;
+  - formulario corto con nombre, email, telefono opcional, tipo de negocio/proyecto, interes principal, presupuesto/rango opcional, copia limpia y consentimiento;
+  - consentimiento visible antes de enviar: Aplaudia recibe datos y resumen de conversacion para poder responder;
+  - se mantiene el bug corregido del textarea: envio con boton o Enter limpia inmediatamente y vuelve a 48px.
+- `app/api/agent/quote/route.ts`:
+  - nuevo endpoint `/api/agent/quote`;
+  - usa Resend y las variables existentes `RESEND_API_KEY`, `CONTACT_RECIPIENT_EMAIL` / `CONTACT_TO_EMAIL`, `EMAIL_FROM`;
+  - fallback de destinatario a `siteConfig.contact.email` (`carlosvfx@gmail.com`);
+  - valida nombre, email, tipo de proyecto, interes y consentimiento;
+  - email interno con datos del cliente, tipo de proyecto, servicios detectados, dudas, foco en precios, interes aproximado, presupuesto indicado, referencias comentadas y resumen de conversacion;
+  - copia para cliente solo si se marca, limpia y sin notas internas;
+  - no guarda datos en base de datos.
+- `lib/agent/build-agent-prompt.ts`:
+  - refuerzo prioritario para presupuesto, consentimiento y comparativa builder/IA.
+- `lib/agent/types.ts`:
+  - configuracion opcional `quoteRequest` para mantener el motor reutilizable.
+
+### Validaciones ejecutadas
+
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no esta disponible como ejecutable del proyecto.
+- `git diff --check`: OK, solo avisos CRLF normales de Windows.
+- Busqueda de precios fuera del `.md` interno y endpoint de email: sin importes visibles en web publica.
+- API local:
+  - `/api/agent/quote` sin consentimiento: `400`;
+  - payload valido sin `RESEND_API_KEY` local: `503` controlado, sin enviar email real.
+- QA local:
+  - escritorio: boton `Presupuesto`, formulario visible, consentimiento visible, campo tipo de negocio/proyecto, sin scroll horizontal;
+  - escritorio: envio con Enter limpia textarea, altura 48px, boton enviar desactivado, pregunta solo en historial;
+  - movil: formulario visible, consentimiento visible, campo tipo de negocio/proyecto, sin scroll horizontal.
+- Produccion `https://aplaudia.com`:
+  - `/api/agent/quote` desplegado y corta sin consentimiento con `400`, sin enviar correo;
+  - home `200`;
+  - `/robots.txt`, `/llms.txt`, `/sitemap.xml` `200`;
+  - chatbot escritorio y movil con boton `Presupuesto`, formulario y consentimiento visibles;
+  - aviso de construccion sigue visible;
+  - textarea en escritorio se vacia al enviar con Enter y queda a 48px;
+  - agente sin pregunta de precio no muestra importes;
+  - pregunta de precio web usa `desde` y sin IVA;
+  - mantenimiento mensual usa 29/59/119/199, `desde`, sin IVA y pago anual;
+  - comparacion builder/hosting con IA explica autoservicio frente a servicio personalizado.
+- Railway CLI:
+  - sigue sin sesion valida (`invalid_grant` / `Unauthorized`);
+  - despliegue efectivo confirmado por produccion.
+
+### Limitacion consciente
+
+No se ha enviado un email real de prueba a `carlosvfx@gmail.com` para evitar generar una comunicacion externa sin orden explicita de prueba. El endpoint y las validaciones previas al envio quedan preparados; con `RESEND_API_KEY` en produccion, el envio real se activara al completar el formulario con consentimiento.
+
+### Estado
+
+- Cambio funcional commiteado y enviado a `origin/main`.
+- Commit principal: `9fbaf05` (`Añade solicitud de presupuesto al chatbot`).
+- Produccion `https://aplaudia.com`: OK.
+
+### Siguiente paso recomendado
+
+Hacer una prueba real controlada del formulario de presupuesto con Carlos confirmando el envio del email interno, y despues preparar legal/privacidad antes de retirar el aviso de construccion.
+
 ## Actualizacion - Input limpio, fuente del chatbot y precios sin IVA
 
 ### Objetivo
