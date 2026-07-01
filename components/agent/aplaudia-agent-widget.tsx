@@ -20,6 +20,11 @@ export function AplaudiaAgentWidget() {
         inputMaxLength: 500,
         listeningPlaceholder: "Escuchando...",
         placeholder: "Cuéntame qué necesitas...",
+        quoteRequest: {
+          apiEndpoint: "/api/agent/quote",
+          buttonLabel: "Presupuesto",
+          enabled: true,
+        },
         sessionStorageKey: "aplaudia_agent_session",
         theme: {
           floatingSparkle: "text-accent-cyan",

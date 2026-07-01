@@ -40,6 +40,11 @@ export type AgentWidgetConfig = {
   listeningPlaceholder?: string
   maxHistoryItems?: number
   placeholder: string
+  quoteRequest?: {
+    apiEndpoint?: string
+    buttonLabel?: string
+    enabled?: boolean
+  }
   sendLabel?: string
   sessionStorageKey: string
   showFloatingSparkle?: boolean

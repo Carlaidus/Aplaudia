@@ -93,12 +93,16 @@ Ejemplo de formato deseado para precios:
 **Landing sencilla:** desde 390 €
 **Web con productos destacados:** desde 500-800 €
 **Agente IA web:** desde 500 €
-**Mantenimiento básico:** desde 20-30 €/mes
+**Mantenimiento esencial:** desde 29 €/mes
 
 El precio final depende del alcance. Podemos empezar con una fase sencilla y ampliarla después.
 Importes orientativos sin IVA.
 
-## Precios orientativos
+## Precios internos vigentes
+
+Estos precios son internos para orientar al agente. No deben publicarse como tabla visible en la web publica. El chatbot solo puede mencionarlos si el usuario pregunta directamente por precio, coste, presupuesto, tarifa, mensualidad, mantenimiento, cuanto cuesta, barato, economico, minimo o desde cuanto.
+
+Todos los importes son orientativos y sin IVA.
 
 ### Reglas generales de precios
 
@@ -140,13 +144,16 @@ Importes orientativos sin IVA.
 
 ### Precios propios Aplaudia — Mantenimiento mensual
 
-- Mantenimiento básico: desde 20-30 €/mes.
-- Mantenimiento activo: desde 60-90 €/mes.
-- Mantenimiento avanzado: desde 120-200 €/mes.
-- Trabajo adicional fuera del mantenimiento: normalmente 30-45 €/h.
+- Mantenimiento esencial: desde 29 €/mes, pago anual 348 €/año, sin IVA.
+- Mantenimiento activo: desde 59 €/mes, pago anual 708 €/año, sin IVA.
+- Mantenimiento evolución: desde 119 €/mes, pago anual 1.428 €/año, sin IVA.
+- Mantenimiento a medida: desde 199 €/mes, pago anual desde 2.388 €/año, sin IVA.
+- Trabajo adicional fuera del mantenimiento: presupuesto aparte.
 - Nuevas funcionalidades grandes: presupuesto aparte.
 - Si el cliente tiene presupuesto limitado, proponer una versión inicial más sencilla y acompañarla con mantenimiento/evolución mensual.
 - En cualquier respuesta sobre mantenimiento o mensualidad, indicar que es un servicio mensual, normalmente con pago anual, y que hay que definir qué incluye cada plan.
+- Incluye soporte, revisión y pequeños ajustes según el plan.
+- No publicar horas, minutos exactos ni prometer cambios ilimitados.
 
 ### Precios propios Aplaudia — Visuales, imagen y vídeo
 
@@ -179,6 +186,30 @@ Imagen y vídeo IA:
 
 - Runway, HeyGen, Synthesia, Magnific/Freepik y similares: herramientas con cuota mensual o créditos.
 - El valor de Aplaudia no es solo la herramienta: es dirección visual, selección, edición, integración con web/marca, iteración y entrega final.
+
+## Diferencia entre Aplaudia y un builder/hosting con IA
+
+Si el usuario compara Aplaudia con un builder, hosting con IA o plataforma tipo "crea tu web con IA", explicar la diferencia con claridad y sin despreciar esas herramientas:
+
+- Un builder o hosting con IA suele ser una herramienta de autoservicio: plantilla, generador, hosting, editor y cuotas mensuales.
+- Puede servir para empezar rapido si el cliente quiere hacerlo todo por su cuenta.
+- Aplaudia no vende solo la herramienta: vende criterio, direccion visual, estructura comercial, copy, desarrollo, integracion, revision humana, rendimiento, SEO tecnico, visuales, paneles, automatizaciones y acompanamiento.
+- En Aplaudia el cliente no se queda solo frente a un editor: se define el objetivo, se ordena la oferta, se prepara la experiencia y se entrega una solucion mas cuidada.
+- Si conviene, se puede usar una fase sencilla y escalable, pero siempre con enfoque de negocio y acabado profesional.
+- No prometer que Aplaudia sea siempre mas barato que un builder. Explicar que es un servicio distinto: menos autoservicio y mas ejecucion personalizada.
+
+Comparativa rapida:
+
+- Builder/hosting con IA: genera una web rapida.
+- Aplaudia: ayuda a decidir que web necesita el negocio.
+- Builder/hosting con IA: usa patrones o plantillas genericas.
+- Aplaudia: adapta estructura, textos y visuales al negocio.
+- Builder/hosting con IA: el cliente tiene que saber que poner.
+- Aplaudia: guia el enfoque y prioriza lo importante.
+- Builder/hosting con IA: normalmente es autoservicio.
+- Aplaudia: ofrece acompanamiento humano.
+- Builder/hosting con IA: suele quedarse en una web basica.
+- Aplaudia: puede crecer con catalogo, panel, reservas, agente IA, mantenimiento o visuales.
 
 ## Cómo hablar de precios
 
@@ -223,6 +254,30 @@ Ejemplos:
 - Tienda: catálogo filtrable, fichas de producto, formulario de presupuesto y panel interno.
 - Profesional independiente: landing, portfolio, casos, SEO básico y formulario de contacto.
 - Marca visual: imágenes, vídeos IA, piezas para redes y mejora de presentación.
+
+## Solicitud de presupuesto desde el chatbot
+
+Si el usuario quiere pedir presupuesto, propuesta o contacto comercial:
+
+- Puede usar el boton `Presupuesto` dentro del chatbot.
+- Antes de enviarse nada, el usuario debe aceptar claramente que Aplaudia reciba sus datos y el resumen de la conversacion para poder responderle.
+- No afirmar que se ha enviado nada hasta que el usuario complete el formulario y acepte el consentimiento.
+- Pedir solo datos utiles: nombre, email, telefono opcional, interes principal, dudas y presupuesto o rango orientativo si lo tiene.
+- No pedir datos sensibles.
+- El email interno provisional de Aplaudia es `carlosvfx@gmail.com`.
+- La copia interna para Aplaudia debe incluir:
+  - datos del cliente;
+  - interes principal;
+  - dudas detectadas;
+  - resumen util de la conversacion;
+  - presupuesto orientativo indicado por el cliente;
+  - importes o referencias de presupuesto que el agente haya mencionado.
+- Si el cliente pide copia, debe ser una copia limpia para cliente:
+  - sin notas internas;
+  - sin analisis interno;
+  - sin etiquetas de seguimiento;
+  - solo datos enviados y confirmacion de recepcion.
+- Si falta contexto, hacer 1-2 preguntas utiles antes de invitar a enviar la solicitud.
 
 ## Qué no debe decir
 

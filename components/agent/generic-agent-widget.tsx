@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react"
 import { ArrowDown, Bot, Loader2, MessageCircle, Mic, MicOff, Send, Sparkles, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -47,6 +47,11 @@ type SpeechRecognitionConstructorLike = new () => SpeechRecognitionLike
 type SpeechRecognitionWindow = Window & {
   SpeechRecognition?: SpeechRecognitionConstructorLike
   webkitSpeechRecognition?: SpeechRecognitionConstructorLike
+}
+
+type QuoteRequestStatus = {
+  message: string
+  type: "error" | "success"
 }
 
 const DEFAULT_THEME: Required<AgentWidgetTheme> = {
@@ -258,6 +263,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     inputMaxLength = 500,
     listeningPlaceholder = "Escuchando...",
     maxHistoryItems = 8,
+    quoteRequest,
     sendLabel = "Enviar mensaje",
     showFloatingSparkle = true,
   unavailableVoiceMessage = "El dictado por voz no está disponible en este navegador.",
@@ -271,6 +277,9 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     }),
     [config.theme],
   )
+  const isQuoteRequestEnabled = quoteRequest?.enabled ?? false
+  const quoteRequestEndpoint = quoteRequest?.apiEndpoint ?? "/api/agent/quote"
+  const quoteRequestButtonLabel = quoteRequest?.buttonLabel ?? "Presupuesto"
 
   const welcomeMessage = useMemo<AgentMessage>(
     () => ({ role: "assistant", content: config.welcomeMessage }),
@@ -287,6 +296,17 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
   const [isListening, setIsListening] = useState(false)
   const [voiceMessage, setVoiceMessage] = useState("")
   const [hasMoreMessagesBelow, setHasMoreMessagesBelow] = useState(false)
+  const [isQuoteFormOpen, setIsQuoteFormOpen] = useState(false)
+  const [isQuoteSending, setIsQuoteSending] = useState(false)
+  const [quoteName, setQuoteName] = useState("")
+  const [quoteEmail, setQuoteEmail] = useState("")
+  const [quotePhone, setQuotePhone] = useState("")
+  const [quoteProjectType, setQuoteProjectType] = useState("")
+  const [quoteInterest, setQuoteInterest] = useState("")
+  const [quoteBudget, setQuoteBudget] = useState("")
+  const [quoteClientCopy, setQuoteClientCopy] = useState(false)
+  const [quoteConsent, setQuoteConsent] = useState(false)
+  const [quoteStatus, setQuoteStatus] = useState<QuoteRequestStatus | null>(null)
 
   const messagesViewportRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -626,6 +646,115 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     startVoiceSession()
   }, [clearVoiceTimers, isListening, startVoiceSession, stopVoiceInput])
 
+  const buildQuoteInterestDraft = useCallback(() => {
+    return messages
+      .filter((message) => message.role === "user")
+      .slice(-4)
+      .map((message) => message.content)
+      .join("\n")
+      .slice(0, 700)
+  }, [messages])
+
+  const toggleQuoteForm = useCallback(() => {
+    if (!isQuoteRequestEnabled) return
+
+    if (isQuoteFormOpen) {
+      setIsQuoteFormOpen(false)
+      return
+    }
+
+    setQuoteInterest((current) => current || buildQuoteInterestDraft())
+    setQuoteStatus(null)
+    setIsQuoteFormOpen(true)
+  }, [buildQuoteInterestDraft, isQuoteFormOpen, isQuoteRequestEnabled])
+
+  const handleQuoteSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
+
+      if (!sessionId) {
+        setQuoteStatus({ type: "error", message: "No se ha podido preparar la solicitud. Vuelve a abrir el chat." })
+        return
+      }
+
+      if (!quoteConsent) {
+        setQuoteStatus({
+          type: "error",
+          message: "Antes de enviar, acepta que Aplaudia reciba estos datos y el resumen de la conversación.",
+        })
+        return
+      }
+
+      if (!quoteName.trim() || !quoteEmail.trim() || !quoteProjectType.trim() || !quoteInterest.trim()) {
+        setQuoteStatus({ type: "error", message: "Completa nombre, email, tipo de proyecto e interés principal." })
+        return
+      }
+
+      setIsQuoteSending(true)
+      setQuoteStatus(null)
+
+      try {
+        const response = await fetch(quoteRequestEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            budget: quoteBudget,
+            clientCopy: quoteClientCopy,
+            consent: quoteConsent,
+            email: quoteEmail,
+            history: messages.slice(-12),
+            interest: quoteInterest,
+            name: quoteName,
+            phone: quotePhone,
+            projectType: quoteProjectType,
+            sessionId,
+          }),
+        })
+        const data = await response.json().catch(() => ({}))
+
+        if (!response.ok || data?.ok !== true) {
+          throw new Error(typeof data?.error === "string" ? data.error : "No se ha podido enviar la solicitud.")
+        }
+
+        setQuoteStatus({ type: "success", message: "Solicitud enviada a Aplaudia." })
+        setIsQuoteFormOpen(false)
+        setQuoteBudget("")
+        setQuoteInterest("")
+        setQuoteProjectType("")
+        setQuoteConsent(false)
+        setQuoteClientCopy(false)
+        setMessages((current) => [
+          ...current,
+          {
+            role: "assistant",
+            content:
+              "### Solicitud enviada\nAplaudia ha recibido tu solicitud de presupuesto. Si has pedido copia, te llegará un resumen limpio por email.",
+          },
+        ])
+      } catch (error) {
+        setQuoteStatus({
+          type: "error",
+          message: error instanceof Error ? error.message : "No se ha podido enviar la solicitud.",
+        })
+      } finally {
+        setIsQuoteSending(false)
+      }
+    },
+    [
+      messages,
+      quoteBudget,
+      quoteClientCopy,
+      quoteConsent,
+      quoteEmail,
+      quoteInterest,
+      quoteName,
+      quotePhone,
+      quoteProjectType,
+      quoteRequestEndpoint,
+      sessionId,
+    ],
+  )
+
   const sendMessage = useCallback(async () => {
     const text = inputRef.current?.value.trim() ?? ""
     if (!text || isLoading || !sessionId) return
@@ -709,14 +838,26 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
                 <p className="mt-1 text-xs text-muted-foreground">{config.assistantSubtitle}</p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              aria-label={closeLabel}
-            >
-              <X className="h-4 w-4" aria-hidden="true" />
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              {isQuoteRequestEnabled && (
+                <button
+                  type="button"
+                  onClick={toggleQuoteForm}
+                  className="rounded-full border border-white/10 bg-background/70 px-3 py-2 text-xs font-medium text-foreground/90 transition-colors hover:border-primary/35 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  aria-expanded={isQuoteFormOpen}
+                >
+                  {quoteRequestButtonLabel}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label={closeLabel}
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
           </div>
 
           <div className="relative min-h-0 flex-1">
@@ -788,6 +929,123 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
               </button>
             )}
           </div>
+
+          {isQuoteRequestEnabled && isQuoteFormOpen && (
+            <form
+              onSubmit={handleQuoteSubmit}
+              className="max-h-[48dvh] space-y-3 overflow-y-auto border-t border-border bg-background/95 px-3 py-3 sm:max-h-[42dvh] sm:px-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Solicitud de presupuesto</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    Se enviara a Aplaudia para poder responderte. No escribas datos sensibles.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsQuoteFormOpen(false)}
+                  className="rounded-full px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  Cerrar
+                </button>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-3">
+                <input
+                  value={quoteName}
+                  onChange={(event) => setQuoteName(event.currentTarget.value)}
+                  className={cn("min-h-11 rounded-xl border px-3 text-sm outline-none transition-colors", theme.input)}
+                  placeholder="Nombre"
+                  autoComplete="name"
+                />
+                <input
+                  value={quoteEmail}
+                  onChange={(event) => setQuoteEmail(event.currentTarget.value)}
+                  className={cn("min-h-11 rounded-xl border px-3 text-sm outline-none transition-colors", theme.input)}
+                  placeholder="Email"
+                  type="email"
+                  autoComplete="email"
+                />
+                <input
+                  value={quotePhone}
+                  onChange={(event) => setQuotePhone(event.currentTarget.value)}
+                  className={cn("min-h-11 rounded-xl border px-3 text-sm outline-none transition-colors", theme.input)}
+                  placeholder="Telefono opcional"
+                  type="tel"
+                  autoComplete="tel"
+                />
+              </div>
+
+              <input
+                value={quoteProjectType}
+                onChange={(event) => setQuoteProjectType(event.currentTarget.value)}
+                className={cn("min-h-11 w-full rounded-xl border px-3 text-sm outline-none transition-colors", theme.input)}
+                placeholder="Tipo de negocio o proyecto"
+              />
+
+              <textarea
+                value={quoteInterest}
+                onChange={(event) => setQuoteInterest(event.currentTarget.value)}
+                className={cn("min-h-24 w-full resize-none rounded-xl border px-3 py-2.5 text-sm leading-6 outline-none transition-colors", theme.input)}
+                placeholder="Interes principal, dudas y contexto del proyecto"
+              />
+
+              <input
+                value={quoteBudget}
+                onChange={(event) => setQuoteBudget(event.currentTarget.value)}
+                className={cn("min-h-11 w-full rounded-xl border px-3 text-sm outline-none transition-colors", theme.input)}
+                placeholder="Presupuesto o rango orientativo, si lo tienes"
+              />
+
+              <label className="flex gap-2 text-xs leading-5 text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={quoteConsent}
+                  onChange={(event) => setQuoteConsent(event.currentTarget.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-primary"
+                />
+                <span>
+                  Acepto que Aplaudia reciba esta solicitud con mis datos y el resumen de la conversacion para poder responderme.
+                </span>
+              </label>
+
+              <label className="flex gap-2 text-xs leading-5 text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={quoteClientCopy}
+                  onChange={(event) => setQuoteClientCopy(event.currentTarget.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-primary"
+                />
+                <span>Quiero recibir una copia limpia por email.</span>
+              </label>
+
+              {quoteStatus && (
+                <p
+                  className={cn(
+                    "rounded-xl border px-3 py-2 text-xs leading-5",
+                    quoteStatus.type === "success"
+                      ? "border-primary/30 bg-primary/10 text-primary"
+                      : "border-destructive/30 bg-destructive/10 text-destructive",
+                  )}
+                  aria-live="polite"
+                >
+                  {quoteStatus.message}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={isQuoteSending}
+                className={cn(
+                  "inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto",
+                  theme.sendButton,
+                )}
+              >
+                {isQuoteSending ? "Enviando..." : "Enviar solicitud"}
+              </button>
+            </form>
+          )}
 
           <div className="flex items-end gap-2 border-t border-border bg-background/95 p-2.5 sm:p-3">
             <textarea
