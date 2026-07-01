@@ -27,7 +27,7 @@
 - La web debe mostrar claramente que esta en construccion.
 - El aviso no debe romper navegacion, mobile ni CTA.
 - El aviso debe ser visualmente premium y coherente con la estetica oscura/glow de Aplaudia.
-- Fecha visible de construccion: 30 junio 2026.
+- Fecha visible de construccion: dinamica, calculada en la web con la fecha actual en zona Europe/Madrid. `content/site.ts` conserva solo un fallback.
 
 ## IA y ejecucion
 

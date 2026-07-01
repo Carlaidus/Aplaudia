@@ -1,6 +1,43 @@
 # LAST REPORT
 
-Fecha: 2026-06-30
+Fecha: 2026-07-01
+
+## Actualización - Fecha diaria en aviso de construcción
+
+### Objetivo
+
+Hacer que la fecha del aviso flotante de construcción deje de estar fija en `30 junio 2026` y se actualice cada día con la fecha real mientras el cartel siga activo.
+
+### Cambios aplicados
+
+- `components/sections/construction-notice.tsx`:
+  - calcula la fecha actual con `Intl.DateTimeFormat("es-ES")`;
+  - fuerza zona horaria `Europe/Madrid`;
+  - usa la fecha dinámica tanto en el aviso completo como en el estado minimizado;
+  - refresca la fecha cada minuto para que cambie también si la web queda abierta al pasar la medianoche.
+- `content/site.ts`:
+  - `constructionNotice.dateLabel` queda como fallback inicial con `1 de julio de 2026`.
+- `DECISIONS.md`, `PROJECT_STATE.md` y `NEXT_TASK.md`:
+  - actualizados para documentar que la fecha visible ya es dinámica, no fija.
+
+### Validaciones ejecutadas
+
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no está disponible como ejecutable del proyecto.
+- Comprobación directa de formato con Node: `1 de julio de 2026`.
+- QA local con `next start` en `http://127.0.0.1:3046`:
+  - el aviso muestra `1 DE JULIO DE 2026`;
+  - no aparece `30 JUNIO 2026`;
+  - el aviso de construcción sigue visible.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente de commit, push y despliegue.
+
+### Siguiente paso recomendado
+
+Validar en producción que el cartel muestra la fecha del día actual en móvil y escritorio.
 
 ## Actualización - Galería visual con escaparate real
 
@@ -552,7 +589,7 @@ Tarea original: añadir dictado por voz al chatbot de Aplaudia tomando como refe
 
 - `README.md` documenta el dictado por voz del chatbot.
 - `PROJECT_STATE.md` registra el nuevo dictado por voz y la ampliación del prompt del agente.
-- `DECISIONS.md` corrige la fecha visible de construcción a `30 junio 2026`, alineada con producción.
+- `DECISIONS.md` registraba entonces la fecha visible `30 junio 2026`; esa decisión queda reemplazada el 2026-07-01 por fecha diaria dinámica.
 
 ## Archivos modificados
 

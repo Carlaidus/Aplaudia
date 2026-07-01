@@ -5,14 +5,35 @@ import { motion } from "framer-motion"
 import { CalendarClock, ChevronUp, Sparkles, X } from "lucide-react"
 import { siteConfig } from "@/content/site"
 
+const constructionDateFormatter = new Intl.DateTimeFormat("es-ES", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: "Europe/Madrid",
+})
+
+function getConstructionDateLabel() {
+  return constructionDateFormatter.format(new Date())
+}
+
 export function ConstructionNotice() {
   const { constructionNotice } = siteConfig
   const [isMinimized, setIsMinimized] = useState(false)
+  const [dateLabel, setDateLabel] = useState(constructionNotice.dateLabel)
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 900px)").matches) {
       setIsMinimized(true)
     }
+  }, [])
+
+  useEffect(() => {
+    const updateDateLabel = () => setDateLabel(getConstructionDateLabel())
+
+    updateDateLabel()
+    const intervalId = window.setInterval(updateDateLabel, 60 * 1000)
+
+    return () => window.clearInterval(intervalId)
   }, [])
 
   if (isMinimized) {
@@ -29,7 +50,7 @@ export function ConstructionNotice() {
         <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
         <span className="shrink-0">{constructionNotice.status}</span>
         <span className="hidden shrink-0 px-0.5 text-muted-foreground sm:inline" aria-hidden="true">-</span>
-        <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">{constructionNotice.dateLabel}</span>
+        <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">{dateLabel}</span>
         <ChevronUp
           className="h-4 w-4 text-muted-foreground"
           aria-hidden="true"
@@ -68,7 +89,7 @@ export function ConstructionNotice() {
             <div className="mb-2 flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-normal text-muted-foreground">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background/60 px-2.5 py-1">
                 <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
-                {constructionNotice.dateLabel}
+                {dateLabel}
               </span>
               <span>{constructionNotice.status}</span>
             </div>

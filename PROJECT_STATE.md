@@ -1,6 +1,6 @@
 # PROJECT STATE - Aplaudia
 
-Ultima actualizacion: 2026-06-30
+Ultima actualizacion: 2026-07-01
 
 ## Identificacion
 
@@ -81,7 +81,7 @@ Ultima actualizacion: 2026-06-30
   - normas para no inventar datos, garantias, plazos ni precios cerrados.
 - Flotantes de la home ajustados el 2026-06-30:
   - aviso de construccion a la izquierda;
-  - fecha visible del aviso actualizada a `30 junio 2026`;
+  - fecha visible del aviso calculada de forma dinamica cada dia en zona Europe/Madrid;
   - chatbot a la derecha;
   - sin solape intencionado entre ambos.
 - Lightbox de vistas clave ampliado para ocupar casi toda la ventana util en escritorio y movil.

@@ -15,7 +15,7 @@ Validar en móvil real la versión ya desplegada y cerrar preparación operativa
 ## Contexto confirmado
 
 - `https://aplaudia.com/` funciona.
-- El aviso de construcción queda flotando a la izquierda y usa fecha `30 junio 2026`.
+- El aviso de construcción queda flotando a la izquierda y usa fecha diaria dinámica en zona Europe/Madrid.
 - El chatbot queda flotando a la derecha y abierto funciona como panel grande/casi pantalla completa.
 - El chatbot tiene dictado por voz con Web Speech API.
 - El agente funciona con variable de entorno privada en producción.
