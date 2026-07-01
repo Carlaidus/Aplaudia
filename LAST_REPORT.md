@@ -2,6 +2,107 @@
 
 Fecha: 2026-07-02
 
+## Actualizacion - Configuracion externa Cloudflare/Railway y bloqueo real
+
+### Objetivo
+
+Configurar la estrategia de email gratuita prevista para Aplaudia con Cloudflare Email Routing, Cloudflare Email Service/Email Sending y variables Railway, sin guardar secretos y haciendo solo pruebas internas con datos ficticios.
+
+### Comprobacion inicial del repo
+
+- `README.md`, `PROJECT_STATE.md`, `DECISIONS.md`, `WORKFLOW.md`, `NEXT_TASK.md`, `LAST_REPORT.md`, `docs/email-strategy-aplaudia.md`, `lib/email/cloudflare-email.ts`, `app/api/agent/quote/route.ts`, `app/api/contacto/route.ts` y `content/site.ts` revisados.
+- Confirmado:
+  - `resend` no esta instalado;
+  - no hay imports `Resend`;
+  - no hay `resend.emails.send`;
+  - no hay `RESEND_API_KEY` como variable activa en codigo;
+  - `/api/agent/quote` y `/api/contacto` usan Cloudflare Email Service;
+  - no se envia copia automatica al cliente.
+
+### Cambios externos aplicados
+
+- Cloudflare Email Routing:
+  - creado `carlosvfx@gmail.com` como direccion de destino;
+  - estado final de esa direccion: pendiente de verificacion por email;
+  - no se pudieron crear reglas de alias porque Cloudflare no permite seleccionar una direccion destino pendiente.
+- Cloudflare DNS:
+  - aplicados exactamente los registros indicados por Cloudflare para Email Routing;
+  - `MX` raiz a `route1.mx.cloudflare.net`, prioridad 60;
+  - `MX` raiz a `route2.mx.cloudflare.net`, prioridad 99;
+  - `MX` raiz a `route3.mx.cloudflare.net`, prioridad 18;
+  - `TXT` DKIM `cf2024-1._domainkey.aplaudia.com`;
+  - `TXT` SPF raiz `v=spf1 include:_spf.mx.cloudflare.net ~all`.
+- Cloudflare API token:
+  - creado token `aplaudia-cloudflare-email-service`;
+  - permiso: `Email Sending Write`;
+  - el valor del token no se ha guardado, impreso ni documentado.
+- Railway:
+  - configuradas variables:
+    - `CLOUDFLARE_ACCOUNT_ID`;
+    - `CLOUDFLARE_EMAIL_API_TOKEN`;
+    - `EMAIL_FROM`;
+    - `INTERNAL_EMAIL_RECIPIENT`;
+    - `AGENT_QUOTE_RECIPIENT_EMAIL`;
+    - `CONTACT_RECIPIENT_EMAIL`;
+  - `RESEND_API_KEY` sigue presente como variable historica/dormida, sin uso activo en codigo;
+  - cambios aplicados con Deploy.
+
+### Error real encontrado
+
+- Prueba controlada desde `https://aplaudia.com/api/agent/quote` con datos ficticios y consentimiento:
+  - resultado HTTP: `500`;
+  - respuesta: `No se ha podido enviar la solicitud.`
+- Prueba controlada desde `https://aplaudia.com/api/contacto` con datos ficticios y consentimiento:
+  - resultado HTTP: `500`;
+  - respuesta: `No se ha podido enviar el mensaje.`
+- Primer error causante visto en Railway:
+  - `email.sending.error.email.sending_disabled`
+- Causa confirmada:
+  - el codigo llega correctamente a Cloudflare Email Service;
+  - Cloudflare rechaza el envio porque Email Sending no esta habilitado;
+  - el panel de Cloudflare muestra Email Sending Beta con requisito de Workers Paid para habilitar envio completo;
+  - ademas, `carlosvfx@gmail.com` sigue pendiente de verificacion como destino de Routing, lo que bloquea la creacion de aliases.
+
+### Validaciones ejecutadas
+
+- DNS publico contra `1.1.1.1`:
+  - `MX aplaudia.com`: responde con `route3`, `route1` y `route2` de Cloudflare;
+  - `TXT aplaudia.com`: responde con SPF de Cloudflare;
+  - `TXT cf2024-1._domainkey.aplaudia.com`: responde con DKIM de Cloudflare.
+- Railway:
+  - deployment tras variables: `Active` / `Deployment successful`;
+  - logs revisados tras pruebas de envio.
+- Produccion:
+  - `https://aplaudia.com`: `200`;
+  - `https://aplaudia.com/robots.txt`: `200`;
+  - `https://aplaudia.com/llms.txt`: `200`;
+  - `https://aplaudia.com/sitemap.xml`: `200`;
+  - `/api/agent/quote` sin consentimiento: `400`;
+  - `/api/agent/quote` con prueba ficticia: `500`, error Cloudflare;
+  - `/api/contacto` con prueba ficticia: `500`, error Cloudflare.
+- Local:
+  - `npm run build`: OK;
+  - `npm run lint`: no disponible, `eslint` no esta instalado;
+  - `npm ls resend`: vacio;
+  - busqueda de control: sin `from "resend"`, `new Resend`, `resend.emails.send`, `RESEND_API_KEY` ni `onboarding@resend` en codigo/docs revisados.
+
+### Estado final
+
+- Web y Railway siguen operativos.
+- DNS de Cloudflare Email Routing esta aplicado.
+- Routing no esta operativo para aliases porque falta verificar `carlosvfx@gmail.com`.
+- Email interno desde chatbot/formulario no esta operativo: Cloudflare devuelve `email.sending.error.email.sending_disabled`.
+- No se ha enviado email a clientes.
+- No se ha enviado copia automatica al cliente.
+- No se han guardado secretos.
+
+### Siguiente paso recomendado
+
+1. Carlos debe verificar `carlosvfx@gmail.com` desde el email enviado por Cloudflare.
+2. Crear reglas de Routing para `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com`.
+3. Repetir prueba interna desde produccion.
+4. Si Cloudflare mantiene `email.sending.error.email.sending_disabled`, decidir entre Workers Paid, volver a Resend solo para envio interno u otro proveedor transaccional.
+
 ## Actualizacion - Cloudflare Email Service como envio interno
 
 ### Objetivo

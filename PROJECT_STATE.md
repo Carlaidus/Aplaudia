@@ -148,8 +148,11 @@ Ultima actualizacion: 2026-07-02
   - email publico en contenido: `hola@aplaudia.com`;
   - alias recomendado para solicitudes: `presupuestos@aplaudia.com`;
   - estrategia documentada en `docs/email-strategy-aplaudia.md`;
-  - Cloudflare Email Routing queda como recepcion/redireccion gratuita pendiente de confirmar/activar manualmente;
-  - Cloudflare Email Service queda como envio interno gratuito a destinos verificados;
+  - Cloudflare Email Routing tiene los DNS aplicados y verificados en DNS publico el 2026-07-02;
+  - `carlosvfx@gmail.com` esta creado como direccion destino en Cloudflare, pendiente de verificacion por email;
+  - los aliases publicos `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com` siguen pendientes de crearse porque Cloudflare no permite seleccionar destinos no verificados;
+  - Cloudflare Email Service / Email Sending tiene token creado y variables configuradas en Railway, sin guardar secretos;
+  - prueba real controlada desde produccion devuelve `email.sending.error.email.sending_disabled`;
   - Cloudflare Email Routing no crea buzones ni permite responder como `@aplaudia.com` sin proveedor adicional;
   - Resend queda como configuracion historica/dormida, no como camino activo.
 - Canonico operativo:
@@ -184,15 +187,14 @@ Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 - Revisar contenido comercial antes de lanzar.
 - Revisar textos ES / CA / EN.
 - Crear legal basico: aviso legal, privacidad y cookies si se va a captar contacto.
-- Confirmar o configurar variables reales de Cloudflare Email Service en Railway para activar el formulario/chatbot:
-  - `CLOUDFLARE_ACCOUNT_ID`;
-  - `CLOUDFLARE_EMAIL_API_TOKEN`;
-  - `EMAIL_FROM`;
-  - `INTERNAL_EMAIL_RECIPIENT`;
-  - `AGENT_QUOTE_RECIPIENT_EMAIL` opcional;
-  - `CONTACT_RECIPIENT_EMAIL`;
-- Activar o confirmar Cloudflare Email Routing para `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com` hacia `carlosvfx@gmail.com`.
-- Activar o confirmar Cloudflare Email Service y verificar el remitente/destino necesarios.
+- Carlos debe verificar `carlosvfx@gmail.com` desde el email enviado por Cloudflare.
+- Tras verificar el destino, crear reglas de Cloudflare Email Routing para:
+  - `hola@aplaudia.com`;
+  - `presupuestos@aplaudia.com`;
+  - `soporte@aplaudia.com`;
+  - `legal@aplaudia.com`.
+- Repetir prueba real controlada de `/api/agent/quote` y `/api/contacto`.
+- Si Cloudflare sigue devolviendo `email.sending.error.email.sending_disabled`, decidir entre Workers Paid, volver a Resend solo para envio interno u otro proveedor transaccional.
 - Revisar legal/privacidad antes de retirar el aviso de construccion, porque ya existe captacion de contacto.
 - Revisar en produccion con Carlos la nueva version de portfolio/casos ya desplegada.
 - Validar con Carlos si el panel interno real de Arik Custom debe mostrarse publicamente.

@@ -67,6 +67,11 @@ Estrategia de dominio:
 - Cloudflare Email Service envia solo emails internos desde la web/chatbot a una direccion verificada.
 - Resend no se usa actualmente como proveedor activo.
 - La estrategia completa esta documentada en `docs/email-strategy-aplaudia.md`.
+- Estado real 2026-07-02:
+  - DNS de Cloudflare Email Routing aplicado;
+  - `carlosvfx@gmail.com` pendiente de verificacion en Cloudflare;
+  - Railway tiene variables Cloudflare configuradas sin guardar secretos;
+  - las pruebas internas de envio fallan con `email.sending.error.email.sending_disabled`.
 
 Variables de entorno necesarias para activar el envio real:
 

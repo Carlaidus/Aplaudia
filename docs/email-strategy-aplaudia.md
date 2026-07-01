@@ -12,6 +12,27 @@ Mantener una estrategia clara, gratuita y sencilla para `aplaudia.com`:
 - Sin newsletter, publicidad ni base de datos.
 - Resend no es el proveedor activo de Aplaudia.
 
+## Estado real 2026-07-02
+
+- Cloudflare Email Routing:
+  - registros DNS indicados por Cloudflare aplicados y comprobados en DNS publico:
+    - `MX` raiz a `route1.mx.cloudflare.net`, prioridad 60;
+    - `MX` raiz a `route2.mx.cloudflare.net`, prioridad 99;
+    - `MX` raiz a `route3.mx.cloudflare.net`, prioridad 18;
+    - `TXT` `cf2024-1._domainkey.aplaudia.com` para DKIM de Cloudflare;
+    - `TXT` raiz `v=spf1 include:_spf.mx.cloudflare.net ~all`;
+  - `carlosvfx@gmail.com` creado como direccion de destino en Cloudflare;
+  - estado de destino: pendiente de verificacion por email;
+  - no se han creado todavia los aliases publicos porque Cloudflare exige una direccion de destino verificada.
+- Cloudflare Email Service / Email Sending:
+  - token de API creado con permiso `Email Sending Write`;
+  - el token esta configurado en Railway, pero no se guarda en el repo ni en documentacion;
+  - Railway tiene configuradas las variables Cloudflare y destinatarios internos;
+  - prueba real controlada desde produccion falla con `email.sending.error.email.sending_disabled`;
+  - el panel de Cloudflare muestra que el envio completo de email esta en beta y requiere Workers Paid;
+  - pendiente comprobar si tras verificar `carlosvfx@gmail.com` Cloudflare permite el envio gratuito a destino verificado, tal como indica su documentacion, o si mantiene el bloqueo.
+- Resend sigue sin ser proveedor activo en codigo. La variable antigua puede permanecer dormida en Railway hasta confirmar el camino final.
+
 ## Recepcion con Cloudflare Email Routing
 
 Cloudflare Email Routing recibe correos en aliases del dominio y los reenvia a una direccion destino. No crea buzones completos y no permite responder como `@aplaudia.com` por si solo.
@@ -93,18 +114,21 @@ Estado:
 - Carlos puede eliminar o dejar dormida la configuracion manualmente si lo decide.
 - Resend queda como alternativa futura, no como camino vigente.
 
-## Configuracion manual pendiente en Cloudflare
+## Configuracion pendiente
 
-No se debe tocar Cloudflare automaticamente desde codigo. Pasos manuales:
+Pasos restantes, sin guardar secretos:
 
-1. Activar o confirmar Email Routing en Cloudflare.
-2. Verificar `carlosvfx@gmail.com` como destino.
-3. Crear los aliases recomendados.
-4. Activar o confirmar Cloudflare Email Service.
-5. Crear un API token con permiso para enviar emails.
-6. Verificar el remitente `hola@aplaudia.com` o el remitente elegido.
-7. Configurar las variables necesarias en Railway.
-8. Probar con datos ficticios y consentimiento visible solo si Carlos autoriza una prueba real.
+1. Carlos debe abrir el email de verificacion recibido en `carlosvfx@gmail.com` desde Cloudflare y confirmar la direccion de destino.
+2. Cuando el destino aparezca como verificado, crear las reglas de routing:
+   - `hola@aplaudia.com` -> `carlosvfx@gmail.com`;
+   - `presupuestos@aplaudia.com` -> `carlosvfx@gmail.com`;
+   - `soporte@aplaudia.com` -> `carlosvfx@gmail.com`;
+   - `legal@aplaudia.com` -> `carlosvfx@gmail.com`.
+3. Repetir la prueba real controlada desde `/api/agent/quote` con datos ficticios y consentimiento.
+4. Si Cloudflare sigue devolviendo `email.sending.error.email.sending_disabled`, decidir una de estas opciones:
+   - activar Workers Paid si Carlos quiere usar Cloudflare Email Sending;
+   - volver a Resend solo como proveedor de envio interno;
+   - usar otro proveedor SMTP/transaccional.
 
 Importante: no inventar registros DNS. Aplicar solo los que Cloudflare indique.
 
