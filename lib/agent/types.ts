@@ -35,6 +35,7 @@ export type AgentWidgetConfig = {
   dialogLabel: string
   fallbackReply: string
   floatingButtonLabel: string
+  floatingButtonText?: string
   inputMaxLength?: number
   listeningPlaceholder?: string
   maxHistoryItems?: number

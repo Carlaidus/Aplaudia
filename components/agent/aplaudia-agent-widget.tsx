@@ -16,6 +16,7 @@ export function AplaudiaAgentWidget() {
         fallbackReply:
           "No he podido responder ahora mismo. Escríbenos desde contacto y lo vemos con calma.",
         floatingButtonLabel: "Abrir asistente de Aplaudia",
+        floatingButtonText: "¿Dudas?",
         inputMaxLength: 500,
         listeningPlaceholder: "Escuchando...",
         placeholder: "Cuéntame qué necesitas...",

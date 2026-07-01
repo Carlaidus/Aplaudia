@@ -4,6 +4,30 @@ Prioridad: Alta
 Modelo recomendado para Codex: GPT-5.5
 Nivel de inteligencia recomendado: Extremadamente alto
 
+## Estado tras la ejecucion
+
+- Tarea de agente ejecutada:
+  - input del chatbot validado limpio tras enviar;
+  - precios propios reordenados en `content/agent/aplaudia-agent.md`;
+  - referencias de mercado separadas de los precios propios;
+  - ambito de conversacion limitado a Aplaudia, sus servicios y casos reales;
+  - prompt servidor reforzado para obedecer el `.md`.
+- Ajuste visual urgente ejecutado:
+  - etiqueta del chatbot cambiada a `¿Dudas?`;
+  - galeria visual sin solapes raros;
+  - lightbox de visuales a pantalla casi completa.
+
+## Proximo foco real
+
+1. Revisar en movil real `https://aplaudia.com`:
+   - etiqueta `¿Dudas?`;
+   - galeria de visuales;
+   - lightbox de visuales;
+   - aviso de construccion y chatbot sin solapes.
+2. Ajustar si Carlos quiere otra distribucion visual de las imagenes.
+3. Probar mas conversaciones reales del agente en produccion y afinar `content/agent/aplaudia-agent.md` si alguna respuesta se sale de tono, precio o ambito.
+4. Continuar con legal/contacto antes de retirar el aviso de construccion.
+
 ## Objetivo inmediato
 
 Cerrar ajustes pendientes de chatbot/agente y galería visual: etiqueta corta en el botón del chatbot, input limpio al enviar, precios bien ordenados en el archivo `.md`, agente limitado al ámbito de Aplaudia, imágenes de visuales ampliables a pantalla completa y galería sin solapes raros entre imágenes.

@@ -549,28 +549,39 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
       )}
 
       {!isOpen && (
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className={cn(
-            "fixed bottom-4 right-4 z-[55] flex h-14 w-14 items-center justify-center rounded-full border border-white/15 shadow-2xl transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95 sm:bottom-6 sm:right-6",
-            theme.floatingButton,
-          )}
-          aria-label={config.floatingButtonLabel}
-        >
-          {hasUnread && (
-            <span
-              className={cn(
-                "absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-background text-[10px] font-bold",
-                theme.unreadBadge,
-              )}
+        <div className="fixed bottom-4 right-4 z-[55] flex items-center gap-2 sm:bottom-6 sm:right-6">
+          {config.floatingButtonText && (
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              className="rounded-full border border-white/10 bg-background/80 px-3 py-2 text-sm font-medium text-foreground/90 shadow-xl backdrop-blur-md transition-colors hover:border-primary/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              1
-            </span>
+              {config.floatingButtonText}
+            </button>
           )}
-          <MessageCircle className="h-6 w-6" aria-hidden="true" />
-          {showFloatingSparkle && <Sparkles className={cn("absolute -right-1 -top-1 h-4 w-4", theme.floatingSparkle)} aria-hidden="true" />}
-        </button>
+          <button
+            type="button"
+            onClick={() => setIsOpen(true)}
+            className={cn(
+              "relative flex h-14 w-14 items-center justify-center rounded-full border border-white/15 shadow-2xl transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-95",
+              theme.floatingButton,
+            )}
+            aria-label={config.floatingButtonLabel}
+          >
+            {hasUnread && (
+              <span
+                className={cn(
+                  "absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-background text-[10px] font-bold",
+                  theme.unreadBadge,
+                )}
+              >
+                1
+              </span>
+            )}
+            <MessageCircle className="h-6 w-6" aria-hidden="true" />
+            {showFloatingSparkle && <Sparkles className={cn("absolute -right-1 -top-1 h-4 w-4", theme.floatingSparkle)} aria-hidden="true" />}
+          </button>
+        </div>
       )}
     </>
   )

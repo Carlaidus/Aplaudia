@@ -2,6 +2,53 @@
 
 Fecha: 2026-07-01
 
+## Actualizacion - Chatbot, agente y visuales
+
+### Objetivo
+
+Ejecutar `NEXT_TASK.md` y el ajuste urgente de Carlos: etiqueta corta del chatbot, galeria visual sin solapes raros, imagenes ampliables a pantalla casi completa y agente limitado al ambito de Aplaudia con precios mejor ordenados.
+
+### Cambios aplicados
+
+- `components/agent/generic-agent-widget.tsx` y `components/agent/aplaudia-agent-widget.tsx`:
+  - se anade etiqueta corta visible `¿Dudas?`;
+  - no aparece `Preguntame sobre Aplaudia`;
+  - se confirma que el textarea se limpia al enviar y vuelve a altura minima.
+- `components/sections/visual-gallery.tsx` y `content/visual-gallery.ts`:
+  - la galeria pasa a masonry limpio de dos columnas en escritorio y una columna en movil;
+  - se eliminan margenes negativos y solapes raros;
+  - se mantiene animacion, hover y assets actuales;
+  - al clicar una imagen se abre un lightbox casi a pantalla completa con cierre y tecla Escape.
+- `content/agent/aplaudia-agent.md`:
+  - precios propios reordenados por Webs, Agentes IA/chatbots, Mantenimiento mensual y Visuales/imagen/video;
+  - referencias de mercado anadidas en bloque separado y marcadas como no-precio propio;
+  - nueva seccion `Ambito de conversacion` para rechazar preguntas ajenas a Aplaudia;
+  - se refuerza que no debe hablar de precios si no se preguntan explicitamente.
+- `lib/agent/build-agent-prompt.ts`:
+  - el prompt servidor antepone reglas prioritarias para obedecer el `.md`, no salir de ambito, no dar precios sin pregunta explicita y no mencionar herramientas internas.
+
+### Validaciones ejecutadas
+
+- `npm install`: no fue necesario; `node_modules` ya existia.
+- `npm run build`: OK.
+- `npm run lint`: falla por deuda previa; `eslint` no esta disponible como ejecutable del proyecto.
+- `git diff --check`: OK; solo avisos CRLF/LF de Windows.
+- QA local con `next start` en `http://127.0.0.1:3050`:
+  - escritorio 1440x1100: galeria sin solapes, sin scroll horizontal, etiqueta `¿Dudas?` visible;
+  - movil 390x844: galeria apilada sin scroll horizontal, etiqueta `¿Dudas?` visible;
+  - lightbox escritorio: abierto, 1382 x 968 px, scroll de fondo bloqueado;
+  - lightbox movil: abierto, 366 x 743 px, scroll de fondo bloqueado;
+  - chatbot: textarea antes de enviar 96 px, tras enviar queda vacio, 48 px, boton enviar desactivado, pregunta solo como burbuja.
+
+### Estado
+
+- Cambio local validado.
+- Pendiente de commit, push y comprobacion final en produccion.
+
+### Siguiente paso recomendado
+
+Validar en produccion con preguntas reales del agente: servicios sin precio, precio explicito, poco presupuesto, fuera de ambito y casos reales.
+
 ## Actualizacion - Galeria visual mas llena
 
 ### Objetivo

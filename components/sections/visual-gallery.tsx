@@ -2,8 +2,8 @@
 
 import Image from "next/image"
 import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import { useRef, useState } from "react"
-import { Wand2, Image as ImageIcon, RefreshCw, Tv, Sparkles } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Wand2, Image as ImageIcon, RefreshCw, Tv, Sparkles, X } from "lucide-react"
 import { useTranslations } from "@/i18n"
 import { useLightweightMotion } from "@/components/motion-performance-provider"
 import { visualGalleryItems, type VisualGalleryItem } from "@/content/visual-gallery"
@@ -110,10 +110,12 @@ function GalleryItem({
   item,
   index,
   lightweightMotion,
+  onOpen,
 }: {
   item: VisualGalleryItem
   index: number
   lightweightMotion: boolean
+  onOpen: (item: VisualGalleryItem) => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: "180px" })
@@ -121,7 +123,8 @@ function GalleryItem({
 
   // Masonry-style staggered reveal with rotation
   return (
-    <motion.div
+    <motion.button
+      type="button"
       ref={ref}
       initial={{ 
         opacity: 0, 
@@ -144,7 +147,9 @@ function GalleryItem({
       }}
       onMouseEnter={lightweightMotion ? undefined : () => setIsHovered(true)}
       onMouseLeave={lightweightMotion ? undefined : () => setIsHovered(false)}
-      className={`${item.span} ${item.aspect} rounded-2xl overflow-hidden group relative cursor-pointer`}
+      onClick={() => onOpen(item)}
+      className={`${item.span} ${item.aspect} rounded-2xl overflow-hidden group relative cursor-zoom-in text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
+      aria-label={`Ampliar imagen: ${item.alt}`}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient}`} />
 
@@ -173,7 +178,7 @@ function GalleryItem({
         animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 1.1 }}
         transition={{ duration: 0.3 }}
       />
-    </motion.div>
+    </motion.button>
   )
 }
 
@@ -183,6 +188,7 @@ export function VisualGallery() {
   const headerRef = useRef<HTMLDivElement>(null)
   const isHeaderInView = useInView(headerRef, { once: true, margin: "-100px" })
   const lightweightMotion = useLightweightMotion()
+  const [activeItem, setActiveItem] = useState<VisualGalleryItem | null>(null)
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -195,6 +201,24 @@ export function VisualGallery() {
   const decorRotate = useTransform(scrollYProgress, [0, 1], [0, 180])
 
   const categoryKeys: CategoryKey[] = ["category1", "category2", "category3", "category4"]
+
+  useEffect(() => {
+    if (!activeItem) return
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setActiveItem(null)
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [activeItem])
 
   return (
     <section ref={sectionRef} className="relative py-32 lg:py-40 overflow-hidden">
@@ -307,12 +331,57 @@ export function VisualGallery() {
         </motion.div>
 
         {/* Gallery grid with masonry-style reveals */}
-        <div className="grid gap-6 md:grid-cols-10 md:items-start">
+        <div className="columns-1 gap-6 md:columns-2">
           {visualGalleryItems.map((item, index) => (
-            <GalleryItem key={item.id} item={item} index={index} lightweightMotion={lightweightMotion} />
+            <GalleryItem
+              key={item.id}
+              item={item}
+              index={index}
+              lightweightMotion={lightweightMotion}
+              onOpen={setActiveItem}
+            />
           ))}
         </div>
       </div>
+
+      {activeItem && (
+        <motion.div
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-background/95 p-3 backdrop-blur-xl sm:p-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          role="dialog"
+          aria-modal="true"
+          aria-label={activeItem.alt}
+          onClick={() => setActiveItem(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setActiveItem(null)}
+            className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-background/70 text-foreground shadow-xl backdrop-blur-md transition-colors hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:right-6 sm:top-6"
+            aria-label="Cerrar imagen ampliada"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
+
+          <motion.div
+            className="relative h-[88dvh] w-[96vw] max-w-[1500px] overflow-hidden rounded-2xl border border-white/10 bg-card/40 shadow-2xl shadow-primary/10"
+            initial={{ scale: 0.96, y: 16 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <Image
+              src={activeItem.src}
+              alt={activeItem.alt}
+              fill
+              sizes="96vw"
+              className="object-contain"
+              priority
+            />
+          </motion.div>
+        </motion.div>
+      )}
     </section>
   )
 }
