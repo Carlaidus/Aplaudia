@@ -34,13 +34,27 @@ Corregir el problema visto en los emails internos donde palabras con acentos apa
 
 ### Estado
 
-- Cambio validado localmente.
-- Pendiente de commit, push y comprobacion de Railway al cerrar esta tarea.
-- No se han enviado emails reales durante esta validacion local.
+- Cambio validado localmente y desplegado.
+- Commit: `681703f` (`Corrige codificacion de emails internos`).
+- Railway dashboard:
+  - servicio `Aplaudia`: `Active`;
+  - deployment del commit `681703f`: `Deployment successful`.
+- Produccion:
+  - `https://aplaudia.com`: `200`;
+  - `https://aplaudia.com/robots.txt`: `200`;
+  - `https://aplaudia.com/llms.txt`: `200`;
+  - `https://aplaudia.com/sitemap.xml`: `200`.
+- Prueba interna controlada desde produccion:
+  - endpoint: `/api/agent/quote`;
+  - texto con `más`, `aquí`, `orientación`, `envíamelo` y `estás`;
+  - resultado: `200`;
+  - destino interno: Aplaudia/Carlos;
+  - `clientCopySent:false`.
+- No se han enviado emails a clientes reales.
 
 ### Siguiente paso recomendado
 
-Tras despliegue, hacer una prueba interna controlada del chatbot o formulario con texto acentuado para confirmar visualmente en Gmail que los acentos ya se renderizan bien.
+Carlos debe revisar en Gmail el email interno de prueba `accent-encoding-test` y confirmar visualmente que los acentos ya se renderizan bien.
 
 ## Actualizacion - Ficha interna sin falsos positivos
 
