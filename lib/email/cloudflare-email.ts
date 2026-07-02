@@ -73,6 +73,14 @@ function getAddressValue(address: CloudflareEmailAddress) {
   return typeof address === "string" ? address : address.address
 }
 
+export function encodeHtmlForEmail(value: string) {
+  return value.replace(/[^\u0009\u000A\u000D\u0020-\u007E]/gu, (character) => {
+    const codePoint = character.codePointAt(0)
+
+    return codePoint ? `&#${codePoint};` : ""
+  })
+}
+
 function getAllowedInternalRecipients() {
   return new Set(
     [
@@ -143,7 +151,7 @@ export async function sendInternalEmail({ html, replyTo, subject, text, to }: Se
   const cleanReplyTo = normalizeText(replyTo)
   const payload: Record<string, unknown> = {
     from: config.from,
-    html,
+    html: encodeHtmlForEmail(html),
     subject,
     text,
     to,
@@ -157,7 +165,7 @@ export async function sendInternalEmail({ html, replyTo, subject, text, to }: Se
     body: JSON.stringify(payload),
     headers: {
       Authorization: `Bearer ${config.apiToken}`,
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     },
     method: "POST",
   })

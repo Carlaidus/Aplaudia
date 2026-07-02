@@ -2,6 +2,46 @@
 
 Fecha: 2026-07-02
 
+## Actualizacion - Acentos en emails internos
+
+### Objetivo
+
+Corregir el problema visto en los emails internos donde palabras con acentos aparecian con caracteres de sustitucion, por ejemplo `m�s`, `aqu�`, `orientaci�n`, `env�amelo` o `est�s`.
+
+### Causa confirmada
+
+- El HTML del email llegaba a algunos clientes de correo con una codificacion no fiable para caracteres no ASCII.
+- Aunque la plantilla incluia `<meta charset="UTF-8">`, el render final del correo podia interpretar mal el cuerpo recibido desde Cloudflare Email Service.
+
+### Cambios aplicados
+
+- `lib/email/cloudflare-email.ts`:
+  - anadido `encodeHtmlForEmail()`;
+  - el HTML se envia convertido a entidades HTML ASCII antes de llamar a Cloudflare;
+  - `á`, `í`, `ó`, `·`, `€`, etc. se envian como entidades tipo `&#225;`, evitando mojibake;
+  - cabecera de la llamada API reforzada a `application/json; charset=utf-8`.
+- `scripts/validate-email-encoding.mjs`:
+  - nuevo test de regresion para comprobar que `más`, `aquí`, `orientación`, `envíamelo`, `estás`, `·` y `€` quedan codificados como entidades HTML.
+- `package.json`:
+  - nuevo script `npm run test:email-encoding`.
+
+### Validaciones locales
+
+- `npm run test:email-encoding`: OK.
+- `npm run test:quote-analysis`: OK.
+- `npm run build`: OK.
+- `npm run lint`: no disponible; `eslint` no esta instalado como ejecutable local.
+
+### Estado
+
+- Cambio validado localmente.
+- Pendiente de commit, push y comprobacion de Railway al cerrar esta tarea.
+- No se han enviado emails reales durante esta validacion local.
+
+### Siguiente paso recomendado
+
+Tras despliegue, hacer una prueba interna controlada del chatbot o formulario con texto acentuado para confirmar visualmente en Gmail que los acentos ya se renderizan bien.
+
 ## Actualizacion - Ficha interna sin falsos positivos
 
 ### Objetivo

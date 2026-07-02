@@ -10,6 +10,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "test:email-encoding": "node scripts/validate-email-encoding.mjs",
     "test:quote-analysis": "node scripts/validate-agent-quote-analysis.mjs"
   },
   "dependencies": {
