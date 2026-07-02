@@ -67,11 +67,23 @@ Corregir el fallo grave detectado en una consulta real sobre una web municipal g
 - No se creo base de datos.
 - No se envio copia automatica al cliente.
 - No se retiro el aviso de construccion.
-- Produccion pendiente de validar tras push de este cambio.
+- Commit desplegado: `2276bde` (`Corrige clasificacion municipal del chatbot`).
+- Railway/GitHub status publico: `success`, descripcion `Success - aplaudia.com`.
+- Produccion:
+  - `https://aplaudia.com`: `200`;
+  - `/robots.txt`: `200`;
+  - `/llms.txt`: `200`;
+  - `/sitemap.xml`: `200`;
+  - bundle nuevo servido desde `/_next/static/chunks/app/layout-34cba04dafed72cd.js`.
+- Validacion API produccion:
+  - `/api/agent/quote` sin consentimiento: `400`;
+  - `/api/agent/quote` con caso municipal ficticio, consentimiento aceptado, nombre y telefono: `200`;
+  - respuesta: `clientCopySent:false`;
+  - se envio una prueba interna controlada a Aplaudia/Carlos, no a un cliente real.
 
 ### Siguiente paso recomendado
 
-Desplegar y probar en produccion una solicitud municipal/institucional controlada para confirmar que el email interno ya no menciona mascotas/vacunas, marca revision humana y propone fases antes de responder con precio.
+Revisar en Gmail la prueba interna municipal generada desde produccion y confirmar que el email marca `Web institucional / plataforma municipal`, revision humana, propuesta por fases y ausencia de mascotas/vacunas. Si el formato es correcto, el siguiente foco sigue siendo revisar legal/privacidad antes de retirar el aviso de construccion.
 
 ## Actualizacion - Datos opcionales una sola vez en el chatbot
 
