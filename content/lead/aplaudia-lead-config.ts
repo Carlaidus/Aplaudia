@@ -56,9 +56,9 @@ export const aplaudiaLeadConfig = {
   priceReferences: [
     {
       lines: [
-        "Proyecto institucional/municipal: revisión humana obligatoria.",
-        "No usar precios de landing/web básica para este alcance.",
-        "Preparar propuesta por fases: discovery, web base, CMS/panel, IA/chatbot, automatizaciones, mantenimiento.",
+        "Proyecto a medida. Requiere revisión humana obligatoria y propuesta por fases.",
+        "No cerrar precio por chat ni usar precios de landing/web básica para este alcance.",
+        "Preparar fases: discovery, web municipal base, CMS/panel, datos, chatbot/instancias, automatizaciones y mantenimiento.",
       ],
       projectKinds: ["municipalInstitutional"],
     },

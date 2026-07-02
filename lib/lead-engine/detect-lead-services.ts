@@ -115,10 +115,11 @@ export function detectLeadServiceIds(clientOnlyText: string): LeadServiceId[] {
 
   if (projectKind === "municipalInstitutional") services.push("institutionalWeb")
   if (
-    projectKind === "personal" ||
-    projectKind === "landing" ||
-    projectKind === "generalWeb" ||
-    /\b(web|pagina|landing)\b/.test(normalized)
+    projectKind !== "municipalInstitutional" &&
+    (projectKind === "personal" ||
+      projectKind === "landing" ||
+      projectKind === "generalWeb" ||
+      /\b(web|pagina|landing)\b/.test(normalized))
   ) {
     services.push("web")
   }
@@ -130,15 +131,27 @@ export function detectLeadServiceIds(clientOnlyText: string): LeadServiceId[] {
   if (/\b(catalogo|productos?|fichas?|tienda|ecommerce|e-commerce|comercio online|venta online)\b/.test(normalized)) {
     services.push("catalog")
   }
-  if (/\b(control|registro|gestion|datos|base de datos|fichas?|vacunas?|mascotas?)\b/.test(normalized)) services.push("data")
+  if (
+    projectKind !== "municipalInstitutional" &&
+    /\b(control|registro|gestion|datos|base de datos|fichas?|vacunas?|mascotas?)\b/.test(normalized)
+  ) {
+    services.push("data")
+  }
   if (/\b(base de datos|bases de datos|datos entre pueblos|red de datos)\b/.test(normalized)) services.push("database")
   if (/\b(usuarios?|accesos?|permisos?|roles?)\b/.test(normalized)) services.push("users")
   if (/\b(avisos?|recordatorios?|notificaciones?)\b/.test(normalized)) services.push("reminders")
   if (/\b(agente|chatbot|asistente)\b/.test(normalized)) services.push("agentWeb")
   if (/\b(whatsapp|asistente para whatsapp|automatizacion de whatsapp)\b/.test(normalized)) services.push("whatsapp")
-  if (/\b(documentacion|documentos|gestion documental|documentacion municipal)\b/.test(normalized)) services.push("documents")
+  if (projectKind === "municipalInstitutional" || /\b(documentacion|documentos|gestion documental|documentacion municipal)\b/.test(normalized)) {
+    services.push("documents")
+  }
   if (/\b(agenda|eventos?|fiestas?|calendario)\b/.test(normalized)) services.push("events")
-  if (/\b(automatizacion|automaticamente|automatizar|ia que|cruza datos|analice|generar posts?|publicaciones?)\b/.test(normalized)) {
+  if (
+    /\b(automatizacion|automaticamente|automatizar|ia que|cruza datos|analice|generar posts?|publicaciones?)\b/.test(
+      normalized,
+    ) ||
+    (projectKind === "municipalInstitutional" && /\b(instagram|carteles?|ia|posts?|publicaciones?)\b/.test(normalized))
+  ) {
     services.push("automation")
   }
   if (/\b(instagram|redes sociales|publicaciones?|posts?)\b/.test(normalized)) services.push("socialPublishing")
@@ -192,7 +205,9 @@ export function detectMaterials(clientOnlyText: string) {
     materials.push("Web municipal actual como referencia")
   }
   if (/\b(carteles?|cartel)\b/.test(normalized)) materials.push("Carteles de fiestas como entrada visual")
-  if (/\b(documentacion|documentos|contenido actual)\b/.test(normalized)) materials.push("Documentacion existente")
+  if (/\b(documentacion|documentos|contenido actual|web entera|informacion necesaria)\b/.test(normalized)) {
+    materials.push("Documentacion existente")
+  }
 
   return materials.length > 0 ? unique(materials) : ["No indicado"]
 }

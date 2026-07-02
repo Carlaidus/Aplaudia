@@ -108,6 +108,31 @@ function pickUsefulPhrases(projectMessages: string[]) {
     .slice(0, 3)
 }
 
+function pickMunicipalUsefulPhrases(projectContextText: string, projectMessages: string[]) {
+  const normalized = normalizeSource(projectContextText)
+  const phrases: string[] = []
+
+  if (/\bayuntamiento\b|\bmunicipal\b|\bpueblo\b/.test(normalized)) {
+    phrases.push(
+      "Quiere crear una web completa para el ayuntamiento con documentacion, informacion del pueblo, fiestas y panel de control amplio.",
+    )
+  }
+  if (/\bwordpress\b|\bcms\b|\bpanel interno\b|\bpanel de control\b|\bchatbot\b|\bia\b|\bbase de datos\b/.test(normalized)) {
+    phrases.push(
+      "Quiere un panel tipo CMS propio, con automatizaciones, IA/chatbot y acceso a contenidos o bases de datos.",
+    )
+  }
+  if (/\bpueblo de al lado\b|\botros pueblos\b|\bred de municipios\b|\bvarios ayuntamientos\b|\bbase de datos entre pueblos\b/.test(normalized)) {
+    phrases.push("Quiere que el sistema pueda ampliarse a otros ayuntamientos o pueblos en una red compartida.")
+  }
+
+  if (phrases.length >= 2) return unique(phrases).slice(0, 3)
+
+  return pickUsefulPhrases(projectMessages)
+    .filter((phrase) => !/\b(email|correo|telefono|tel[eé]fono|acepto|consentimiento)\b/i.test(phrase))
+    .slice(0, 3)
+}
+
 function extractStrictAssistantPriceLines(history: LeadMessage[]) {
   return history
     .filter((message) => message.role === "assistant")
@@ -169,17 +194,22 @@ export function buildLeadSummary(args: {
   const materials = detectMaterials(clientOnlyText || projectContextText)
   const objective = buildObjective(project.kind)
   const questions = detectQuestions(projectContextText)
-  const usefulClientPhrases = pickUsefulPhrases(classifiedMessages.projectContextMessages)
+  const usefulClientPhrases =
+    project.kind === "municipalInstitutional"
+      ? pickMunicipalUsefulPhrases(projectContextText, classifiedMessages.projectContextMessages)
+      : pickUsefulPhrases(classifiedMessages.projectContextMessages)
   const assistantPriceLines = extractStrictAssistantPriceLines(args.history)
   const configPriceLines = fallbackPriceLines(args.config, project.kind, projectContextText)
   const normalizedClientText = normalizeSource(clientOnlyText || projectContextText)
   const highComplexity = hasHighComplexityContext(normalizedClientText) || project.kind === "municipalInstitutional"
   const manualReviewPriceLines =
     highComplexity || project.kind === "municipalInstitutional"
-      ? [
-          "Proyecto a medida. Requiere revision humana y propuesta por fases.",
-          "No se debe cerrar precio por chat ni usar precios de landing/web basica para este alcance.",
-        ]
+      ? configPriceLines.length > 0
+        ? []
+        : [
+            "Proyecto a medida. Requiere revision humana y propuesta por fases.",
+            "No se debe cerrar precio por chat ni usar precios de landing/web basica para este alcance.",
+          ]
       : []
   const lowPriceWarning =
     highComplexity && assistantPriceLines.length > 0

@@ -2,6 +2,42 @@
 
 Fecha: 2026-07-02
 
+## Actualizacion - Pulido de email municipal recibido
+
+### Observacion real
+
+Carlos confirmo que el email municipal ya llegaba con la clasificacion principal correcta, pero aun quedaban detalles de calidad:
+
+- aparecia `Web / landing` ademas de `Web institucional`;
+- faltaban servicios como `Gestion documental` y `Automatizaciones` en el email recibido;
+- `Materiales mencionados` salia como `No indicado` pese a hablar de documentacion/carteles;
+- una frase util incluia contacto/consentimiento y un `tel?fono` roto.
+
+### Cambios aplicados
+
+- En proyectos `municipalInstitutional`, ya no se anade el servicio generico `Web / landing`.
+- `Gestion documental` se fuerza en municipal/institucional y `Automatizaciones` se refuerza con Instagram, carteles, IA o publicaciones.
+- `Materiales mencionados` detecta documentacion existente, web/informacion actual y carteles de fiestas.
+- Las frases utiles municipales se generan desde el contexto completo como frases sinteticas, no desde mensajes que mezclan telefono, nombre o consentimiento.
+- Las lineas internas de precio municipal se simplifican para evitar duplicados:
+  - proyecto a medida y revision humana obligatoria;
+  - no cerrar precio por chat ni usar precios de web basica;
+  - preparar fases: discovery, web municipal base, CMS/panel, datos, chatbot/instancias, automatizaciones y mantenimiento.
+
+### Validaciones locales
+
+- `npm run test:quote-analysis`: OK, con aserciones nuevas para evitar `Web / landing`, exigir materiales municipales y excluir telefono/aceptacion de frases utiles.
+- `npm run test:email-encoding`: OK.
+- `npm run build`: OK.
+
+### Estado externo
+
+- Pendiente de push/despliegue de esta microcorreccion.
+
+### Siguiente paso recomendado
+
+Tras desplegar, generar otra prueba municipal corta y revisar que el email ya salga mas limpio: sin `Web / landing`, con `Gestion documental`, `Automatizaciones`, materiales municipales y frases utiles sin datos de contacto.
+
 ## Actualizacion - Clasificacion municipal y proyectos complejos
 
 ### Objetivo

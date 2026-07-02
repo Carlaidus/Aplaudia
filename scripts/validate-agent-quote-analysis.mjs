@@ -285,6 +285,9 @@ for (const service of [
 ]) {
   assertIncludes(municipal.requestedServices, service, "Municipal servicios")
 }
+assert(!municipal.requestedServices.includes("Web / landing"), "Municipal no debe incluir Web / landing generico")
+assertIncludes(municipal.materials, "Documentacion existente", "Municipal materiales")
+assertIncludes(municipal.materials, "Carteles de fiestas como entrada visual", "Municipal materiales")
 assertExcludes(
   municipalCombined,
   [/mascotas/i, /vacunas/i, /cl[ií]nica/i, /opci[oó]n m[aá]s barata/i, /opcion basica desde 390/i, /pedir solo textos\/fotos/i, /restaurante/i],
@@ -317,6 +320,11 @@ assert(
 assert(
   municipal.usefulClientPhrases.length <= 3 && municipal.usefulClientPhrases.every((phrase) => phrase.length <= 350),
   `Municipal frases demasiado largas: ${municipal.usefulClientPhrases.join(" | ")}`,
+)
+assertExcludes(
+  municipal.usefulClientPhrases.join(" | "),
+  [/tel[eé?]fono/i, /699223586/, /acepto/i, /carlosvfx/i],
+  "Municipal frases utiles con datos de contacto",
 )
 
 const optionalPrompt = aplaudiaLeadConfig.leadOptionalContactPrompt
