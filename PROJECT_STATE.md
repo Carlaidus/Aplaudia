@@ -130,10 +130,16 @@ Ultima actualizacion: 2026-07-02
   - el email interno es una ficha comercial breve, no un transcript;
   - los detectores usan solo texto del cliente y datos explicitos, no respuestas del asistente ni transcript mixto;
   - `barato`, `barata` o `lo mas barato` no activan `bar`;
+  - `me parece muy barato` se interpreta como aviso de que el precio puede quedarse corto, no como peticion de opcion barata;
+  - nueva categoria `municipalInstitutional` para webs institucionales/plataformas municipales con ayuntamiento, documentacion, agenda, instancias, chatbot, automatizaciones o red de municipios;
+  - el objetivo de mascotas/vacunas solo se usa con contexto explicito de mascotas, vacunas o veterinaria, nunca por palabras genericas como panel, usuarios, registro o control;
+  - los proyectos municipales/institucionales no reciben precios de landing, web basica o agente simple; se marcan como propuesta a medida con revision humana y fases;
+  - `Agente IA web / chatbot` y `WhatsApp` quedan separados; WhatsApp solo se marca si el cliente lo menciona;
   - `no tengo fotos` queda como material mencionado, no como servicio visual;
   - el detector de visuales no cruza expresiones como `hacer reservas` con `no tengo fotos`;
   - la configuracion `leadOptionalContactPrompt` permite pedir nombre/telefono opcionales sin acoplar el core a Aplaudia;
   - el email interno muestra `Telefono: No indicado` si no se facilita y destaca el telefono solo si existe;
+  - el widget guarda el inicio de cada solicitud para no mezclar leads previos ni perder contexto largo;
   - el chatbot bloquea el scroll de fondo mientras esta abierto y evita scroll chaining dentro del panel;
   - test de regresion ampliado disponible con `npm run test:quote-analysis`.
 

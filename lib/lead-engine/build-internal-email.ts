@@ -27,8 +27,10 @@ function signalRows(analysis: LeadAnalysis) {
   return [
     signals.urgency,
     signals.timeline,
+    signals.complexity,
     signals.clarity,
     signals.priceSensitivity,
+    signals.priceConcern,
     signals.friction,
     `Proximo paso recomendado: ${signals.nextAction}`,
   ].filter(Boolean) as string[]

@@ -1,6 +1,6 @@
 import type { LeadDraft, LeadMessage, LeadOptionalContactPrompt } from "./lead-types"
 
-const MAX_HISTORY_ITEMS = 18
+const MAX_HISTORY_ITEMS = 36
 
 export function normalizeSource(value: string) {
   return value
@@ -21,7 +21,7 @@ export function normalizeHistory(value: unknown): LeadMessage[] {
       if (!item || typeof item !== "object") return null
 
       const role = "role" in item ? item.role : null
-      const content = "content" in item ? normalizeText(item.content, 1000) : ""
+      const content = "content" in item ? normalizeText(item.content, 2400) : ""
 
       if ((role !== "user" && role !== "assistant") || !content) return null
 
@@ -47,6 +47,7 @@ export function createLeadDraft(): LeadDraft {
     hasAskedForOptionalContact: false,
     interest: "",
     isActive: false,
+    leadStartedAtMessageIndex: null,
     name: "",
     optionalContactAskCount: 0,
     phone: "",
@@ -172,6 +173,14 @@ export function hasPriceQuestion(text: string) {
   )
 }
 
+export function hasNewLeadRequestIntent(text: string) {
+  const normalized = normalizeSource(text)
+
+  return /\b(quiero|necesito|me gustaria|busco|tengo|planteo|crear|hacer)\b[\s\S]{0,180}\b(web|pagina|plataforma|proyecto|presupuesto|precio|coste|ayuntamiento|municipal|restaurante|catalogo|panel|chatbot|agente|visual|imagenes?)\b/.test(
+    normalized,
+  )
+}
+
 export function hasLeadIntent(text: string) {
   const normalized = normalizeSource(text)
 
@@ -228,7 +237,7 @@ function isProjectContextText(text: string) {
   if (extractEmail(text) && normalized.replace(extractEmail(text).toLowerCase(), "").trim().length < 8) return false
   if (extractShortName(text) && normalized.split(/\s+/).length <= 3) return false
 
-  return /\b(quiero|necesito|gustaria|web|pagina|landing|presupuesto|precio|coste|tiempo|plazo|negocio|restaurante|reservas?|catalogo|productos?|panel|interno|usuarios?|permisos?|mascotas?|vacunas?|avisos?|recordatorios?|fotos?|carta|barato|barata|sencill[ao]|secciones?|pantallas?|herramienta|control|registro|datos?|seo|whatsapp|chatbot|agente|mantenimiento|visual|video|reels?)\b/.test(
+  return /\b(quiero|necesito|gustaria|web|pagina|landing|presupuesto|precio|coste|tiempo|plazo|negocio|restaurante|reservas?|catalogo|productos?|panel|interno|usuarios?|permisos?|mascotas?|vacunas?|avisos?|recordatorios?|fotos?|carta|barato|barata|sencill[ao]|secciones?|pantallas?|herramienta|control|registro|datos?|seo|whatsapp|chatbot|agente|mantenimiento|visual|video|reels?|ayuntamiento|municipal|municipio|pueblo|institucional|ciudadania|vecinos|tramites?|instancias?|documentacion|fiestas?|eventos?|agenda|instagram|redes|base de datos|cms|wordpress)\b/.test(
     normalized,
   )
 }
@@ -245,7 +254,7 @@ export function buildLeadInterestFromMessages(text: string, messages: LeadMessag
   const userMessages = [...messages.filter((message) => message.role === "user").map((message) => message.content), text]
   const useful = userMessages.filter(isProjectContextText)
   const source = useful.length > 0 ? useful : userMessages
-  const interest = source.slice(-5).join("\n").slice(0, 1200).trim()
+  const interest = source.slice(-10).join("\n").slice(0, 3600).trim()
 
   return interest || "Solicitud enviada desde chatbot sin resumen suficiente"
 }

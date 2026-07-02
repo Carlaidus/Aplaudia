@@ -13,7 +13,7 @@ function hasProjectContext(text: string) {
   if (!normalized) return false
   if (isOnlyAdminMessage(text)) return false
 
-  return /\b(quiero|necesito|gustaria|web|pagina|landing|presupuesto|precio|coste|tiempo|plazo|negocio|restaurante|reservas?|catalogo|productos?|panel|interno|usuarios?|permisos?|mascotas?|vacunas?|avisos?|recordatorios?|fotos?|carta|barato|barata|sencill[ao]|secciones?|pantallas?|herramienta|control|registro|datos?|seo|whatsapp|chatbot|agente|mantenimiento|visual|video|reels?)\b/.test(
+  return /\b(quiero|necesito|gustaria|web|pagina|landing|presupuesto|precio|coste|tiempo|plazo|negocio|restaurante|reservas?|catalogo|productos?|panel|interno|usuarios?|permisos?|mascotas?|vacunas?|avisos?|recordatorios?|fotos?|carta|barato|barata|sencill[ao]|secciones?|pantallas?|herramienta|control|registro|datos?|seo|whatsapp|chatbot|agente|mantenimiento|visual|video|reels?|ayuntamiento|municipal|municipio|pueblo|institucional|ciudadania|vecinos|tramites?|instancias?|documentacion|fiestas?|eventos?|agenda|instagram|redes|base de datos|cms|wordpress)\b/.test(
     normalized,
   )
 }

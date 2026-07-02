@@ -34,8 +34,37 @@ function hasWebAppContext(normalized: string) {
   )
 }
 
-function hasPetClinicContext(normalized: string) {
-  return /\b(mascotas?|vacunas?|clinica|veterinaria|veterinario|uso interno)\b/.test(normalized)
+export function hasPetClinicContext(normalized: string) {
+  return /\b(mascotas?|vacunas?|veterinaria|veterinario|clinica veterinaria|animales)\b/.test(normalized)
+}
+
+export function hasMunicipalInstitutionalContext(normalized: string) {
+  return /\b(ayuntamientos?|municipal|municipio|administracion publica|administracion|institucional|ciudadania|vecinos|tramites?|instancias?|documentacion municipal|fiestas? del pueblo|agenda municipal|servicios municipales|sede electronica|varios ayuntamientos|otros pueblos|red de municipios|red municipal|base de datos entre pueblos|pueblo de al lado)\b/.test(
+    normalized,
+  )
+}
+
+export function hasPriceTooLowConcern(normalized: string) {
+  return /\b(me parece muy barato|eso es muy barato|demasiado barato|muy poco para todo|para todo lo que hay que hacer es poco|me parece poco presupuesto|eso no cubre el alcance|puede quedarse corto|se queda corto)\b/.test(
+    normalized,
+  )
+}
+
+export function hasCheapSeekingContext(normalized: string) {
+  if (hasPriceTooLowConcern(normalized)) return false
+
+  return /\b(lo mas barato|algo barato|opcion barata|economico|economica|muy sencillito|presupuesto ajustado|minimo posible|no quiero gastar mucho|quiero gastar poco|poco presupuesto|lo minimo)\b/.test(
+    normalized,
+  )
+}
+
+export function hasHighComplexityContext(normalized: string) {
+  return (
+    hasMunicipalInstitutionalContext(normalized) ||
+    /\b(documentacion amplia|muchas secciones|panel de control amplio|cms propio|wordpress personalizado|tipo wordpress personalizado|chatbot con base de datos|chatbot[\s\S]{0,80}base de datos|ia que consulta|cruza datos|automatizacion de instagram|automatizacion de redes|base de datos multi[-\s]?pueblo|varios ayuntamientos|tramites?|instancias?|formularios automaticos|gestion documental|permisos de usuarios|proyecto escalable|red de municipios|proyecto ambicioso|web entera|muchas cosas|plataforma a medida)\b/.test(
+      normalized,
+    )
+  )
 }
 
 function asksVisualCreation(normalized: string) {
@@ -57,6 +86,9 @@ export function inferLeadProjectKind(clientOnlyText: string, leadProjectType = "
   const normalized = normalizeSource(clientOnlyText)
   const normalizedLead = normalizeSource(leadProjectType)
 
+  if (hasMunicipalInstitutionalContext(normalized) || hasMunicipalInstitutionalContext(normalizedLead)) {
+    return "municipalInstitutional"
+  }
   if (hasPersonalPage(normalized)) return "personal"
   if (/\b(landing sencilla|web sencilla|pagina sencilla)\b/.test(normalized)) return "landing"
   if (hasPetClinicContext(normalized) && hasWebAppContext(normalized)) return "petClinicTool"
@@ -68,6 +100,7 @@ export function inferLeadProjectKind(clientOnlyText: string, leadProjectType = "
   if (asksVisualCreation(normalized)) return "visual"
   if (/\b(web|pagina|landing|sitio|presencia digital)\b/.test(normalized)) return "generalWeb"
 
+  if (hasMunicipalInstitutionalContext(normalizedLead)) return "municipalInstitutional"
   if (/restaurante|bar|cafeteria/.test(normalizedLead) && hasRestaurantType(normalized)) return "restaurant"
   if (/catalogo|comercio|tienda/.test(normalizedLead)) return "catalog"
   if (/web|landing|pagina/.test(normalizedLead)) return "generalWeb"
@@ -80,19 +113,39 @@ export function detectLeadServiceIds(clientOnlyText: string): LeadServiceId[] {
   const services: LeadServiceId[] = []
   const projectKind = inferLeadProjectKind(clientOnlyText)
 
-  if (projectKind === "personal" || projectKind === "landing" || projectKind === "generalWeb" || /\b(web|pagina|landing)\b/.test(normalized)) {
+  if (projectKind === "municipalInstitutional") services.push("institutionalWeb")
+  if (
+    projectKind === "personal" ||
+    projectKind === "landing" ||
+    projectKind === "generalWeb" ||
+    /\b(web|pagina|landing)\b/.test(normalized)
+  ) {
     services.push("web")
   }
   if (projectKind === "petClinicTool" || projectKind === "webApp") services.push("webApp")
-  if (/\b(panel|dashboard|zona interna|area privada|área privada|interno)\b/.test(normalized)) services.push("panel")
+  if (/\b(panel|dashboard|zona interna|area privada|área privada|interno|cms|wordpress|control)\b/.test(normalized)) {
+    services.push("panel")
+  }
   if (/\b(reserva|reservas|reservar|sistema de reservas)\b/.test(normalized)) services.push("reservations")
   if (/\b(catalogo|productos?|fichas?|tienda|ecommerce|e-commerce|comercio online|venta online)\b/.test(normalized)) {
     services.push("catalog")
   }
-  if (/\b(control|registro|gestion|datos|fichas?|vacunas?|mascotas?)\b/.test(normalized)) services.push("data")
+  if (/\b(control|registro|gestion|datos|base de datos|fichas?|vacunas?|mascotas?)\b/.test(normalized)) services.push("data")
+  if (/\b(base de datos|bases de datos|datos entre pueblos|red de datos)\b/.test(normalized)) services.push("database")
   if (/\b(usuarios?|accesos?|permisos?|roles?)\b/.test(normalized)) services.push("users")
   if (/\b(avisos?|recordatorios?|notificaciones?)\b/.test(normalized)) services.push("reminders")
-  if (/\b(agente|chatbot|whatsapp|asistente para whatsapp|automatizacion de whatsapp)\b/.test(normalized)) services.push("agent")
+  if (/\b(agente|chatbot|asistente)\b/.test(normalized)) services.push("agentWeb")
+  if (/\b(whatsapp|asistente para whatsapp|automatizacion de whatsapp)\b/.test(normalized)) services.push("whatsapp")
+  if (/\b(documentacion|documentos|gestion documental|documentacion municipal)\b/.test(normalized)) services.push("documents")
+  if (/\b(agenda|eventos?|fiestas?|calendario)\b/.test(normalized)) services.push("events")
+  if (/\b(automatizacion|automaticamente|automatizar|ia que|cruza datos|analice|generar posts?|publicaciones?)\b/.test(normalized)) {
+    services.push("automation")
+  }
+  if (/\b(instagram|redes sociales|publicaciones?|posts?)\b/.test(normalized)) services.push("socialPublishing")
+  if (/\b(instancias?|tramites?|formularios?)\b/.test(normalized)) services.push("forms")
+  if (/\b(varios ayuntamientos|otros pueblos|pueblo de al lado|red de municipios|multi[-\s]?municipio|base de datos entre pueblos)\b/.test(normalized)) {
+    services.push("multiMunicipality")
+  }
   if (asksVisualCreation(normalized)) services.push("visuals")
   if (/\b(mantenimiento|soporte|cambios mensuales|actualizacion continua|actualizaciones continuas|mantenimiento mensual)\b/.test(normalized)) {
     services.push("maintenance")
@@ -135,6 +188,11 @@ export function detectMaterials(clientOnlyText: string) {
   }
   if (/\b(tengo|tenemos|tiene)\b[\s\S]{0,40}\blogo\b/.test(normalized)) materials.push("Tiene logo")
   if (/\b(tengo|tenemos|tiene)\b[\s\S]{0,40}\bproductos?\b/.test(normalized)) materials.push("Tiene productos")
+  if (/\b(web municipal actual|web oficial|web actual|visita la web)\b/.test(normalized)) {
+    materials.push("Web municipal actual como referencia")
+  }
+  if (/\b(carteles?|cartel)\b/.test(normalized)) materials.push("Carteles de fiestas como entrada visual")
+  if (/\b(documentacion|documentos|contenido actual)\b/.test(normalized)) materials.push("Documentacion existente")
 
   return materials.length > 0 ? unique(materials) : ["No indicado"]
 }

@@ -23,10 +23,22 @@ El motor de captacion del chatbot ya no esta acoplado a una plantilla concreta d
 - Los servicios se detectan solo desde mensajes `role=user` y campos explicitos del borrador.
 - No se usan saludos, respuestas del asistente, textos comerciales, texto legal ni transcript completo para clasificar servicios.
 - `barato`, `barata` y `lo mas barato` no activan `bar`.
+- `me parece muy barato` o `demasiado barato para todo lo que hay que hacer` no significa que el cliente busque barato; significa que percibe que la orientacion puede quedarse corta.
 - `no tengo fotos` se trata como material mencionado, no como servicio visual.
 - Las imagenes o visuales solo se detectan si el cliente pide hacer, crear, editar, retocar, preparar o producir piezas visuales.
 - `carta` solo ayuda a detectar hosteleria si aparece con restaurante, bar, cafeteria, menu o reservas.
+- `municipalInstitutional` tiene prioridad sobre `webApp` si aparecen ayuntamiento, municipal, administracion publica, instancias, documentacion municipal, agenda municipal, fiestas del pueblo, red de municipios u otros pueblos.
+- El objetivo de mascotas/vacunas solo se usa con contexto explicito de mascotas, vacunas o veterinaria; nunca por palabras genericas como panel, control, usuarios o registro.
 - Si hay duda, se prefiere `Web / landing` o `Por definir`.
+
+## Proyectos grandes o institucionales
+
+- Los proyectos municipales/institucionales se clasifican como `Web institucional / plataforma municipal`.
+- Servicios detectables: web institucional, panel interno/CMS propio, gestion documental, agenda/eventos, base de datos, automatizaciones, publicacion en redes, agente IA web/chatbot, formularios/instancias, multi-municipio/red de ayuntamientos y usuarios/permisos.
+- `Agente IA web / chatbot` y `WhatsApp` son servicios separados; WhatsApp solo se marca si el cliente lo menciona.
+- Si hay alta complejidad, el email interno debe recomendar llamada, revision humana y propuesta por fases.
+- Para municipal/institucional no se deben recomendar precios de landing, web basica, agente simple ni panel sencillo como si fueran suficientes.
+- Las referencias internas de precio para `municipalInstitutional` son: revision humana obligatoria, no usar precios de web basica y preparar propuesta por fases.
 
 ## Flujo del chatbot
 
@@ -39,6 +51,8 @@ El motor de captacion del chatbot ya no esta acoplado a una plantilla concreta d
 - Despues de preguntar una vez por nombre/telefono, no se vuelve a insistir en mensajes posteriores de la misma solicitud.
 - No hay copia automatica al cliente. Si el cliente pide copia, se incluye solo como nota interna.
 - Al enviar, el textarea se vacia inmediatamente, vuelve a altura minima y la pregunta queda solo como burbuja.
+- El widget guarda el indice de inicio del lead para enviar al endpoint solo los mensajes de esa solicitud y no depender de `messages.slice(-17)`.
+- Si ya se envio una solicitud y el usuario empieza una nueva peticion clara, se crea un `LeadDraft` limpio para evitar contaminacion de contexto.
 
 ## Email interno
 
@@ -56,6 +70,9 @@ Incluye:
 - Nota legal minima.
 - Si no hay telefono, muestra `Telefono: No indicado`.
 - Si hay telefono, se marca como dato util para contacto directo si Aplaudia lo considera oportuno.
+- Si hay proyecto institucional o alta complejidad, marca `Alcance alto / requiere revision humana`.
+- Si el cliente dice que el precio parece demasiado bajo, marca que la orientacion inicial puede quedarse corta.
+- Las frases utiles se resumen a 2-3 puntos cortos; no se pegan mensajes enormes.
 
 No incluye:
 
@@ -72,6 +89,7 @@ El script `npm run test:quote-analysis` cubre:
 - herramienta/web-app para clinica o gestion de mascotas;
 - pagina personal barata;
 - restaurante con reservas;
+- web municipal/institucional compleja con panel, documentacion, agenda, automatizaciones, chatbot, instancias, red multi-municipio y percepcion de precio demasiado bajo;
 - pregunta de precio sin iniciar envio;
 - envio rapido con email y consentimiento.
 - flujo con nombre y telefono opcionales;

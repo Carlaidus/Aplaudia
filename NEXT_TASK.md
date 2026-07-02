@@ -31,12 +31,18 @@ Nivel de inteligencia recomendado: Alto
 - Ya no se incluye transcript completo ni mensajes administrativos como `acepto`, `envialo`, email suelto o nombre suelto como frases utiles.
 - La deteccion de servicios es conservadora:
   - `barato` no activa `bar`;
+  - `me parece muy barato` no activa opcion barata; se marca como posible orientacion demasiado baja para el alcance;
+  - municipal/institucional tiene categoria propia y prioridad sobre web-app generica;
+  - mascotas/vacunas solo aparece con contexto veterinario real;
+  - chatbot web y WhatsApp son servicios separados;
   - `no tengo fotos` no activa visuales;
   - visuales solo se activan si el cliente pide crear, editar, retocar, preparar o producir piezas visuales;
   - restaurante se detecta con contexto real de hosteleria, no por palabras dentro de otras.
 - El chatbot bloquea el scroll de fondo mientras esta abierto y evita que el scroll del historial arrastre la pagina de detras.
 - El textarea se vacia al enviar con boton y con Enter y vuelve a altura minima.
 - La respuesta final de envio confirma que Aplaudia respondera por email en la maxima brevedad y solo menciona telefono/copia si procede.
+- Para proyectos municipales o institucionales grandes, el agente no debe dar precios de landing/web basica/agente simple; debe proponer revision humana y fases.
+- El widget envia al endpoint los mensajes desde el inicio de la solicitud activa, no una ventana fija de los ultimos 17 mensajes.
 - No se han tocado Cloudflare, Railway, DNS, variables, Resend ni Workers Paid.
 - No hay copia automatica al cliente ni base de datos.
 
@@ -45,6 +51,7 @@ Nivel de inteligencia recomendado: Alto
 Revisar en produccion con Carlos el nuevo email interno del chatbot.
 
 1. Generar una prueba interna desde `https://aplaudia.com` con una conversacion realista.
+   - Incluir una prueba municipal/institucional grande si se quiere validar el caso extremo.
 2. Revisar en `carlosvfx@gmail.com`:
    - acentos renderizados correctamente;
    - asunto;
@@ -54,6 +61,7 @@ Revisar en produccion con Carlos el nuevo email interno del chatbot.
    - materiales mencionados;
    - precio y alcance;
    - frases utiles del cliente.
+   - en municipal: que no aparezcan mascotas/vacunas ni precios de web basica como recomendacion.
 3. Confirmar que el email es suficientemente corto y accionable.
 4. Si todavia hay demasiado texto, reducir solo la plantilla de `lib/lead-engine/build-internal-email.ts`.
 5. Si falta informacion util, ajustar solo detectores concretos y anadir test de regresion.
@@ -82,6 +90,13 @@ Revisar en produccion con Carlos el nuevo email interno del chatbot.
   - usuario dice `envialo` -> envia sin bloquear;
   - usuario impaciente -> no insiste;
   - fallo tecnico de envio -> muestra `No he podido enviar la solicitud ahora mismo...`.
+- Probar caso municipal:
+  - ayuntamiento + documentacion + panel + chatbot + instancias + red de municipios;
+  - proyecto `Web institucional / plataforma municipal`;
+  - servicios municipales correctos;
+  - sin mascotas/vacunas;
+  - sin opcion barata si el cliente dice `me parece muy barato`;
+  - siguiente paso: llamada/revision humana y propuesta por fases.
 - Probar chatbot en escritorio:
   - enviar con boton;
   - enviar con Enter;

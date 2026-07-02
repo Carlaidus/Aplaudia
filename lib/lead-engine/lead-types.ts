@@ -14,6 +14,7 @@ export type LeadDraft = {
   hasAskedForOptionalContact: boolean
   interest: string
   isActive: boolean
+  leadStartedAtMessageIndex: number | null
   name: string
   optionalContactAskCount: number
   phone: string
@@ -32,23 +33,33 @@ export type LeadOptionalContactPrompt = {
 }
 
 export type LeadServiceId =
-  | "agent"
+  | "agentWeb"
+  | "automation"
   | "catalog"
   | "data"
+  | "database"
+  | "documents"
+  | "events"
+  | "forms"
+  | "institutionalWeb"
   | "maintenance"
+  | "multiMunicipality"
   | "panel"
   | "reminders"
   | "reservations"
   | "seo"
+  | "socialPublishing"
   | "users"
   | "visuals"
   | "web"
   | "webApp"
+  | "whatsapp"
 
 export type LeadProjectKind =
   | "catalog"
   | "generalWeb"
   | "landing"
+  | "municipalInstitutional"
   | "personal"
   | "petClinicTool"
   | "restaurant"
@@ -90,8 +101,10 @@ export type ClassifiedLeadMessages = {
 
 export type LeadCommercialSignals = {
   clarity?: string
+  complexity?: string
   friction?: string
   nextAction: string
+  priceConcern?: string
   priceSensitivity?: string
   timeline?: string
   urgency?: string

@@ -222,6 +222,103 @@ assert(!restaurant.requestedServices.some((service) => /visual|imagen|v[ií]deo|
 assert(shouldHandleLeadMessage(restaurantMessage, [], restaurantFlow.draft), "Restaurante debería manejar lead")
 assert(shouldSendLead(restaurantMessage, restaurantFlow.draft), "Restaurante debería enviar sin pedir más datos")
 
+const municipalHistory = [
+  {
+    role: "user",
+    content:
+      "hola quiero crear una página web para el Ayuntamiento de mi pueblo Cánovas y quiero crear la web entera una web que contenga toda la documentación que tiene la actual que contenga toda la información necesaria del pueblo con las fiestas que van a hacerse y tal quiero que tenga un panel de control muy amplio donde pueda controlar muchas cosas y sobre todo un panel de control gestionado con IA que pueda enviar cosas a Instagram automáticamente, meter una imagen de carteles de fiestas, analizarla y hacer automáticamente un post con fecha y lugar en una base de datos para consultarlo. También un chatbot para preguntar cosas sobre la web, hacer una instancia o informarse de las fiestas, preparado para que otros ayuntamientos se unan a la misma base de datos. Dime si podéis hacerlo y precio y tiempo.",
+  },
+  {
+    role: "assistant",
+    content:
+      "Podría orientarse con una web desde 390 € y un agente desde 500 €. Importes orientativos sin IVA.",
+  },
+  {
+    role: "user",
+    content:
+      "visita la web de Cánovas oficial, hay muchas secciones, quiero panel interno tipo WordPress personalizado, lo de Aventuras Pixeladas, IA, chatbot que pueda acceder a cualquier base de datos, fiestas, eventos, cómo hacer una instancia y que la rellene y la envíe automáticamente.",
+  },
+  {
+    role: "user",
+    content:
+      "que cruce bases de datos nuestras con las del pueblo de al lado, qué fiestas tengo esta tarde, si el pueblo de al lado accede a unirse a la red, editor interno tipo WordPress, instancia, envíe cosas al Ayuntamiento. Me parece muy barato para todo lo que tenemos que hacer.",
+  },
+  {
+    role: "user",
+    content: "me llamo carlos, mi teléfono es 699223586, mi email es carlosvfx@gmail.com y acepto",
+  },
+]
+const municipalFlow = runDraftFlow(municipalHistory)
+const municipal = analyze({
+  email: municipalFlow.draft.email,
+  history: municipalHistory,
+  name: municipalFlow.draft.name,
+  phone: municipalFlow.draft.phone,
+})
+const municipalCombined = [
+  municipal.objective,
+  municipal.projectType,
+  municipal.requestedServices.join(" | "),
+  municipal.questions.join(" | "),
+  municipal.commercialSignals.nextAction,
+  municipal.priceLines.join(" | "),
+].join(" | ")
+
+assert(municipal.contact.name.toLowerCase() === "carlos", `Municipal nombre incorrecto: ${municipal.contact.name}`)
+assert(municipal.contact.email === "carlosvfx@gmail.com", `Municipal email incorrecto: ${municipal.contact.email}`)
+assert(municipal.contact.phone === "699223586", `Municipal teléfono incorrecto: ${municipal.contact.phone}`)
+assert(
+  municipal.projectType === "Web institucional / plataforma municipal",
+  `Municipal proyecto incorrecto: ${municipal.projectType}`,
+)
+for (const service of [
+  "Web institucional",
+  "Panel interno",
+  "Gestión documental",
+  "Agenda / eventos",
+  "Base de datos",
+  "Automatizaciones",
+  "Publicación en redes",
+  "Agente IA web / chatbot",
+  "Formularios / instancias",
+  "Multi-municipio / red de ayuntamientos",
+]) {
+  assertIncludes(municipal.requestedServices, service, "Municipal servicios")
+}
+assertExcludes(
+  municipalCombined,
+  [/mascotas/i, /vacunas/i, /cl[ií]nica/i, /opci[oó]n m[aá]s barata/i, /opcion basica desde 390/i, /pedir solo textos\/fotos/i, /restaurante/i],
+  "Municipal falsos positivos",
+)
+assert(municipal.objective.includes("plataforma municipal"), `Municipal objetivo incorrecto: ${municipal.objective}`)
+assert(
+  municipal.summaryForReply.includes("web municipal completa") && municipal.summaryForReply.includes("red/base de datos"),
+  `Municipal resumen insuficiente: ${municipal.summaryForReply}`,
+)
+assert(
+  municipal.commercialSignals.complexity === "Alcance alto: proyecto institucional/plataforma a medida.",
+  "Municipal complejidad ausente",
+)
+assert(
+  municipal.commercialSignals.priceConcern ===
+    "El cliente percibe que la orientacion inicial puede ser demasiado baja para el alcance.",
+  "Municipal alerta precio bajo ausente",
+)
+assert(
+  municipal.commercialSignals.nextAction.includes("llamada de descubrimiento") &&
+    municipal.commercialSignals.nextAction.includes("propuesta por fases"),
+  `Municipal proximo paso incorrecto: ${municipal.commercialSignals.nextAction}`,
+)
+assert(municipal.priceLines.some((line) => /Proyecto a medida/.test(line)), "Municipal precio a medida ausente")
+assert(
+  municipal.priceLines.some((line) => /pueden quedarse muy cortos/.test(line)),
+  "Municipal advertencia por precios bajos ausente",
+)
+assert(
+  municipal.usefulClientPhrases.length <= 3 && municipal.usefulClientPhrases.every((phrase) => phrase.length <= 350),
+  `Municipal frases demasiado largas: ${municipal.usefulClientPhrases.join(" | ")}`,
+)
+
 const optionalPrompt = aplaudiaLeadConfig.leadOptionalContactPrompt
 const optionalStart = "Quiero presupuesto para una web de restaurante con reservas. Mi email es carlosvfx@yahoo.es. Acepto."
 let optionalDraft = updateLeadDraftFromMessage(createLeadDraft(), optionalStart, [])

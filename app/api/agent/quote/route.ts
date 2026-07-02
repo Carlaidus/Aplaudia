@@ -22,8 +22,8 @@ export async function POST(request: Request) {
     const rawName = normalizeText(body.name, 120)
     const email = normalizeText(body.email, 180)
     const phone = normalizeText(body.phone, 80)
-    const rawProjectType = normalizeText(body.projectType, 500)
-    const rawInterest = normalizeText(body.interest, 1200)
+    const rawProjectType = normalizeText(body.projectType, 900)
+    const rawInterest = normalizeText(body.interest, 3600)
     const budget = normalizeText(body.budget, 300)
     const consent = body.consent === true
     const clientCopy = body.clientCopy === true

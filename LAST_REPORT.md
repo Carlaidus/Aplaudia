@@ -2,6 +2,77 @@
 
 Fecha: 2026-07-02
 
+## Actualizacion - Clasificacion municipal y proyectos complejos
+
+### Objetivo
+
+Corregir el fallo grave detectado en una consulta real sobre una web municipal grande para un ayuntamiento, donde el motor mezclo el objetivo con mascotas/vacunas, interpreto mal `me parece muy barato` y aplico referencias de precio demasiado bajas para un proyecto institucional complejo.
+
+### Causa confirmada
+
+- `buildObjective()` usaba palabras genericas como `usuarios`, `panel`, `registro` y `control` para devolver el objetivo de mascotas/vacunas.
+- No existia categoria municipal/institucional; el caso caia en `webApp` generica.
+- El detector de precio trataba cualquier `barato` como busqueda de opcion barata, incluso cuando el cliente decia que la orientacion parecia demasiado baja para el alcance.
+- `conversationHistory` enviaba una ventana fija de mensajes recientes (`slice(-17)`), con riesgo de perder el primer mensaje largo o mezclar contexto de solicitudes anteriores.
+- `Agente IA / WhatsApp` estaba unido en un solo servicio y podia marcar WhatsApp aunque el cliente solo pidiera chatbot web.
+
+### Cambios aplicados
+
+- `lib/lead-engine/lead-types.ts`:
+  - nuevo `LeadProjectKind`: `municipalInstitutional`;
+  - nuevos servicios: `institutionalWeb`, `agentWeb`, `whatsapp`, `database`, `documents`, `events`, `automation`, `socialPublishing`, `forms`, `multiMunicipality`;
+  - nuevas senales comerciales: `complexity` y `priceConcern`;
+  - `LeadDraft` guarda `leadStartedAtMessageIndex`.
+- `lib/lead-engine/detect-lead-services.ts`:
+  - prioridad municipal/institucional si aparece ayuntamiento, municipal, administracion publica, instancias, documentacion municipal, agenda, fiestas del pueblo, otros pueblos o red de municipios;
+  - mascotas/vacunas solo se activa con contexto explicito de mascotas, vacunas o veterinaria;
+  - separado `Agente IA web / chatbot` de `WhatsApp`;
+  - detecta servicios municipales: web institucional, panel/CMS, gestion documental, agenda/eventos, base de datos, automatizaciones, publicacion en redes, formularios/instancias y red multi-municipio.
+- `lib/lead-engine/infer-commercial-signals.ts`:
+  - `me parece muy barato` se interpreta como precio posiblemente demasiado bajo para el alcance;
+  - proyectos de alta complejidad recomiendan llamada, revision humana y propuesta por fases;
+  - no recomienda opcion desde 390 EUR en casos municipales o complejos.
+- `lib/lead-engine/build-lead-summary.ts`:
+  - objetivo construido por `projectKind`;
+  - resumen especifico para plataforma municipal;
+  - frases utiles resumidas a 2-3 puntos cortos;
+  - precio municipal marcado como a medida/revision humana obligatoria;
+  - si el asistente ya comunico importes bajos, anade advertencia interna de que pueden quedarse cortos.
+- `components/agent/generic-agent-widget.tsx`:
+  - detecta nueva peticion tras una solicitud enviada y limpia el borrador;
+  - guarda indice de inicio del lead y envia al endpoint solo mensajes desde ese inicio, no una ventana fija de 17 mensajes.
+- `app/api/agent/quote/route.ts` y `lib/lead-engine/extract-lead-data.ts`:
+  - limites de historial/interes ampliados para proyectos largos.
+- `content/lead/aplaudia-lead-config.ts`:
+  - labels nuevos para municipal e institucional;
+  - referencia interna municipal: revision humana obligatoria, no usar precios de web basica y preparar propuesta por fases.
+- `content/agent/aplaudia-agent.md`:
+  - seccion nueva para proyectos institucionales, municipales o plataformas grandes;
+  - prohibido aplicar precios normales de landing/web/agente/panel a esos casos.
+- `scripts/validate-agent-quote-analysis.mjs`:
+  - anadido test completo municipal con ayuntamiento, documentacion, panel/CMS, Instagram, chatbot, instancias, red multi-municipio, email, nombre, telefono, consentimiento y precio percibido como demasiado bajo.
+
+### Validaciones locales
+
+- `npm run test:quote-analysis`: OK.
+- `npm run test:email-encoding`: OK.
+- `npm run build`: OK.
+- `npm run lint`: no disponible; `eslint` no esta instalado como ejecutable local.
+- `npm ls resend`: arbol vacio; npm devuelve codigo 1 porque `resend` no esta instalado.
+
+### Estado externo
+
+- No se tocaron Cloudflare, Railway, DNS, variables, Resend ni Workers Paid.
+- No se guardaron secretos.
+- No se creo base de datos.
+- No se envio copia automatica al cliente.
+- No se retiro el aviso de construccion.
+- Produccion pendiente de validar tras push de este cambio.
+
+### Siguiente paso recomendado
+
+Desplegar y probar en produccion una solicitud municipal/institucional controlada para confirmar que el email interno ya no menciona mascotas/vacunas, marca revision humana y propone fases antes de responder con precio.
+
 ## Actualizacion - Datos opcionales una sola vez en el chatbot
 
 ### Objetivo

@@ -8,6 +8,7 @@ import type { AgentMessage, AgentWidgetConfig, AgentWidgetTheme } from "@/lib/ag
 import {
   createLeadDraft,
   hasPriceQuestion as engineHasPriceQuestion,
+  hasNewLeadRequestIntent as engineHasNewLeadRequestIntent,
   markOptionalContactAsked as engineMarkOptionalContactAsked,
   shouldAskOptionalContact as engineShouldAskOptionalContact,
   shouldHandleLeadMessage as engineShouldHandleLeadMessage,
@@ -86,6 +87,31 @@ const VOICE_MAX_AUTO_RESTARTS = 5
 const NON_RETRYABLE_VOICE_ERRORS = new Set(["not-allowed", "service-not-allowed", "audio-capture"])
 const DEFAULT_LEAD_CONSENT_TEXT =
   "Para enviarlo, necesito que aceptes que los datos que has facilitado y el resumen de tu solicitud se usen solo para gestionar esta consulta y responderte por email. No se guardarán en una base de datos. Los importes comentados son orientativos y sin IVA. ¿Aceptas?"
+
+function hasLeadContextText(text: string) {
+  return /\b(quiero|necesito|gustaria|web|pagina|landing|presupuesto|precio|coste|tiempo|plazo|negocio|restaurante|reservas?|catalogo|productos?|panel|interno|usuarios?|permisos?|mascotas?|vacunas?|avisos?|recordatorios?|fotos?|carta|secciones?|pantallas?|herramienta|control|registro|datos?|seo|whatsapp|chatbot|agente|mantenimiento|visual|video|reels?|ayuntamiento|municipal|municipio|pueblo|institucional|ciudadania|vecinos|tramites?|instancias?|documentacion|fiestas?|eventos?|agenda|instagram|redes|base de datos|cms|wordpress)\b/i.test(
+    text,
+  )
+}
+
+function findLeadStartIndex(messages: AgentMessage[], currentText: string) {
+  const source = [...messages, { role: "user" as const, content: currentText }]
+  let start = messages.length
+
+  for (let index = source.length - 1; index >= 0 && source.length - index <= 36; index -= 1) {
+    const message = source[index]
+
+    if (message.role === "assistant" && /ya he enviado el resumen|no he podido enviar la solicitud/i.test(message.content)) {
+      break
+    }
+
+    if (message.role === "user" && hasLeadContextText(message.content)) {
+      start = index
+    }
+  }
+
+  return start
+}
 
 function buildLeadEmailReply(text: string) {
   const lines = ["### Para poder enviarlo"]
@@ -803,12 +829,20 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     let attemptedLeadSend = false
 
     try {
+      if (isLeadRequestEnabled && leadDraftRef.current.sent && engineHasNewLeadRequestIntent(text)) {
+        leadDraftRef.current = createLeadDraft()
+      }
+
       const leadDetails = isLeadRequestEnabled ? engineUpdateLeadDraftFromMessage(leadDraftRef.current, text, messages) : null
-      const conversationHistory = [...messages.slice(-17), userMessage]
 
       if (leadDetails && engineShouldHandleLeadMessage(text, messages, leadDetails)) {
         leadDetails.isActive = true
+        if (leadDetails.leadStartedAtMessageIndex === null) {
+          leadDetails.leadStartedAtMessageIndex = findLeadStartIndex(messages, text)
+        }
         leadDraftRef.current = leadDetails
+        const leadStartIndex = leadDetails.leadStartedAtMessageIndex ?? findLeadStartIndex(messages, text)
+        const conversationHistory = [...messages.slice(leadStartIndex), userMessage].slice(-36)
 
         if (leadDetails.sent) {
           setMessages((current) => [...current, { role: "assistant", content: buildLeadAlreadySentReply(config.brandName) }])

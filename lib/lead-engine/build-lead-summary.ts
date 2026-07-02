@@ -1,6 +1,13 @@
 import { classifyLeadMessages } from "./classify-lead-messages"
 import { normalizeSource } from "./extract-lead-data"
-import { detectLeadServices, detectMaterials, getLeadProjectType } from "./detect-lead-services"
+import {
+  detectLeadServices,
+  detectMaterials,
+  getLeadProjectType,
+  hasCheapSeekingContext,
+  hasHighComplexityContext,
+  hasPriceTooLowConcern,
+} from "./detect-lead-services"
 import { detectQuestions, inferCommercialSignals } from "./infer-commercial-signals"
 import type { LeadAnalysis, LeadEngineConfig, LeadMessage } from "./lead-types"
 
@@ -12,19 +19,22 @@ function buildClientOnlyText(messages: string[], fields: string[]) {
   return [...messages, ...fields].filter(Boolean).join("\n")
 }
 
-function buildObjective(projectContextText: string) {
-  const normalized = normalizeSource(projectContextText)
-
-  if (/\b(mascotas?|vacunas?|clinica|veterinaria|usuarios?|panel|registro|control)\b/.test(normalized)) {
-    return "Crear una herramienta o web-app para gestionar mascotas, vacunas, avisos y accesos internos."
+function buildObjective(projectKind: LeadAnalysis["projectKind"]) {
+  if (projectKind === "petClinicTool") {
+    return "Crear una herramienta para gestionar mascotas, vacunas, avisos y accesos internos."
   }
-  if (/\b(pagina personal|web personal|portfolio personal|pagina pequena personal)\b/.test(normalized)) {
-    return "Crear una pagina personal sencilla y economica."
+  if (projectKind === "municipalInstitutional") {
+    return "Crear una web institucional o plataforma municipal con gestion de contenidos, documentacion, agenda, panel interno, automatizaciones y asistente ciudadano."
   }
-  if (/\b(restaurantes?|bar|cafeteria|reservas?)\b/.test(normalized)) {
-    return "Crear una web de restaurante con sistema o flujo de reservas."
+  if (projectKind === "webApp") {
+    return "Crear una herramienta web a medida con panel interno, gestion de datos y funcionalidades especificas."
   }
-  if (/\b(web|pagina|landing)\b/.test(normalized)) return "Crear o mejorar una presencia web."
+  if (projectKind === "personal") return "Crear una pagina personal sencilla."
+  if (projectKind === "restaurant") return "Crear una web para restaurante o negocio de hosteleria."
+  if (projectKind === "generalWeb" || projectKind === "landing" || projectKind === "catalog") {
+    return "Crear o mejorar una presencia web."
+  }
+  if (projectKind === "visual") return "Crear o mejorar piezas visuales para marca o comunicacion."
 
   return "Orientar una solicitud digital todavia por definir."
 }
@@ -33,10 +43,20 @@ function buildSummaryForReply(args: {
   materials: string[]
   objective: string
   projectContextText: string
+  projectKind: LeadAnalysis["projectKind"]
   projectType: string
   questions: string[]
   requestedServices: string[]
 }) {
+  const normalized = normalizeSource(args.projectContextText)
+  if (args.projectKind === "municipalInstitutional") {
+    const priceNote = hasPriceTooLowConcern(normalized)
+      ? " Pregunta por precio y tiempo, y percibe que los importes iniciales pueden ser demasiado bajos para el alcance."
+      : ""
+
+    return `Cliente plantea una web municipal completa para un ayuntamiento, con organizacion de documentacion actual, informacion del pueblo, agenda de fiestas y eventos, panel de control propio tipo CMS, automatizaciones para publicaciones, chatbot ciudadano con acceso a contenidos y ayuda con instancias. Quiere que el sistema sea ampliable a otros ayuntamientos o pueblos conectados a una misma red/base de datos.${priceNote}`
+  }
+
   const lines = [
     `${args.objective}`,
     `Tipo de proyecto detectado: ${args.projectType}.`,
@@ -48,11 +68,43 @@ function buildSummaryForReply(args: {
   return lines.slice(0, 5).join(" ")
 }
 
+function truncatePhrase(value: string, maxLength = 340) {
+  const clean = value.replace(/\s+/g, " ").trim()
+  if (clean.length <= maxLength) return clean
+
+  const slice = clean.slice(0, maxLength)
+  const sentenceEnd = Math.max(slice.lastIndexOf("."), slice.lastIndexOf("?"), slice.lastIndexOf("!"))
+  if (sentenceEnd > 120) return slice.slice(0, sentenceEnd + 1)
+
+  const lastSpace = slice.lastIndexOf(" ")
+  return `${slice.slice(0, lastSpace > 120 ? lastSpace : maxLength).trim()}...`
+}
+
+function summarizeUsefulPhrase(message: string) {
+  const normalized = normalizeSource(message)
+
+  if (/\bayuntamiento\b|\bmunicipal\b/.test(normalized) && /\b(documentacion|fiestas|panel|web entera|web completa)\b/.test(normalized)) {
+    return "Quiere crear una web completa para el ayuntamiento con documentacion, informacion del pueblo, fiestas y panel de control amplio."
+  }
+  if (/\bwordpress\b|\bcms\b|\bpanel interno\b|\bpanel de control\b/.test(normalized) && /\b(chatbot|ia|base de datos)\b/.test(normalized)) {
+    return "Quiere un panel tipo WordPress personalizado, pero propio, con IA y chatbot conectado a contenidos y bases de datos."
+  }
+  if (/\bpueblo de al lado\b|\botros pueblos\b|\bred de municipios\b|\bvarios ayuntamientos\b|\bbase de datos\b/.test(normalized)) {
+    return "Quiere que el sistema pueda ampliarse a otros ayuntamientos o pueblos en una red compartida."
+  }
+
+  return truncatePhrase(message)
+}
+
 function pickUsefulPhrases(projectMessages: string[]) {
-  return projectMessages
-    .map((message) => message.trim())
-    .filter((message) => message.length >= 18)
-    .filter((message) => !/^(acepto|vale|ok|si|envialo|gracias|carlos)$/i.test(message))
+  return unique(
+    projectMessages
+      .map((message) => message.trim())
+      .filter((message) => message.length >= 18)
+      .filter((message) => !/^(acepto|vale|ok|si|envialo|gracias|carlos)$/i.test(message))
+      .map(summarizeUsefulPhrase),
+  )
+    .filter(Boolean)
     .slice(0, 3)
 }
 
@@ -81,7 +133,7 @@ function fallbackPriceLines(config: LeadEngineConfig, projectKind: LeadAnalysis[
   )
   if (!hasPriceIntent) return []
 
-  const sensitivity = /\b(barato|barata|economico|economica|lo mas barato|minimo)\b/.test(normalized) ? "high" : "medium"
+  const sensitivity = hasCheapSeekingContext(normalized) ? "high" : "medium"
   const reference = config.priceReferences.find((item) => {
     if (!item.projectKinds.includes(projectKind)) return false
     if (item.sensitivity && item.sensitivity !== sensitivity) return false
@@ -115,12 +167,27 @@ export function buildLeadSummary(args: {
   const project = getLeadProjectType(clientOnlyText || projectContextText, args.config, args.projectType)
   const requestedServices = detectLeadServices(clientOnlyText || projectContextText, args.config)
   const materials = detectMaterials(clientOnlyText || projectContextText)
-  const objective = buildObjective(projectContextText)
+  const objective = buildObjective(project.kind)
   const questions = detectQuestions(projectContextText)
   const usefulClientPhrases = pickUsefulPhrases(classifiedMessages.projectContextMessages)
   const assistantPriceLines = extractStrictAssistantPriceLines(args.history)
   const configPriceLines = fallbackPriceLines(args.config, project.kind, projectContextText)
-  const priceLines = unique([...assistantPriceLines, ...configPriceLines])
+  const normalizedClientText = normalizeSource(clientOnlyText || projectContextText)
+  const highComplexity = hasHighComplexityContext(normalizedClientText) || project.kind === "municipalInstitutional"
+  const manualReviewPriceLines =
+    highComplexity || project.kind === "municipalInstitutional"
+      ? [
+          "Proyecto a medida. Requiere revision humana y propuesta por fases.",
+          "No se debe cerrar precio por chat ni usar precios de landing/web basica para este alcance.",
+        ]
+      : []
+  const lowPriceWarning =
+    highComplexity && assistantPriceLines.length > 0
+      ? [
+          "Atencion: los importes orientativos comentados en el chat pueden quedarse muy cortos para el alcance descrito. Revisar manualmente antes de responder.",
+        ]
+      : []
+  const priceLines = unique([...manualReviewPriceLines, ...configPriceLines, ...assistantPriceLines, ...lowPriceWarning])
   const commercialSignals = inferCommercialSignals({
     projectContextText,
     projectKind: project.kind,
@@ -130,6 +197,7 @@ export function buildLeadSummary(args: {
     materials,
     objective,
     projectContextText,
+    projectKind: project.kind,
     projectType: project.label,
     questions,
     requestedServices,
