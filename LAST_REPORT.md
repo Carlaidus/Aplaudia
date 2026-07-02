@@ -93,7 +93,18 @@ Rehacer y estabilizar el motor de captacion del chatbot para que Aplaudia genere
 - No se creo base de datos.
 - No se envio copia automatica a cliente.
 - No se retiro el aviso de construccion.
-- Railway: pendiente de comprobar tras el push final de esta tarea.
+- Railway: `Deployment successful` para el commit `540f39e` (`Refactor lead engine for chatbot`), servicio `Active`, Node `22.23.1`.
+- Produccion:
+  - `https://aplaudia.com`: `200`;
+  - `/robots.txt`: `200`;
+  - `/llms.txt`: `200`;
+  - `/sitemap.xml`: `200`;
+  - bundle nuevo del chatbot servido desde `/_next/static/chunks/app/layout-4f6068295c798b27.js`;
+  - aviso de construccion visible;
+  - chatbot abre correctamente;
+  - saludo inicial sin Cronoras, Arik Custom ni Aventuras Pixeladas;
+  - sin boton fijo de presupuesto;
+  - body bloqueado con el chatbot abierto.
 
 ### Siguiente paso recomendado
 

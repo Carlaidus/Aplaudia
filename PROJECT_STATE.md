@@ -158,6 +158,12 @@ Ultima actualizacion: 2026-07-02
   - Railway dashboard: `Deployment successful`, servicio `Active`.
   - Produccion `https://aplaudia.com`, `/robots.txt`, `/llms.txt` y `/sitemap.xml`: `200`.
   - `npm run test:quote-analysis`: OK con los casos de pagina personal barata y restaurante con reservas.
+- Commit de motor reutilizable de leads verificado el 2026-07-02: `540f39e`.
+  - Railway dashboard: `Deployment successful`, servicio `Active`, Node `22.23.1`.
+  - Produccion `https://aplaudia.com`, `/robots.txt`, `/llms.txt` y `/sitemap.xml`: `200`.
+  - Bundle nuevo del chatbot servido desde `/_next/static/chunks/app/layout-4f6068295c798b27.js`.
+  - Chatbot abre en produccion, mantiene saludo neutro, no muestra boton fijo de presupuesto y bloquea el scroll del body al abrir.
+  - `npm run test:quote-analysis`: OK con cinco casos de regresion.
 
 ## Dominio y DNS
 
