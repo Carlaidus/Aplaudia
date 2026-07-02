@@ -106,7 +106,7 @@ export function Hero() {
   const scaleDown = useTransform(scrollYProgress, [0, 0.5], [1, 0.95])
   const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0])
 
-  const techStack = ["Next.js", "React", "TypeScript", "SEO técnico"]
+  const techStack = ["Diseño web", "Rendimiento", "SEO técnico", "Automatización"]
   const entranceDelay = (delay: number) => (lightweightMotion ? Math.min(delay * 0.18, 0.28) : delay)
   const entranceDuration = (duration: number) => (lightweightMotion ? Math.min(duration, 0.35) : duration)
 

@@ -19,7 +19,7 @@ function getConstructionDateLabel() {
 export function ConstructionNotice() {
   const { constructionNotice } = siteConfig
   const [isMinimized, setIsMinimized] = useState(false)
-  const [dateLabel, setDateLabel] = useState(constructionNotice.dateLabel)
+  const [dateLabel, setDateLabel] = useState<string>(constructionNotice.dateLabel)
 
   useEffect(() => {
     if (window.matchMedia("(max-width: 900px)").matches) {

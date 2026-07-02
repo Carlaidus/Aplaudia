@@ -6,87 +6,58 @@ Nivel de inteligencia recomendado: Alto
 
 ## Estado tras la ultima ejecucion
 
-- Codigo:
-  - `/api/contacto` y `/api/agent/quote` usan `lib/email/cloudflare-email.ts`;
-  - no queda dependencia activa de Resend en codigo;
-  - `npm ls resend` queda vacio;
-  - no hay envio automatico de copia al cliente;
-  - si el cliente pide copia desde chatbot, queda como nota interna.
-- Cloudflare Email Routing:
-  - DNS publico comprobado contra `1.1.1.1`:
-    - `MX` raiz a `route3.mx.cloudflare.net`, prioridad 18;
-    - `MX` raiz a `route1.mx.cloudflare.net`, prioridad 60;
-    - `MX` raiz a `route2.mx.cloudflare.net`, prioridad 99;
-    - `TXT` DKIM `cf2024-1._domainkey.aplaudia.com`;
-    - `TXT` SPF raiz `v=spf1 include:_spf.mx.cloudflare.net ~all`;
-  - `carlosvfx@gmail.com` aparece como destino verificado;
-  - aliases creados y activos:
-    - `hola@aplaudia.com` -> `carlosvfx@gmail.com`;
-    - `presupuestos@aplaudia.com` -> `carlosvfx@gmail.com`;
-    - `soporte@aplaudia.com` -> `carlosvfx@gmail.com`;
-    - `legal@aplaudia.com` -> `carlosvfx@gmail.com`;
-  - Cloudflare Activity Log muestra los dos emails internos de prueba como `Reenviados`;
-  - prueba SMTP directa no autenticada hacia `hola@aplaudia.com` y `presupuestos@aplaudia.com` fue rechazada con `unauthenticatedForward`, por no salir desde un buzon autenticado con SPF/DKIM valido.
-- Cloudflare Email Service / Email Sending:
-  - Railway mantiene variables Cloudflare configuradas sin guardar secretos;
-  - `/api/agent/quote` sin consentimiento devuelve `400`;
-  - `/api/agent/quote` con datos ficticios y consentimiento devuelve `200`;
-  - `/api/contacto` sin privacidad devuelve `400`;
-  - `/api/contacto` con datos ficticios y privacidad devuelve `200`;
-  - `clientCopySent:false` confirmado en la respuesta del chatbot.
-- Railway:
-  - servicio `Aplaudia` en `ACTIVE`;
-  - deployment actual: `Deployment successful`;
-  - logs recientes sin errores en el rango consultado.
-- Produccion:
-  - `https://aplaudia.com`: `200`;
-  - `/robots.txt`: `200`;
-  - `/llms.txt`: `200`;
-  - `/sitemap.xml`: `200`;
-  - aviso de construccion visible;
-  - chatbot carga con etiqueta corta `¿Dudas?`;
-  - saludo inicial neutro, sin mencionar casos reales;
-  - no aparece boton fijo de presupuesto.
+- El flujo de solicitud desde chatbot se ha corregido para evitar bucles.
+- El widget mantiene un borrador conversacional durante la sesion.
+- Solo bloquea el envio si falta:
+  - email valido;
+  - consentimiento claro.
+- Nombre, telefono, tipo de negocio, interes, presupuesto y copia son opcionales o inferibles.
+- Si el visitante dice `envialo`, `mandalo`, `adelante` o algo equivalente:
+  - si hay email y consentimiento, se intenta enviar;
+  - si falta email, pide solo email;
+  - si falta consentimiento, pide solo consentimiento.
+- El textarea del chatbot se limpia al enviar con boton y con Enter.
+- El endpoint `/api/agent/quote` ya no devuelve `400` por faltar nombre, tipo de proyecto, interes o presupuesto.
+- La ficha interna por email incluye resumen ejecutivo, necesidades, senales comerciales, urgencia, friccion, sensibilidad a precio, precios comentados y ultimos mensajes.
+- No hay copia automatica al cliente; si la pide, queda como nota interna.
+- No se ha tocado Cloudflare, Railway, DNS, variables ni Resend.
 
 ## Proximo foco real
 
-Confirmar recepcion externa de aliases desde un buzon real autenticado:
+Revisar correos internos reales recibidos desde el chatbot:
 
-1. Carlos debe enviar dos correos sencillos desde Gmail/Yahoo/otro buzon real:
-   - a `hola@aplaudia.com`;
-   - a `presupuestos@aplaudia.com`.
-2. Carlos debe confirmar si ambos llegan a `carlosvfx@gmail.com`.
-3. Si llegan:
-   - marcar recepcion externa de Cloudflare Email Routing como operativa;
-   - mantener Resend dormido/no activo;
-   - decidir si se quieren probar tambien `soporte@aplaudia.com` y `legal@aplaudia.com`.
-4. Si no llegan:
-   - revisar Cloudflare Activity Log;
-   - revisar si Cloudflare sigue mostrando algun estado contradictorio en Routing;
-   - no tocar DNS a ciegas.
+1. Carlos debe revisar en `carlosvfx@gmail.com` si la ficha interna resulta clara y util.
+2. Confirmar si el asunto, resumen ejecutivo y siguiente accion recomendada son adecuados.
+3. Si hay demasiado texto, reducir el email interno manteniendo los campos comerciales clave.
+4. Si falta informacion util, ajustar solo la plantilla interna de `/api/agent/quote`.
 
 ## Siguiente foco de producto
 
-- Revisar legal/privacidad antes de retirar el aviso de construccion, porque ya existe captacion de contacto.
-- Revisar con Carlos si los emails internos recibidos desde `/api/agent/quote` y `/api/contacto` tienen el formato correcto.
-- Mantener el aviso de construccion hasta validacion final.
+- Revisar legal/privacidad antes de retirar el aviso de construccion.
+- Mantener el aviso de construccion hasta validacion final de Carlos.
+- Confirmar recepcion externa de aliases desde un buzon real autenticado:
+  - `hola@aplaudia.com`;
+  - `presupuestos@aplaudia.com`.
+- Revisar conversaciones reales del agente activo para afinar tono, precios y cierres comerciales.
 
 ## Validaciones base para la proxima tarea
 
-- Confirmar en Gmail recepcion de los dos emails internos de prueba ya enviados.
-- Probar aliases desde un buzon real autenticado.
-- Validar `https://aplaudia.com`, `/robots.txt`, `/llms.txt` y `/sitemap.xml`.
-- Probar `/api/agent/quote` sin consentimiento: debe ser `400`.
-- Probar `/api/agent/quote` con consentimiento solo con datos ficticios y destino controlado por Carlos.
 - `npm run build`.
 - `npm run lint` si `eslint` llega a estar disponible.
 - `npm ls resend`.
+- Probar `/api/agent/quote` sin consentimiento: debe devolver `400`.
+- Probar `/api/agent/quote` con email y consentimiento pero sin opcionales: no debe devolver `400` por campos opcionales.
+- Probar chatbot en escritorio:
+  - enviar con boton;
+  - enviar con Enter;
+  - textarea vacio tras enviar.
+- Probar chatbot en movil.
+- Validar `https://aplaudia.com`, `/robots.txt`, `/llms.txt` y `/sitemap.xml`.
 
 ## Restricciones
 
 - No guardar tokens, claves ni contrasenas.
-- No imprimir valores secretos.
-- No borrar `RESEND_API_KEY` en Railway hasta que Carlos lo pida.
+- No borrar variables antiguas de Resend hasta que Carlos lo pida.
 - No activar Workers Paid.
 - No volver a Resend salvo decision explicita.
 - No enviar emails a clientes reales.

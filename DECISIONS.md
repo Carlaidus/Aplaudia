@@ -11,6 +11,7 @@
 - No activar Workers Paid ni volver a Resend sin decision explicita de Carlos.
 - Resend no se usa actualmente como proveedor activo; puede quedar como configuracion externa historica/dormida hasta que Carlos decida retirarla manualmente.
 - El chatbot no envia copia automatica al cliente. Si el cliente pide copia, se anade una nota interna para que una persona de Aplaudia responda manualmente.
+- En solicitudes desde chatbot, solo son obligatorios email valido y consentimiento claro. El nombre, telefono, tipo de proyecto, interes, presupuesto o copia no deben bloquear el envio interno.
 - Los aliases `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com` estan creados en Cloudflare Email Routing hacia `carlosvfx@gmail.com`; la prueba final de recepcion externa debe hacerse desde un buzon real autenticado, no desde SMTP directo sin SPF/DKIM.
 
 ## Git y despliegue

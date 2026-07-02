@@ -110,6 +110,10 @@ Ultima actualizacion: 2026-07-02
   - sin base de datos y sin guardar mensajes en el repo.
 - Solicitud conversacional desde chatbot:
   - endpoint `app/api/agent/quote/route.ts`;
+  - flujo determinista en `components/agent/generic-agent-widget.tsx` para no depender de la IA al enviar solicitudes;
+  - solo bloquea el envio si falta email valido o consentimiento claro;
+  - nombre, telefono, tipo de negocio, interes, presupuesto y copia son opcionales o inferibles desde la conversacion;
+  - mantiene un borrador de solicitud durante la sesion y no repite datos que el usuario ya haya dado;
   - envio interno solo si Cloudflare Email Service esta configurado;
   - receptor por `AGENT_QUOTE_RECIPIENT_EMAIL`, `INTERNAL_EMAIL_RECIPIENT`, `CONTACT_RECIPIENT_EMAIL`, `CONTACT_TO_EMAIL` o fallback provisional `carlosvfx@gmail.com`;
   - no envia copia automatica al cliente;

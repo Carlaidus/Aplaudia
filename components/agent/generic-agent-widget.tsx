@@ -90,13 +90,37 @@ type ConversationalLeadDetails = {
   shouldHandle: boolean
 }
 
-function hasLeadIntent(text: string) {
-  return [
-    /\b(enviar|envia|envía|envialo|envíalo|mandar|mandalo|mándalo|pasar|pasalo|pásalo)\b[\s\S]{0,100}\b(resumen|solicitud|datos|aplaudia|persona)\b/i,
-    /\b(contactadme|escribidme|llamadme|que lo vea aplaudia|persona de aplaudia)\b/i,
-    /\b(que me contacte|que me escriba|que me llame)\b[\s\S]{0,60}\b(aplaudia|alguien|una persona)\b/i,
-    /\b(quiero|me gustaria|me gustaría|necesito|puedes|podeis|podéis)\b[\s\S]{0,90}\b(hablar con alguien|hablar con una persona|persona de aplaudia)\b/i,
-  ].some((pattern) => pattern.test(text))
+type LeadDraft = Omit<ConversationalLeadDetails, "missingFields" | "shouldHandle"> & {
+  hasAskedConsent: boolean
+  hasAskedEmail: boolean
+  hasAskedName: boolean
+  isActive: boolean
+  sent: boolean
+}
+
+function createEmptyLeadDraft(): LeadDraft {
+  return {
+    budget: "",
+    clientCopy: false,
+    email: "",
+    hasAskedConsent: false,
+    hasAskedEmail: false,
+    hasAskedName: false,
+    hasConsent: false,
+    interest: "",
+    isActive: false,
+    name: "",
+    phone: "",
+    projectType: "",
+    sent: false,
+  }
+}
+
+function normalizeLeadText(text: string) {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
 }
 
 function hasRecentLeadContext(messages: AgentMessage[]) {
@@ -107,21 +131,47 @@ function hasRecentLeadContext(messages: AgentMessage[]) {
   )
 }
 
-function hasShortLeadConfirmation(text: string) {
+function hasLeadIntent(text: string) {
+  const normalized = normalizeLeadText(text)
+
   return [
-    /^(s[ií]|vale|ok|de acuerdo|adelante|perfecto)[\s.!]*$/i,
-    /\b(s[ií]|vale|ok|de acuerdo|adelante|perfecto)\b[\s\S]{0,50}\b(envia|envía|envialo|envíalo|mandalo|mándalo|hazlo)\b/i,
-    /\b(envia|envía|envialo|envíalo|mandalo|mándalo)\b/i,
-  ].some((pattern) => pattern.test(text))
+    /\b(presupuesto|propuesta|solicitud)\b[\s\S]{0,120}\b(enviar|envia|envialo|correo|email|mail|contact|persona)\b/i,
+    /\b(enviar|envia|envialo|mandar|mandalo|pasar|pasalo)\b[\s\S]{0,120}\b(resumen|solicitud|datos|aplaudia|persona|correo|email|mail)\b/i,
+    /\b(contactadme|escribidme|llamadme|que lo vea aplaudia|persona de aplaudia|humano de aplaudia)\b/i,
+    /\b(que me contacte|que me escriba|que me llame|que me respondan)\b[\s\S]{0,80}\b(aplaudia|alguien|una persona|email|correo)\b/i,
+    /\b(quiero|me gustaria|necesito|puedes|podeis)\b[\s\S]{0,100}\b(hablar con alguien|hablar con una persona|persona de aplaudia|enviar un resumen)\b/i,
+  ].some((pattern) => pattern.test(normalized))
+}
+
+function hasPriceQuestion(text: string) {
+  return /\b(precio|coste|presupuesto|tarifa|mensualidad|mantenimiento|cuanto cuesta|barato|economico|desde cuanto)\b/i.test(
+    normalizeLeadText(text),
+  )
+}
+
+function hasSendNowIntent(text: string) {
+  return [
+    /\b(envialo|envia|enviarlo ya|mandalo|manda|mándalo|pasalo|hazlo|adelante|tira)\b/i,
+    /\b(ya porfa|ya por favor|me estas hablando demasiado|me estás hablando demasiado)\b/i,
+    /^(si|sí|vale|ok|de acuerdo|perfecto)[\s,.:;-]*(envialo|envia|mandalo|hazlo|adelante)?[\s.!]*$/i,
+  ].some((pattern) => pattern.test(normalizeLeadText(text)))
 }
 
 function hasExplicitLeadConsent(text: string) {
-  return /\b(acepto|autorizo|doy mi consentimiento|consiento)\b/i.test(text)
+  return /\b(acepto|autorizo|doy mi consentimiento|te doy mi consentimiento|consiento|acepto el tratamiento|acepto que aplaudia trate)\b/i.test(
+    normalizeLeadText(text),
+  )
+}
+
+function hasAffirmativeConsentReply(text: string) {
+  return /^(si|sí|vale|ok|de acuerdo|acepto|autorizo|consiento|correcto|perfecto)[\s.!]*$/i.test(
+    normalizeLeadText(text),
+  )
 }
 
 function wantsClientCopy(text: string) {
-  return /\b(copia|copía|enviame copia|envíame copia|mandame copia|mándame copia|recibir copia|quiero copia)\b/i.test(
-    text,
+  return /\b(copia|enviame copia|mandame copia|recibir copia|quiero copia|que me llegue copia)\b/i.test(
+    normalizeLeadText(text),
   )
 }
 
@@ -133,7 +183,7 @@ function cleanExtractedText(value: string) {
 }
 
 function extractEmail(source: string) {
-  return source.match(/[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]+/)?.[0]?.trim() ?? ""
+  return source.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0]?.replace(/[).,;:!?]+$/g, "").trim() ?? ""
 }
 
 function extractPhone(source: string) {
@@ -157,6 +207,32 @@ function extractName(source: string) {
   return name
 }
 
+function extractShortName(source: string) {
+  const name = cleanExtractedText(source)
+  const normalized = normalizeLeadText(name)
+  const stopWords = new Set([
+    "acepto",
+    "adelante",
+    "email",
+    "envialo",
+    "hola",
+    "mail",
+    "ok",
+    "presupuesto",
+    "restaurante",
+    "si",
+    "vale",
+    "web",
+  ])
+
+  if (name.length < 2 || name.length > 42) return ""
+  if (stopWords.has(normalized)) return ""
+  if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]+$/.test(name)) return ""
+  if (name.split(/\s+/).length > 3) return ""
+
+  return name
+}
+
 function extractProjectType(source: string) {
   const explicitMatch = source.match(
     /(?:tipo de negocio|tipo de proyecto|negocio|proyecto)\s*:\s*([^.;\n]{3,120})/i,
@@ -169,6 +245,7 @@ function extractProjectType(source: string) {
     [/freelance|aut[oó]nomo|profesional independiente|consultor/i, "Profesional independiente"],
     [/cl[ií]nica|salud|fisio|dentista|centro/i, "Centro profesional o servicios"],
     [/hotel|alojamiento|turismo|apartamento/i, "Turismo o alojamiento"],
+    [/v[ií]deo|video|reels|audiovisual|edici[oó]n/i, "Proyecto audiovisual o contenidos"],
     [/marca|visual|escaparate|pantalla|imagen|v[ií]deo|video/i, "Marca visual o escaparate digital"],
     [/web|landing|p[aá]gina|seo|presencia digital/i, "Web o presencia digital"],
     [/whatsapp|chatbot|agente/i, "Agente IA o WhatsApp"],
@@ -197,74 +274,116 @@ function buildLeadInterest(text: string, messages: AgentMessage[]) {
   return interest.length >= 10 ? interest : text
 }
 
-function buildConversationalLeadDetails(text: string, messages: AgentMessage[]): ConversationalLeadDetails {
-  const source = [...messages.filter((message) => message.role === "user").map((message) => message.content), text].join(
-    "\n",
-  )
-  const recentLeadContext = hasRecentLeadContext(messages)
-  const hasConsent = hasExplicitLeadConsent(source)
-  const currentMessageContributesLeadData =
-    hasExplicitLeadConsent(text) ||
-    hasShortLeadConfirmation(text) ||
-    Boolean(extractName(text)) ||
-    Boolean(extractEmail(text)) ||
-    Boolean(extractPhone(text)) ||
-    hasExplicitProjectData(text) ||
-    Boolean(extractBudget(text)) ||
-    wantsClientCopy(text)
-  const name = extractName(source)
+function updateLeadDraftFromMessage(draft: LeadDraft, text: string, messages: AgentMessage[]) {
+  const userHistory = messages.filter((message) => message.role === "user").map((message) => message.content)
+  const source = [...userHistory, text].join("\n")
+  const next: LeadDraft = { ...draft }
+
   const email = extractEmail(source)
   const phone = extractPhone(source)
   const projectType = extractProjectType(source)
-  const interest = buildLeadInterest(text, messages)
   const budget = extractBudget(source)
-  const clientCopy = wantsClientCopy(source)
-  const shouldHandle = hasLeadIntent(text) || (recentLeadContext && currentMessageContributesLeadData)
-  const missingFields = [
-    !name ? "nombre" : null,
-    !email ? "email" : null,
-    !projectType ? "tipo de negocio o proyecto" : null,
-    interest.length < 10 ? "necesidad principal" : null,
-  ].filter((item): item is string => Boolean(item))
+  const explicitName = extractName(source)
+  const shortName = !next.name && next.hasAskedName ? extractShortName(text) : ""
 
-  return {
-    budget,
-    clientCopy,
-    email,
-    hasConsent,
-    interest,
-    missingFields,
-    name,
-    phone,
-    projectType,
-    shouldHandle,
+  if (email) next.email = email
+  if (phone) next.phone = phone
+  if (projectType) next.projectType = projectType
+  if (budget) next.budget = budget
+  if (explicitName || shortName) next.name = explicitName || shortName
+  if (wantsClientCopy(text)) next.clientCopy = true
+  if (hasExplicitLeadConsent(text) || (next.hasAskedConsent && hasAffirmativeConsentReply(text))) {
+    next.hasConsent = true
   }
+
+  next.interest = buildLeadInterest(text, messages)
+  next.isActive =
+    next.isActive ||
+    hasLeadIntent(text) ||
+    (hasRecentLeadContext(messages) &&
+      (Boolean(email) ||
+        Boolean(phone) ||
+        Boolean(projectType) ||
+        Boolean(budget) ||
+        Boolean(explicitName) ||
+        Boolean(shortName) ||
+        hasExplicitLeadConsent(text) ||
+        hasAffirmativeConsentReply(text) ||
+        wantsClientCopy(text) ||
+        hasSendNowIntent(text)))
+
+  return next
 }
 
-function buildLeadRequestReply(details: ConversationalLeadDetails) {
-  if (details.missingFields.length > 0) {
-    const lines = [
-      "### Para poder enviarlo",
-      `Necesito ${details.missingFields.join(", ")}. Puedes responder en una sola frase.`,
-    ]
+function shouldHandleLeadMessage(text: string, messages: AgentMessage[], draft: LeadDraft) {
+  const normalized = normalizeLeadText(text)
+  const directLeadWithEnoughData =
+    Boolean(draft.email) &&
+    draft.hasConsent &&
+    Boolean(draft.projectType) &&
+    /\b(necesito|quiero|busco|me gustaria|presupuesto|propuesta|solicitud)\b/.test(normalized)
 
-    if (details.clientCopy) {
+  if (draft.sent && !hasLeadIntent(text) && !hasRecentLeadContext(messages)) return false
+  if (draft.isActive) return true
+  if (directLeadWithEnoughData) return true
+  if (hasLeadIntent(text)) return true
+
+  return hasRecentLeadContext(messages) && (hasSendNowIntent(text) || Boolean(extractEmail(text)))
+}
+
+function buildLeadEmailReply(text: string, draft: LeadDraft) {
+  const lines = ["### Para poder enviarlo"]
+
+  if (hasPriceQuestion(text)) {
+    if (/restaurante|reserva|carta/i.test(normalizeLeadText(`${text} ${draft.projectType} ${draft.interest}`))) {
       lines.push(
-        "",
-        "Perfecto, incluiré en la solicitud que quieres recibir una copia o respuesta por email. Una persona de Aplaudia revisará el caso y se pondrá en contacto contigo.",
+        "Para una web de restaurante con reservas puede haber una fase sencilla y otra más completa con carta, fotos y automatizaciones. Los importes son orientativos y sin IVA.",
+      )
+    } else if (/imagen|visual|foto|reel|video|vídeo/i.test(normalizeLeadText(text))) {
+      lines.push(
+        "En visuales conviene preparar un pack personalizado según volumen, estilo, uso y presupuesto. Los importes se ajustan al alcance y son orientativos sin IVA.",
+      )
+    } else {
+      lines.push(
+        "Puedo preparar una orientación inicial, siempre con importes orientativos sin IVA y alcance por confirmar.",
       )
     }
-
-    if (details.hasConsent) {
-      lines.push("", "Ya tengo tu aceptación; faltan esos datos para completar la solicitud.")
-    } else {
-      lines.push("", LEAD_CONSENT_TEXT)
-    }
-
-    return lines.join("\n")
+  } else {
+    lines.push("Tengo el contexto principal. Para que Aplaudia pueda responderte, falta un email de contacto.")
   }
 
+  lines.push("", "Dime el email y sigo con el envío.")
+
+  return lines.join("\n")
+}
+
+function buildLeadConsentReply() {
   return ["### Antes de enviarlo", LEAD_CONSENT_TEXT].join("\n")
+}
+
+function buildOptionalNameReply() {
+  return [
+    "### Ya tengo email y consentimiento",
+    "Si quieres, dime tu nombre y lo añado al resumen. Si prefieres no añadir nada más, dime “envíalo” y lo mando.",
+  ].join("\n")
+}
+
+function buildLeadAcknowledgementReply() {
+  return [
+    "Perfecto, lo añado al resumen.",
+    "",
+    "Si quieres incluir algún detalle más, dímelo. Cuando esté listo, dime “envíalo” y lo mando.",
+  ].join("\n")
+}
+
+function buildLeadAlreadySentReply() {
+  return "Ya he enviado el resumen a una persona de Aplaudia. Te responderán por email."
+}
+
+function buildLeadSentReply(clientCopy: boolean) {
+  return clientCopy
+    ? "Perfecto, ya he enviado el resumen a una persona de Aplaudia. Te responderán por email.\n\nTambién he incluido que quieres recibir copia o respuesta por email."
+    : "Perfecto, ya he enviado el resumen a una persona de Aplaudia. Te responderán por email."
 }
 
 function getSafeHref(rawHref: string) {
@@ -487,6 +606,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
   const messagesViewportRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const inputDraftRef = useRef("")
+  const leadDraftRef = useRef<LeadDraft>(createEmptyLeadDraft())
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null)
   const pendingUserAnchorIndexRef = useRef<number | null>(null)
   const voiceBaseTextRef = useRef("")
@@ -642,6 +762,12 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     window.requestAnimationFrame(() => {
       clearTextarea(inputRef.current)
     })
+    window.setTimeout(() => {
+      clearTextarea(inputRef.current)
+    }, 0)
+    window.setTimeout(() => {
+      clearTextarea(inputRef.current)
+    }, 80)
   }, [])
 
   const setInputValue = useCallback(
@@ -845,11 +971,74 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     let attemptedLeadSend = false
 
     try {
-      const leadDetails = isLeadRequestEnabled ? buildConversationalLeadDetails(text, messages) : null
+      const previousLeadDraft = leadDraftRef.current
+      const leadDetails = isLeadRequestEnabled ? updateLeadDraftFromMessage(previousLeadDraft, text, messages) : null
+      const conversationHistory = [...messages.slice(-11), userMessage]
 
-      if (leadDetails?.shouldHandle) {
-        if (leadDetails.missingFields.length > 0 || !leadDetails.hasConsent) {
-          setMessages((current) => [...current, { role: "assistant", content: buildLeadRequestReply(leadDetails) }])
+      if (leadDetails && shouldHandleLeadMessage(text, messages, leadDetails)) {
+        leadDetails.isActive = true
+        leadDraftRef.current = leadDetails
+
+        if (leadDetails.sent) {
+          setMessages((current) => [...current, { role: "assistant", content: buildLeadAlreadySentReply() }])
+          if (!isOpen) setHasUnread(true)
+          return
+        }
+
+        if (!leadDetails.email) {
+          leadDetails.hasAskedEmail = true
+          leadDraftRef.current = leadDetails
+          setMessages((current) => [...current, { role: "assistant", content: buildLeadEmailReply(text, leadDetails) }])
+          if (!isOpen) setHasUnread(true)
+          return
+        }
+
+        if (!leadDetails.hasConsent) {
+          leadDetails.hasAskedConsent = true
+          leadDraftRef.current = leadDetails
+          setMessages((current) => [...current, { role: "assistant", content: buildLeadConsentReply() }])
+          if (!isOpen) setHasUnread(true)
+          return
+        }
+
+        const justCapturedOptionalName =
+          !previousLeadDraft.name && Boolean(leadDetails.name) && previousLeadDraft.hasAskedName
+        const justCompletedRequiredData =
+          (!previousLeadDraft.email && Boolean(leadDetails.email)) ||
+          (!previousLeadDraft.hasConsent && leadDetails.hasConsent)
+        const onlyCompletedRequiredData =
+          justCompletedRequiredData &&
+          !extractProjectType(text) &&
+          !extractBudget(text) &&
+          !hasLeadIntent(text) &&
+          !hasSendNowIntent(text)
+        const shouldAskOptionalName =
+          (previousLeadDraft.isActive ||
+            previousLeadDraft.hasAskedEmail ||
+            previousLeadDraft.hasAskedConsent ||
+            onlyCompletedRequiredData) &&
+          justCompletedRequiredData &&
+          !previousLeadDraft.sent &&
+          !previousLeadDraft.hasAskedName &&
+          !leadDetails.name &&
+          !hasSendNowIntent(text)
+        const addedExtraContext =
+          previousLeadDraft.isActive &&
+          previousLeadDraft.hasAskedName &&
+          !hasSendNowIntent(text) &&
+          !justCapturedOptionalName
+
+        if (shouldAskOptionalName) {
+          leadDetails.hasAskedName = true
+          leadDraftRef.current = leadDetails
+          setMessages((current) => [...current, { role: "assistant", content: buildOptionalNameReply() }])
+          if (!isOpen) setHasUnread(true)
+          return
+        }
+
+        if ((justCapturedOptionalName || addedExtraContext) && !hasSendNowIntent(text)) {
+          leadDraftRef.current = leadDetails
+          setMessages((current) => [...current, { role: "assistant", content: buildLeadAcknowledgementReply() }])
           if (!isOpen) setHasUnread(true)
           return
         }
@@ -863,7 +1052,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
             clientCopy: leadDetails.clientCopy,
             consent: true,
             email: leadDetails.email,
-            history: [...messages.slice(-11), userMessage],
+            history: conversationHistory,
             interest: leadDetails.interest,
             name: leadDetails.name,
             phone: leadDetails.phone,
@@ -881,11 +1070,11 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
           ...current,
           {
             role: "assistant",
-            content: leadDetails.clientCopy
-              ? "### Resumen enviado\nHe enviado el resumen a una persona de Aplaudia. También he incluido que quieres recibir una copia o respuesta por email."
-              : "### Resumen enviado\nHe enviado el resumen a una persona de Aplaudia para que pueda responderte por email.",
+            content: buildLeadSentReply(leadDetails.clientCopy),
           },
         ])
+        leadDetails.sent = true
+        leadDraftRef.current = leadDetails
         if (!isOpen) setHasUnread(true)
         return
       }
