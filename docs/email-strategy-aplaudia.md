@@ -21,16 +21,26 @@ Mantener una estrategia clara, gratuita y sencilla para `aplaudia.com`:
     - `MX` raiz a `route3.mx.cloudflare.net`, prioridad 18;
     - `TXT` `cf2024-1._domainkey.aplaudia.com` para DKIM de Cloudflare;
     - `TXT` raiz `v=spf1 include:_spf.mx.cloudflare.net ~all`;
-  - `carlosvfx@gmail.com` creado como direccion de destino en Cloudflare;
-  - estado de destino: pendiente de verificacion por email;
-  - no se han creado todavia los aliases publicos porque Cloudflare exige una direccion de destino verificada.
+  - `carlosvfx@gmail.com` creado y verificado como direccion de destino en Cloudflare;
+  - aliases publicos creados y activos:
+    - `hola@aplaudia.com` -> `carlosvfx@gmail.com`;
+    - `presupuestos@aplaudia.com` -> `carlosvfx@gmail.com`;
+    - `soporte@aplaudia.com` -> `carlosvfx@gmail.com`;
+    - `legal@aplaudia.com` -> `carlosvfx@gmail.com`;
+  - observacion de panel: la cabecera sigue mostrando `Estado: Desactivado` y `Registros DNS: No configurado`, pero la vista general marca DNS activado, la configuracion lista los registros, las reglas aparecen activas y Activity Log registra reenvios;
+  - prueba SMTP directa no autenticada desde esta maquina hacia `hola@aplaudia.com` y `presupuestos@aplaudia.com` rechazada por Cloudflare con `unauthenticatedForward` / `550 5.7.26 Cannot forward emails that are not authenticated`;
+  - falta confirmacion final de recepcion externa enviando desde un buzon real autenticado, por ejemplo Gmail/Yahoo de Carlos.
 - Cloudflare Email Service / Email Sending:
   - token de API creado con permiso `Email Sending Write`;
   - el token esta configurado en Railway, pero no se guarda en el repo ni en documentacion;
   - Railway tiene configuradas las variables Cloudflare y destinatarios internos;
-  - prueba real controlada desde produccion falla con `email.sending.error.email.sending_disabled`;
-  - el panel de Cloudflare muestra que el envio completo de email esta en beta y requiere Workers Paid;
-  - pendiente comprobar si tras verificar `carlosvfx@gmail.com` Cloudflare permite el envio gratuito a destino verificado, tal como indica su documentacion, o si mantiene el bloqueo.
+  - pruebas reales controladas desde produccion el 2026-07-02:
+    - `/api/agent/quote` sin consentimiento devuelve `400`;
+    - `/api/agent/quote` con datos ficticios y consentimiento devuelve `200`;
+    - `/api/contacto` sin privacidad devuelve `400`;
+    - `/api/contacto` con datos ficticios y privacidad devuelve `200`;
+  - Cloudflare Activity Log marca los dos envios internos como `Reenviados` hacia `carlosvfx@gmail.com`;
+  - no se envio copia automatica al cliente; `/api/agent/quote` respondio `clientCopySent:false`.
 - Resend sigue sin ser proveedor activo en codigo. La variable antigua puede permanecer dormida en Railway hasta confirmar el camino final.
 
 ## Recepcion con Cloudflare Email Routing
@@ -118,17 +128,14 @@ Estado:
 
 Pasos restantes, sin guardar secretos:
 
-1. Carlos debe abrir el email de verificacion recibido en `carlosvfx@gmail.com` desde Cloudflare y confirmar la direccion de destino.
-2. Cuando el destino aparezca como verificado, crear las reglas de routing:
-   - `hola@aplaudia.com` -> `carlosvfx@gmail.com`;
-   - `presupuestos@aplaudia.com` -> `carlosvfx@gmail.com`;
-   - `soporte@aplaudia.com` -> `carlosvfx@gmail.com`;
-   - `legal@aplaudia.com` -> `carlosvfx@gmail.com`.
-3. Repetir la prueba real controlada desde `/api/agent/quote` con datos ficticios y consentimiento.
-4. Si Cloudflare sigue devolviendo `email.sending.error.email.sending_disabled`, decidir una de estas opciones:
-   - activar Workers Paid si Carlos quiere usar Cloudflare Email Sending;
-   - volver a Resend solo como proveedor de envio interno;
-   - usar otro proveedor SMTP/transaccional.
+1. Carlos debe confirmar en `carlosvfx@gmail.com` que han llegado los dos emails internos generados por:
+   - `/api/agent/quote`;
+   - `/api/contacto`.
+2. Para validar recepcion externa gratuita de aliases, enviar desde un buzon real autenticado un email simple a:
+   - `hola@aplaudia.com`;
+   - `presupuestos@aplaudia.com`.
+3. Si esos correos no llegan, revisar Cloudflare Activity Log y el estado de Email Routing antes de tocar DNS.
+4. No activar Workers Paid y no volver a Resend salvo decision explicita de Carlos.
 
 Importante: no inventar registros DNS. Aplicar solo los que Cloudflare indique.
 

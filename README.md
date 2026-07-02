@@ -69,11 +69,14 @@ Estrategia de dominio:
 - La estrategia completa esta documentada en `docs/email-strategy-aplaudia.md`.
 - Estado real 2026-07-02:
   - DNS de Cloudflare Email Routing aplicado;
-  - `carlosvfx@gmail.com` pendiente de verificacion en Cloudflare;
+  - `carlosvfx@gmail.com` verificado como direccion destino en Cloudflare;
+  - aliases activos en Cloudflare Email Routing: `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com`, todos a `carlosvfx@gmail.com`;
   - Railway tiene variables Cloudflare configuradas sin guardar secretos;
-  - las pruebas internas de envio fallan con `email.sending.error.email.sending_disabled`.
+  - las pruebas internas de envio desde `/api/agent/quote` y `/api/contacto` devuelven `200`;
+  - Cloudflare Activity Log marca esos envios internos como `Reenviados`;
+  - prueba SMTP directa no autenticada hacia aliases rechazada por Cloudflare con `unauthenticatedForward`; falta confirmar recepcion externa desde un buzon real autenticado.
 
-Variables de entorno necesarias para activar el envio real:
+Variables de entorno necesarias para mantener el envio real:
 
 - `CLOUDFLARE_ACCOUNT_ID`: cuenta Cloudflare.
 - `CLOUDFLARE_EMAIL_API_TOKEN`: token privado con permiso de Email Service.

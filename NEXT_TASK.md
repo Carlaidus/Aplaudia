@@ -1,8 +1,8 @@
 # NEXT TASK - Aplaudia
 
-Prioridad: Alta
+Prioridad: Media-Alta
 Modelo recomendado para Codex: GPT-5.5
-Nivel de inteligencia recomendado: Extremadamente alto
+Nivel de inteligencia recomendado: Alto
 
 ## Estado tras la ultima ejecucion
 
@@ -10,80 +10,85 @@ Nivel de inteligencia recomendado: Extremadamente alto
   - `/api/contacto` y `/api/agent/quote` usan `lib/email/cloudflare-email.ts`;
   - no queda dependencia activa de Resend en codigo;
   - `npm ls resend` queda vacio;
-  - no hay `from "resend"`, `new Resend`, `resend.emails.send`, `RESEND_API_KEY` ni `onboarding@resend` en `app`, `lib`, `package.json`, `package-lock.json`, docs principales o memoria operativa.
+  - no hay envio automatico de copia al cliente;
+  - si el cliente pide copia desde chatbot, queda como nota interna.
 - Cloudflare Email Routing:
-  - DNS de Email Routing aplicado en Cloudflare y comprobado contra `1.1.1.1`;
-  - registros publicos activos:
+  - DNS publico comprobado contra `1.1.1.1`:
+    - `MX` raiz a `route3.mx.cloudflare.net`, prioridad 18;
     - `MX` raiz a `route1.mx.cloudflare.net`, prioridad 60;
     - `MX` raiz a `route2.mx.cloudflare.net`, prioridad 99;
-    - `MX` raiz a `route3.mx.cloudflare.net`, prioridad 18;
     - `TXT` DKIM `cf2024-1._domainkey.aplaudia.com`;
     - `TXT` SPF raiz `v=spf1 include:_spf.mx.cloudflare.net ~all`;
-  - `carlosvfx@gmail.com` creado como direccion destino;
-  - estado real del destino: pendiente de verificacion por email;
-  - aliases `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com` aun no creados porque Cloudflare no permite seleccionar destinos pendientes.
+  - `carlosvfx@gmail.com` aparece como destino verificado;
+  - aliases creados y activos:
+    - `hola@aplaudia.com` -> `carlosvfx@gmail.com`;
+    - `presupuestos@aplaudia.com` -> `carlosvfx@gmail.com`;
+    - `soporte@aplaudia.com` -> `carlosvfx@gmail.com`;
+    - `legal@aplaudia.com` -> `carlosvfx@gmail.com`;
+  - Cloudflare Activity Log muestra los dos emails internos de prueba como `Reenviados`;
+  - prueba SMTP directa no autenticada hacia `hola@aplaudia.com` y `presupuestos@aplaudia.com` fue rechazada con `unauthenticatedForward`, por no salir desde un buzon autenticado con SPF/DKIM valido.
 - Cloudflare Email Service / Email Sending:
-  - token de API creado con permiso `Email Sending Write`;
-  - Railway tiene variables configuradas:
-    - `CLOUDFLARE_ACCOUNT_ID`;
-    - `CLOUDFLARE_EMAIL_API_TOKEN`;
-    - `EMAIL_FROM`;
-    - `INTERNAL_EMAIL_RECIPIENT`;
-    - `AGENT_QUOTE_RECIPIENT_EMAIL`;
-    - `CONTACT_RECIPIENT_EMAIL`;
-  - no se ha guardado ningun secreto en repo ni documentacion;
-  - `RESEND_API_KEY` sigue en Railway como variable historica/dormida, no como camino activo del codigo.
-- Railway:
-  - deployment tras variables queda `Active` / `Deployment successful`;
-  - produccion `https://aplaudia.com` responde.
-- Pruebas reales controladas:
+  - Railway mantiene variables Cloudflare configuradas sin guardar secretos;
   - `/api/agent/quote` sin consentimiento devuelve `400`;
-  - `/api/agent/quote` con datos ficticios y consentimiento devuelve `500`;
-  - `/api/contacto` con datos ficticios y consentimiento devuelve `500`;
-  - Railway registra el error real de Cloudflare: `email.sending.error.email.sending_disabled`;
-  - no hay confirmacion de email interno entregado;
-  - no se envio copia automatica a cliente.
+  - `/api/agent/quote` con datos ficticios y consentimiento devuelve `200`;
+  - `/api/contacto` sin privacidad devuelve `400`;
+  - `/api/contacto` con datos ficticios y privacidad devuelve `200`;
+  - `clientCopySent:false` confirmado en la respuesta del chatbot.
+- Railway:
+  - servicio `Aplaudia` en `ACTIVE`;
+  - deployment actual: `Deployment successful`;
+  - logs recientes sin errores en el rango consultado.
+- Produccion:
+  - `https://aplaudia.com`: `200`;
+  - `/robots.txt`: `200`;
+  - `/llms.txt`: `200`;
+  - `/sitemap.xml`: `200`;
+  - aviso de construccion visible;
+  - chatbot carga con etiqueta corta `¿Dudas?`;
+  - saludo inicial neutro, sin mencionar casos reales;
+  - no aparece boton fijo de presupuesto.
 
 ## Proximo foco real
 
-Desbloquear Cloudflare email desde el estado real, sin tocar codigo:
+Confirmar recepcion externa de aliases desde un buzon real autenticado:
 
-1. Carlos debe abrir el email de verificacion enviado por Cloudflare a `carlosvfx@gmail.com` y verificar la direccion de destino.
-2. Cuando Cloudflare muestre `carlosvfx@gmail.com` como verificado:
-   - crear reglas de Email Routing:
-     - `hola@aplaudia.com` -> `carlosvfx@gmail.com`;
-     - `presupuestos@aplaudia.com` -> `carlosvfx@gmail.com`;
-     - `soporte@aplaudia.com` -> `carlosvfx@gmail.com`;
-     - `legal@aplaudia.com` -> `carlosvfx@gmail.com`;
-   - probar recepcion externa hacia `hola@aplaudia.com` y `presupuestos@aplaudia.com`.
-3. Repetir prueba real controlada desde produccion:
-   - datos ficticios;
-   - consentimiento visible;
-   - solo envio interno a Carlos;
-   - sin copia automatica al cliente.
-4. Si tras verificar destino Cloudflare mantiene `email.sending.error.email.sending_disabled`, decidir una opcion:
-   - activar Workers Paid para Email Sending;
-   - volver a Resend solo como proveedor de envio interno;
-   - usar otro proveedor SMTP/transaccional.
+1. Carlos debe enviar dos correos sencillos desde Gmail/Yahoo/otro buzon real:
+   - a `hola@aplaudia.com`;
+   - a `presupuestos@aplaudia.com`.
+2. Carlos debe confirmar si ambos llegan a `carlosvfx@gmail.com`.
+3. Si llegan:
+   - marcar recepcion externa de Cloudflare Email Routing como operativa;
+   - mantener Resend dormido/no activo;
+   - decidir si se quieren probar tambien `soporte@aplaudia.com` y `legal@aplaudia.com`.
+4. Si no llegan:
+   - revisar Cloudflare Activity Log;
+   - revisar si Cloudflare sigue mostrando algun estado contradictorio en Routing;
+   - no tocar DNS a ciegas.
+
+## Siguiente foco de producto
+
+- Revisar legal/privacidad antes de retirar el aviso de construccion, porque ya existe captacion de contacto.
+- Revisar con Carlos si los emails internos recibidos desde `/api/agent/quote` y `/api/contacto` tienen el formato correcto.
+- Mantener el aviso de construccion hasta validacion final.
 
 ## Validaciones base para la proxima tarea
 
-- Comprobar Cloudflare destino `carlosvfx@gmail.com`: verificado o pendiente.
-- Comprobar reglas de Routing creadas.
-- Validar DNS con `Resolve-DnsName -Server 1.1.1.1`.
+- Confirmar en Gmail recepcion de los dos emails internos de prueba ya enviados.
+- Probar aliases desde un buzon real autenticado.
 - Validar `https://aplaudia.com`, `/robots.txt`, `/llms.txt` y `/sitemap.xml`.
 - Probar `/api/agent/quote` sin consentimiento: debe ser `400`.
-- Probar `/api/agent/quote` con datos ficticios solo si Carlos autoriza o si forma parte del flujo ya autorizado.
-- Revisar logs Railway si falla.
+- Probar `/api/agent/quote` con consentimiento solo con datos ficticios y destino controlado por Carlos.
 - `npm run build`.
 - `npm run lint` si `eslint` llega a estar disponible.
+- `npm ls resend`.
 
 ## Restricciones
 
 - No guardar tokens, claves ni contrasenas.
 - No imprimir valores secretos.
-- No borrar `RESEND_API_KEY` en Railway hasta tener envio final funcionando.
-- No activar Workers Paid sin permiso explicito de Carlos.
+- No borrar `RESEND_API_KEY` en Railway hasta que Carlos lo pida.
+- No activar Workers Paid.
+- No volver a Resend salvo decision explicita.
 - No enviar emails a clientes reales.
 - No enviar copias automaticas al cliente.
 - No crear base de datos.

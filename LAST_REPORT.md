@@ -2,6 +2,118 @@
 
 Fecha: 2026-07-02
 
+## Actualizacion - Email gratuito Cloudflare verificado y aliases creados
+
+### Objetivo
+
+Continuar la configuracion gratuita de email de Aplaudia tras la verificacion de `carlosvfx@gmail.com`, sin activar Workers Paid, sin volver a Resend y sin enviar copias automaticas a clientes.
+
+### Estado real comprobado en Cloudflare
+
+- `carlosvfx@gmail.com` aparece como direccion destino `Verificado`.
+- Aliases creados y activos en Cloudflare Email Routing:
+  - `hola@aplaudia.com` -> `carlosvfx@gmail.com`;
+  - `presupuestos@aplaudia.com` -> `carlosvfx@gmail.com`;
+  - `soporte@aplaudia.com` -> `carlosvfx@gmail.com`;
+  - `legal@aplaudia.com` -> `carlosvfx@gmail.com`.
+- `facturas@aplaudia.com` no se ha creado porque estaba marcado como opcional futuro.
+- Observacion de panel: la cabecera de Cloudflare sigue mostrando `Estado: Desactivado` y `Registros DNS: No configurado`, pero la vista general marca `Registros DNS: Activado`, la configuracion lista los registros, las reglas aparecen `Activo` y Activity Log muestra reenvios correctos.
+- DNS publico comprobado contra `1.1.1.1`:
+  - `MX` raiz a `route3.mx.cloudflare.net`, prioridad 18;
+  - `MX` raiz a `route1.mx.cloudflare.net`, prioridad 60;
+  - `MX` raiz a `route2.mx.cloudflare.net`, prioridad 99;
+  - `TXT` DKIM `cf2024-1._domainkey.aplaudia.com`;
+  - `TXT` SPF raiz `v=spf1 include:_spf.mx.cloudflare.net ~all`.
+
+### Prueba de recepcion por aliases
+
+- Se intento una prueba SMTP directa desde la maquina hacia:
+  - `hola@aplaudia.com`;
+  - `presupuestos@aplaudia.com`.
+- Resultado:
+  - Cloudflare recibio los intentos, pero los rechazo con `550 5.7.26 Cannot forward emails that are not authenticated`;
+  - en Cloudflare Activity Log aparecen como `unauthenticatedForward`;
+  - causa: la prueba directa no salia desde un buzon autenticado con SPF/DKIM valido.
+- Estado final de recepcion externa:
+  - aliases creados y activos;
+  - DNS activo;
+  - Activity Log operativo;
+  - falta confirmacion final enviando desde un buzon real autenticado de Carlos o de confianza.
+
+### Prueba de envio interno desde produccion
+
+- `/api/agent/quote` sin consentimiento:
+  - resultado: `400`;
+  - no envia nada.
+- `/api/agent/quote` con datos ficticios y consentimiento:
+  - resultado: `200`;
+  - respuesta: `clientCopyRequested:true`, `clientCopySent:false`, `ok:true`.
+- `/api/contacto` sin privacidad:
+  - resultado: `400`;
+  - no envia nada.
+- `/api/contacto` con datos ficticios y privacidad:
+  - resultado: `200`;
+  - respuesta: `ok:true`.
+- Cloudflare Activity Log marca los dos envios internos como `Reenviados` hacia `carlosvfx@gmail.com`.
+- No se envio copia automatica al cliente.
+- Si el cliente pide copia, sigue quedando solo como nota interna.
+- No se guardaron solicitudes en base de datos.
+
+### Estado de Railway y produccion
+
+- Railway:
+  - servicio `Aplaudia` en `ACTIVE`;
+  - deployment actual: `Deployment successful`;
+  - logs recientes consultados sin errores en el rango visible.
+- Produccion:
+  - `https://aplaudia.com`: `200`;
+  - `https://aplaudia.com/robots.txt`: `200`;
+  - `https://aplaudia.com/llms.txt`: `200`;
+  - `https://aplaudia.com/sitemap.xml`: `200`;
+  - aviso de construccion visible;
+  - chatbot carga;
+  - etiqueta del chatbot: `¿Dudas?`;
+  - saludo inicial neutro, sin mencionar Cronoras, Arik Custom ni Aventuras Pixeladas;
+  - no aparece boton fijo de presupuesto.
+
+### Validaciones locales
+
+- `npm run build`:
+  - primer intento desde ruta UNC fallo por limitacion conocida de Windows/CMD (`C:\Windows\.next`);
+  - segundo intento desde `T:\20-PROYECTOS\APLAUDIA`: OK.
+- `npm run lint`:
+  - no disponible; `eslint` no esta instalado como ejecutable local.
+- `npm ls resend`:
+  - vacio.
+- `npm install`:
+  - no fue necesario; `node_modules` ya existia y no se tocaron dependencias.
+
+### Archivos modificados
+
+- `README.md`
+- `PROJECT_STATE.md`
+- `DECISIONS.md`
+- `NEXT_TASK.md`
+- `docs/email-strategy-aplaudia.md`
+- `LAST_REPORT.md`
+
+### Seguridad y restricciones cumplidas
+
+- No se activo Workers Paid.
+- No se volvio a Resend.
+- No se borro ninguna variable antigua de Resend en Railway.
+- No se guardaron secretos, tokens, claves ni contrasenas.
+- No se enviaron emails a clientes reales.
+- No se enviaron copias automaticas al cliente.
+- No se retiro el aviso de construccion.
+
+### Siguiente paso recomendado
+
+1. Carlos debe revisar `carlosvfx@gmail.com` y confirmar si han llegado los dos emails internos generados por `/api/agent/quote` y `/api/contacto`.
+2. Carlos debe enviar desde un buzon real autenticado un email simple a `hola@aplaudia.com` y otro a `presupuestos@aplaudia.com`.
+3. Si ambos llegan a `carlosvfx@gmail.com`, marcar Cloudflare Email Routing como recepcion externa operativa.
+4. Antes de retirar el aviso de construccion, revisar legal/privacidad porque ya existe captacion de contacto.
+
 ## Actualizacion - Configuracion externa Cloudflare/Railway y bloqueo real
 
 ### Objetivo

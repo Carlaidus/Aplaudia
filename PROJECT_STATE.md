@@ -149,10 +149,17 @@ Ultima actualizacion: 2026-07-02
   - alias recomendado para solicitudes: `presupuestos@aplaudia.com`;
   - estrategia documentada en `docs/email-strategy-aplaudia.md`;
   - Cloudflare Email Routing tiene los DNS aplicados y verificados en DNS publico el 2026-07-02;
-  - `carlosvfx@gmail.com` esta creado como direccion destino en Cloudflare, pendiente de verificacion por email;
-  - los aliases publicos `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com` siguen pendientes de crearse porque Cloudflare no permite seleccionar destinos no verificados;
+  - `carlosvfx@gmail.com` esta verificado como direccion destino en Cloudflare;
+  - aliases publicos creados y activos:
+    - `hola@aplaudia.com` -> `carlosvfx@gmail.com`;
+    - `presupuestos@aplaudia.com` -> `carlosvfx@gmail.com`;
+    - `soporte@aplaudia.com` -> `carlosvfx@gmail.com`;
+    - `legal@aplaudia.com` -> `carlosvfx@gmail.com`;
   - Cloudflare Email Service / Email Sending tiene token creado y variables configuradas en Railway, sin guardar secretos;
-  - prueba real controlada desde produccion devuelve `email.sending.error.email.sending_disabled`;
+  - pruebas reales controladas desde produccion devuelven `200` en `/api/agent/quote` y `/api/contacto`;
+  - Cloudflare Activity Log marca los envios internos como `Reenviados`;
+  - Cloudflare muestra una cabecera contradictoria (`Estado: Desactivado`, `Registros DNS: No configurado`) aunque las reglas aparecen activas, la vista general indica DNS activado, la configuracion lista los registros y Activity Log registra reenvios;
+  - prueba SMTP directa no autenticada hacia `hola@aplaudia.com` y `presupuestos@aplaudia.com` queda rechazada por Cloudflare con `unauthenticatedForward`; queda pendiente una prueba desde un buzon real autenticado para confirmar recepcion externa de aliases;
   - Cloudflare Email Routing no crea buzones ni permite responder como `@aplaudia.com` sin proveedor adicional;
   - Resend queda como configuracion historica/dormida, no como camino activo.
 - Canonico operativo:
@@ -187,14 +194,11 @@ Llevar Aplaudia a un estado publicable minimo con base SEO preparada:
 - Revisar contenido comercial antes de lanzar.
 - Revisar textos ES / CA / EN.
 - Crear legal basico: aviso legal, privacidad y cookies si se va a captar contacto.
-- Carlos debe verificar `carlosvfx@gmail.com` desde el email enviado por Cloudflare.
-- Tras verificar el destino, crear reglas de Cloudflare Email Routing para:
+- Confirmar recepcion externa real de aliases enviando desde un buzon autenticado de Carlos o de confianza a:
   - `hola@aplaudia.com`;
-  - `presupuestos@aplaudia.com`;
-  - `soporte@aplaudia.com`;
-  - `legal@aplaudia.com`.
-- Repetir prueba real controlada de `/api/agent/quote` y `/api/contacto`.
-- Si Cloudflare sigue devolviendo `email.sending.error.email.sending_disabled`, decidir entre Workers Paid, volver a Resend solo para envio interno u otro proveedor transaccional.
+  - `presupuestos@aplaudia.com`.
+- Revisar en Gmail si han llegado los dos emails internos ya generados por las pruebas de `/api/agent/quote` y `/api/contacto`.
+- Si alguna recepcion externa falla pese a reglas activas, revisar Cloudflare Activity Log y estado de Routing antes de tocar DNS.
 - Revisar legal/privacidad antes de retirar el aviso de construccion, porque ya existe captacion de contacto.
 - Revisar en produccion con Carlos la nueva version de portfolio/casos ya desplegada.
 - Validar con Carlos si el panel interno real de Arik Custom debe mostrarse publicamente.

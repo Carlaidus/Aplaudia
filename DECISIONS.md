@@ -7,10 +7,11 @@
 - No tocar configuracion de Cloudflare ni Railway manualmente sin instruccion clara.
 - El formulario interno de contacto queda preparado por instruccion de Carlos, con consentimiento explicito, envio por proveedor configurado y sin guardar mensajes en base de datos. Legal/privacidad sigue pendiente antes de retirar el aviso de construccion.
 - Cloudflare Email Routing se usara como estrategia gratuita para recibir y reenviar aliases `@aplaudia.com`, pero no sustituye a un proveedor de envio automatico.
-- Cloudflare Email Service / Email Sending queda configurado como intento principal para envio interno, pero a fecha 2026-07-02 no esta operativo: la prueba real de produccion devuelve `email.sending.error.email.sending_disabled`.
+- Cloudflare Email Service / Email Sending queda configurado como envio interno de Aplaudia. Tras verificar `carlosvfx@gmail.com` en Cloudflare, las pruebas reales de produccion del 2026-07-02 devuelven `200` y Cloudflare Activity Log marca los envios como `Reenviados`.
 - No activar Workers Paid ni volver a Resend sin decision explicita de Carlos.
 - Resend no se usa actualmente como proveedor activo; puede quedar como configuracion externa historica/dormida hasta que Carlos decida retirarla manualmente.
 - El chatbot no envia copia automatica al cliente. Si el cliente pide copia, se anade una nota interna para que una persona de Aplaudia responda manualmente.
+- Los aliases `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com` estan creados en Cloudflare Email Routing hacia `carlosvfx@gmail.com`; la prueba final de recepcion externa debe hacerse desde un buzon real autenticado, no desde SMTP directo sin SPF/DKIM.
 
 ## Git y despliegue
 
