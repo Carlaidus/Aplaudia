@@ -8,6 +8,8 @@ import type { AgentMessage, AgentWidgetConfig, AgentWidgetTheme } from "@/lib/ag
 import {
   createLeadDraft,
   hasPriceQuestion as engineHasPriceQuestion,
+  markOptionalContactAsked as engineMarkOptionalContactAsked,
+  shouldAskOptionalContact as engineShouldAskOptionalContact,
   shouldHandleLeadMessage as engineShouldHandleLeadMessage,
   shouldSendLead as engineShouldSendLead,
   updateLeadDraftFromMessage as engineUpdateLeadDraftFromMessage,
@@ -105,22 +107,40 @@ function buildLeadConsentReply(consentText: string) {
   return ["### Antes de enviarlo", consentText].join("\n")
 }
 
-function buildLeadAlreadySentReply() {
-  return "Ya he enviado el resumen a una persona del equipo. Te responderán por email."
+function buildLeadAlreadySentReply(brandName: string) {
+  return `Ya he enviado el resumen a una persona de ${brandName}. Te responderán por email.`
 }
 
-function buildLeadSentReply(clientCopy: boolean) {
-  return clientCopy
-    ? "Perfecto, ya he enviado el resumen a una persona del equipo. Te responderán por email.\n\nTambién he incluido que quieres recibir copia o respuesta por email."
-    : "Perfecto, ya he enviado el resumen a una persona del equipo. Te responderán por email."
+function buildLeadSentReply({
+  brandName,
+  clientCopy,
+  hasPhone,
+}: {
+  brandName: string
+  clientCopy: boolean
+  hasPhone: boolean
+}) {
+  const lines = [
+    `Perfecto, ya he enviado el resumen a una persona de ${brandName}. Te responderán por email en la máxima brevedad con un resumen de lo que has pedido.`,
+  ]
+
+  if (hasPhone) {
+    lines.push("También he incluido tu teléfono por si prefieren llamarte directamente.")
+  }
+
+  if (clientCopy) {
+    lines.push("También he incluido que quieres recibir copia o respuesta por email.")
+  }
+
+  return lines.join("\n\n")
 }
 
 function buildLeadSendErrorReply(fallbackEmail?: string) {
   const email = fallbackEmail?.trim()
 
   return email
-    ? `### No se ha podido enviar\nNo he podido enviar la solicitud ahora mismo. Puedes escribir directamente a ${email} o intentarlo de nuevo más tarde.`
-    : "### No se ha podido enviar\nNo he podido enviar la solicitud ahora mismo. Puedes intentarlo de nuevo más tarde."
+    ? `No he podido enviar la solicitud ahora mismo. Puedes escribir directamente a ${email} o intentarlo de nuevo más tarde.`
+    : "No he podido enviar la solicitud ahora mismo. Puedes intentarlo de nuevo más tarde."
 }
 function getSafeHref(rawHref: string) {
   const href = rawHref.trim()
@@ -323,6 +343,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
   const leadRequestEndpoint = leadRequest?.apiEndpoint ?? "/api/agent/quote"
   const leadConsentText = leadRequest?.consentText ?? DEFAULT_LEAD_CONSENT_TEXT
   const leadFallbackEmail = leadRequest?.fallbackEmail
+  const leadOptionalContactPrompt = leadRequest?.optionalContactPrompt
 
   const welcomeMessage = useMemo<AgentMessage>(
     () => ({ role: "assistant", content: config.welcomeMessage }),
@@ -790,7 +811,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
         leadDraftRef.current = leadDetails
 
         if (leadDetails.sent) {
-          setMessages((current) => [...current, { role: "assistant", content: buildLeadAlreadySentReply() }])
+          setMessages((current) => [...current, { role: "assistant", content: buildLeadAlreadySentReply(config.brandName) }])
           if (!isOpen) setHasUnread(true)
           return
         }
@@ -807,6 +828,17 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
           leadDetails.hasAskedForConsent = true
           leadDraftRef.current = leadDetails
           setMessages((current) => [...current, { role: "assistant", content: buildLeadConsentReply(leadConsentText) }])
+          if (!isOpen) setHasUnread(true)
+          return
+        }
+
+        if (engineShouldAskOptionalContact(text, leadDetails, leadOptionalContactPrompt)) {
+          engineMarkOptionalContactAsked(leadDetails)
+          leadDraftRef.current = leadDetails
+          setMessages((current) => [
+            ...current,
+            { role: "assistant", content: leadOptionalContactPrompt?.text ?? "" },
+          ])
           if (!isOpen) setHasUnread(true)
           return
         }
@@ -848,7 +880,11 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
           ...current,
           {
             role: "assistant",
-            content: buildLeadSentReply(leadDetails.wantsClientCopy),
+            content: buildLeadSentReply({
+              brandName: config.brandName,
+              clientCopy: leadDetails.wantsClientCopy,
+              hasPhone: Boolean(leadDetails.phone),
+            }),
           },
         ])
         leadDetails.sent = true
@@ -881,6 +917,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     }
   }, [
     apiEndpoint,
+    config.brandName,
     config.connectionErrorReply,
     config.fallbackReply,
     isLeadRequestEnabled,
@@ -888,6 +925,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     isOpen,
     leadConsentText,
     leadFallbackEmail,
+    leadOptionalContactPrompt,
     leadRequestEndpoint,
     maxHistoryItems,
     messages,

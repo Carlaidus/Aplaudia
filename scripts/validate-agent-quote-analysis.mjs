@@ -69,6 +69,8 @@ const {
   buildInternalLeadEmail,
   buildLeadSummary,
   createLeadDraft,
+  markOptionalContactAsked,
+  shouldAskOptionalContact,
   shouldHandleLeadMessage,
   shouldSendLead,
   updateLeadDraftFromMessage,
@@ -220,6 +222,90 @@ assert(!restaurant.requestedServices.some((service) => /visual|imagen|v[ií]deo|
 assert(shouldHandleLeadMessage(restaurantMessage, [], restaurantFlow.draft), "Restaurante debería manejar lead")
 assert(shouldSendLead(restaurantMessage, restaurantFlow.draft), "Restaurante debería enviar sin pedir más datos")
 
+const optionalPrompt = aplaudiaLeadConfig.leadOptionalContactPrompt
+const optionalStart = "Quiero presupuesto para una web de restaurante con reservas. Mi email es carlosvfx@yahoo.es. Acepto."
+let optionalDraft = updateLeadDraftFromMessage(createLeadDraft(), optionalStart, [])
+assert(optionalDraft.email === "carlosvfx@yahoo.es", `Opcionales email incorrecto: ${optionalDraft.email}`)
+assert(optionalDraft.consentAccepted, "Opcionales debería guardar consentimiento")
+assert(shouldAskOptionalContact(optionalStart, optionalDraft, optionalPrompt), "Debe preguntar opcionales una vez")
+markOptionalContactAsked(optionalDraft)
+optionalDraft = updateLeadDraftFromMessage(optionalDraft, "Carlos 659304487", [{ role: "user", content: optionalStart }])
+assert(optionalDraft.name === "Carlos", `Opcionales nombre incorrecto: ${optionalDraft.name}`)
+assert(optionalDraft.phone === "659304487", `Opcionales teléfono incorrecto: ${optionalDraft.phone}`)
+assert(!shouldAskOptionalContact("Carlos 659304487", optionalDraft, optionalPrompt), "No debe repetir opcionales tras responder")
+assert(shouldSendLead("Carlos 659304487", optionalDraft), "Debe enviar tras capturar nombre y teléfono")
+
+let commaOptionalDraft = updateLeadDraftFromMessage(createLeadDraft(), optionalStart, [])
+markOptionalContactAsked(commaOptionalDraft)
+commaOptionalDraft = updateLeadDraftFromMessage(commaOptionalDraft, "Carlos, 659304487", [
+  { role: "user", content: optionalStart },
+])
+assert(commaOptionalDraft.name === "Carlos", `Opcionales con coma nombre incorrecto: ${commaOptionalDraft.name}`)
+assert(commaOptionalDraft.phone === "659304487", `Opcionales con coma teléfono incorrecto: ${commaOptionalDraft.phone}`)
+
+let noOptionalDraft = updateLeadDraftFromMessage(createLeadDraft(), "Quiero presupuesto para una web. Mi email es carlosvfx@yahoo.es. Acepto.", [])
+assert(shouldAskOptionalContact("Quiero presupuesto para una web. Mi email es carlosvfx@yahoo.es. Acepto.", noOptionalDraft, optionalPrompt), "Debe preguntar opcionales si faltan")
+markOptionalContactAsked(noOptionalDraft)
+noOptionalDraft = updateLeadDraftFromMessage(noOptionalDraft, "envíalo", [
+  { role: "user", content: "Quiero presupuesto para una web. Mi email es carlosvfx@yahoo.es. Acepto." },
+])
+assert(!noOptionalDraft.name, "No debe inventar nombre")
+assert(!noOptionalDraft.phone, "No debe inventar teléfono")
+assert(!shouldAskOptionalContact("envíalo", noOptionalDraft, optionalPrompt), "No debe insistir si el usuario pide enviar")
+assert(shouldSendLead("envíalo", noOptionalDraft), "Debe enviar sin opcionales")
+
+const impatientDraft = {
+  ...createLeadDraft(),
+  consentAccepted: true,
+  email: "carlosvfx@yahoo.es",
+  interest: "Quiero una web sencilla",
+  isActive: true,
+}
+assert(
+  !shouldAskOptionalContact("envíalo ya, no quiero dar más datos", impatientDraft, optionalPrompt),
+  "Usuario impaciente no debe recibir prompt opcional",
+)
+assert(shouldSendLead("envíalo ya, no quiero dar más datos", impatientDraft), "Usuario impaciente debe enviar")
+
+const consentOnlyDraft = {
+  ...createLeadDraft(),
+  consentAccepted: true,
+  email: "carlosvfx@yahoo.es",
+  hasAskedForConsent: true,
+  interest: "Quiero una web sencilla",
+  isActive: true,
+}
+assert(shouldAskOptionalContact("acepto", consentOnlyDraft, optionalPrompt), "Aceptar privacidad no debe saltarse opcionales")
+
+const missingEmailDraft = {
+  ...createLeadDraft(),
+  consentAccepted: true,
+  interest: "Quiero una web sencilla",
+  isActive: true,
+}
+assert(!shouldAskOptionalContact("envíalo", missingEmailDraft, optionalPrompt), "Sin email no debe preguntar opcionales")
+assert(!shouldSendLead("envíalo", missingEmailDraft), "Sin email no debe enviar")
+
+const missingConsentDraft = {
+  ...createLeadDraft(),
+  email: "carlosvfx@yahoo.es",
+  interest: "Quiero una web sencilla",
+  isActive: true,
+}
+assert(!shouldAskOptionalContact("envíalo", missingConsentDraft, optionalPrompt), "Sin consentimiento no debe preguntar opcionales")
+assert(!shouldSendLead("envíalo", missingConsentDraft), "Sin consentimiento no debe enviar")
+
+const alreadyAskedDraft = {
+  ...createLeadDraft(),
+  consentAccepted: true,
+  email: "carlosvfx@yahoo.es",
+  hasAskedForOptionalContact: true,
+  interest: "Quiero una web sencilla",
+  isActive: true,
+  optionalContactAskCount: 1,
+}
+assert(!shouldAskOptionalContact("sigo con la web", alreadyAskedDraft, optionalPrompt), "No debe repetir opcionales")
+
 const onlyPrice = "Quiero precio de una landing."
 const onlyPriceDraft = updateLeadDraftFromMessage(createLeadDraft(), onlyPrice, [])
 assert(!shouldHandleLeadMessage(onlyPrice, [], onlyPriceDraft), "Solo precio no debe iniciar envío")
@@ -241,5 +327,24 @@ const emailContent = buildInternalLeadEmail({
 assert(!/transcript|ultimos mensajes|últimos mensajes/i.test(emailContent.html), "El email no debe incluir transcript")
 assert(!/acepto acepto|envialo/i.test(emailContent.text), "El email no debe incluir trámites como frases útiles")
 assert(emailContent.text.includes("sin copia automatica al cliente"), "El email debe documentar que no hay copia automática")
+assert(emailContent.text.includes("Teléfono: No indicado"), "El email debe indicar teléfono no indicado si falta")
+
+const phoneEmailContent = buildInternalLeadEmail({
+  analysis: {
+    ...personal,
+    contact: {
+      ...personal.contact,
+      phone: "659 304 487",
+    },
+  },
+  clientCopyRequested: false,
+  config: aplaudiaLeadConfig,
+  date: "02/07/2026, 12:00",
+})
+assert(phoneEmailContent.text.includes("Teléfono: 659 304 487"), "El email debe incluir teléfono si existe")
+assert(
+  phoneEmailContent.text.includes("Teléfono facilitado: puede usarse para contacto directo"),
+  "El email debe destacar que el teléfono puede usarse si Aplaudia lo considera oportuno",
+)
 
 console.log("lead-engine regression tests OK")

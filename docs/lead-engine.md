@@ -16,6 +16,7 @@ El motor de captacion del chatbot ya no esta acoplado a una plantilla concreta d
 - `lib/lead-engine/build-lead-summary.ts`: crea el resumen comercial interno sin transcript mixto.
 - `lib/lead-engine/build-internal-email.ts`: construye la ficha interna breve para Aplaudia.
 - `content/lead/aplaudia-lead-config.ts`: configuracion especifica de Aplaudia: marca, email publico, consentimiento, servicios, tipos de proyecto y referencias internas.
+- `leadOptionalContactPrompt`: configuracion reutilizable para preguntar nombre y telefono opcionales como maximo una vez antes de enviar.
 
 ## Reglas de deteccion
 
@@ -33,7 +34,9 @@ El motor de captacion del chatbot ya no esta acoplado a una plantilla concreta d
 - Email valido y consentimiento claro son los unicos campos obligatorios.
 - Nombre, telefono, presupuesto, tipo exacto de proyecto e interes son opcionales o inferibles.
 - Si faltan datos obligatorios, se pide solo lo que falta.
-- Si hay email, consentimiento e historial util, el sistema puede enviar sin pedir nombre.
+- Si hay email, consentimiento e historial util, Aplaudia pregunta una sola vez si el cliente quiere dejar nombre y telefono.
+- La pregunta opcional nunca bloquea: si el usuario dice `envialo`, `adelante`, `no hace falta`, `sin telefono`, `tira palante` o muestra impaciencia, se envia con lo disponible.
+- Despues de preguntar una vez por nombre/telefono, no se vuelve a insistir en mensajes posteriores de la misma solicitud.
 - No hay copia automatica al cliente. Si el cliente pide copia, se incluye solo como nota interna.
 - Al enviar, el textarea se vacia inmediatamente, vuelve a altura minima y la pregunta queda solo como burbuja.
 
@@ -51,6 +54,8 @@ Incluye:
 - Senales comerciales utiles.
 - Frases utiles del cliente.
 - Nota legal minima.
+- Si no hay telefono, muestra `Telefono: No indicado`.
+- Si hay telefono, se marca como dato util para contacto directo si Aplaudia lo considera oportuno.
 
 No incluye:
 
@@ -69,6 +74,11 @@ El script `npm run test:quote-analysis` cubre:
 - restaurante con reservas;
 - pregunta de precio sin iniciar envio;
 - envio rapido con email y consentimiento.
+- flujo con nombre y telefono opcionales;
+- flujo sin opcionales tras decir `envialo`;
+- usuario impaciente que pide enviar sin dar mas datos;
+- obligatorios faltantes: email o consentimiento;
+- no repetir la pregunta opcional.
 
 Tambien se mantiene `npm run test:email-encoding` para evitar problemas de acentos en HTML de emails.
 
@@ -76,6 +86,7 @@ Tambien se mantiene `npm run test:email-encoding` para evitar problemas de acent
 
 1. Crear un archivo en `content/lead/` con la configuracion de la marca.
 2. Pasar `consentText`, `fallbackEmail` y endpoint al wrapper del widget.
-3. Reutilizar `/lib/lead-engine` para construir resumen y email interno.
-4. Ajustar servicios, tipos de proyecto y referencias internas sin tocar el core.
-5. Anadir tests de regresion con conversaciones reales de esa marca.
+3. Configurar `leadOptionalContactPrompt` si esa web quiere pedir nombre/telefono opcionales antes de enviar.
+4. Reutilizar `/lib/lead-engine` para construir resumen y email interno.
+5. Ajustar servicios, tipos de proyecto y referencias internas sin tocar el core.
+6. Anadir tests de regresion con conversaciones reales de esa marca.

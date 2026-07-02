@@ -2,6 +2,88 @@
 
 Fecha: 2026-07-02
 
+## Actualizacion - Datos opcionales una sola vez en el chatbot
+
+### Objetivo
+
+Ajustar el flujo de solicitud comercial del chatbot para mantenerlo agil: email valido y consentimiento son los unicos campos obligatorios, mientras que nombre y telefono se piden una sola vez como datos opcionales y nunca bloquean el envio.
+
+### Causa confirmada
+
+- El motor ya enviaba solicitudes sin exigir nombre, pero no tenia un paso configurable para preguntar nombre/telefono opcionales una sola vez.
+- Hacia falta diferenciar `acepto` como aceptacion de privacidad frente a ordenes tipo `envialo`, `no hace falta` o `no quiero dar mas datos`.
+- El email interno debia dejar claro `Telefono: No indicado` cuando no se facilita telefono y destacar el telefono solo si existe.
+
+### Cambios aplicados
+
+- `lib/lead-engine/lead-types.ts`:
+  - anadido `LeadOptionalContactPrompt`;
+  - anadidos `hasAskedForOptionalContact` y `optionalContactAskCount` al borrador de lead.
+- `lib/lead-engine/extract-lead-data.ts`:
+  - anadida decision reutilizable `shouldAskOptionalContact()`;
+  - anadido `markOptionalContactAsked()`;
+  - mejorada extraccion de telefono para formatos nacionales, con espacios y prefijo;
+  - evitado confundir importes con telefonos;
+  - anadida extraccion de nombre en el paso opcional para mensajes tipo `Carlos, 659304487`;
+  - `acepto` ya no salta el paso opcional; solo acepta privacidad.
+- `content/lead/aplaudia-lead-config.ts`:
+  - configurado `leadOptionalContactPrompt` para Aplaudia con nombre y telefono opcionales, maximo una pregunta.
+- `components/agent/generic-agent-widget.tsx`:
+  - pregunta opcionales solo despues de email + consentimiento + historial util;
+  - si el usuario dice `envialo`, `adelante`, `no hace falta`, `sin telefono`, `tira palante` o muestra impaciencia, envia sin bloquear;
+  - respuesta final actualizada:
+    - confirma que el resumen fue enviado a una persona de Aplaudia;
+    - indica respuesta por email en la maxima brevedad;
+    - menciona telefono o copia solo si procede;
+  - error tecnico de envio reducido al texto directo con `hola@aplaudia.com`.
+- `lib/lead-engine/build-internal-email.ts`:
+  - el email interno muestra siempre telefono: valor real o `No indicado`;
+  - si hay telefono, anade senal comercial para contacto directo si Aplaudia lo considera oportuno.
+- `scripts/validate-agent-quote-analysis.mjs`:
+  - ampliado con casos de opcionales dados, opcionales rechazados, usuario impaciente, obligatorios faltantes, no repetir y `acepto` sin saltar opcionales.
+- Documentacion actualizada:
+  - `content/agent/aplaudia-agent.md`;
+  - `docs/lead-engine.md`;
+  - `PROJECT_STATE.md`;
+  - `NEXT_TASK.md`.
+
+### Archivos modificados
+
+- `components/agent/aplaudia-agent-widget.tsx`
+- `components/agent/generic-agent-widget.tsx`
+- `content/agent/aplaudia-agent.md`
+- `content/lead/aplaudia-lead-config.ts`
+- `docs/lead-engine.md`
+- `lib/agent/types.ts`
+- `lib/lead-engine/build-internal-email.ts`
+- `lib/lead-engine/extract-lead-data.ts`
+- `lib/lead-engine/lead-types.ts`
+- `scripts/validate-agent-quote-analysis.mjs`
+- `PROJECT_STATE.md`
+- `NEXT_TASK.md`
+- `LAST_REPORT.md`
+
+### Validaciones locales
+
+- `npm run test:quote-analysis`: OK.
+- `npm run test:email-encoding`: OK.
+- `npm run build`: OK.
+- `npm run lint`: no disponible; `eslint` no esta instalado como ejecutable local.
+- `npm ls resend`: arbol vacio; npm devuelve codigo 1 porque `resend` no esta instalado.
+
+### Estado externo
+
+- No se tocaron Cloudflare, Railway, DNS, variables, Resend ni Workers Paid.
+- No se guardaron secretos.
+- No se creo base de datos.
+- No se envio copia automatica al cliente.
+- No se retiro el aviso de construccion.
+- Produccion pendiente de validar tras push de este cambio.
+
+### Siguiente paso recomendado
+
+Desplegar, probar desde produccion un flujo completo con email + consentimiento, confirmar que se pregunta nombre/telefono una sola vez y revisar en Gmail que los acentos y el telefono se renderizan correctamente.
+
 ## Actualizacion - Motor de captacion reutilizable y scroll lock del chatbot
 
 ### Objetivo

@@ -1,4 +1,4 @@
-import type { LeadDraft, LeadMessage } from "./lead-types"
+import type { LeadDraft, LeadMessage, LeadOptionalContactPrompt } from "./lead-types"
 
 const MAX_HISTORY_ITEMS = 18
 
@@ -44,9 +44,11 @@ export function createLeadDraft(): LeadDraft {
     hasAskedForConsent: false,
     hasAskedForEmail: false,
     hasAskedForName: false,
+    hasAskedForOptionalContact: false,
     interest: "",
     isActive: false,
     name: "",
+    optionalContactAskCount: 0,
     phone: "",
     projectType: "",
     sent: false,
@@ -66,13 +68,30 @@ export function extractEmail(source: string) {
 }
 
 export function extractPhone(source: string) {
-  const match = source.match(/(?:\+?\d[\d\s().-]{7,}\d)/)
-  if (!match) return ""
+  const matches = source.matchAll(/\+?\d[\d\s().-]{7,}\d/g)
 
-  const phone = cleanExtractedText(match[0])
-  const digits = phone.replace(/\D/g, "")
+  for (const match of matches) {
+    const raw = match[0]
+    const start = match.index ?? 0
+    const end = start + raw.length
+    const phone = cleanExtractedText(raw)
+    const digits = phone.replace(/\D/g, "")
+    const context = `${source.slice(Math.max(0, start - 28), start)} ${source.slice(end, end + 28)}`
+    const normalizedContext = normalizeSource(context)
+    const hasPhoneHint = /\b(tel[eé]fono|telefono|tel|m[oó]vil|movil|llamar|llamadme|whatsapp|contacto)\b/.test(
+      normalizedContext,
+    )
+    const hasPriceHint = /\b(precio|presupuesto|coste|tarifa|desde|hasta|euros?|eur|iva|pagar|cobrar)\b|€/.test(
+      normalizedContext,
+    )
 
-  return digits.length >= 9 ? phone : ""
+    if (digits.length < 9 || digits.length > 15) continue
+    if (hasPriceHint && !hasPhoneHint && !phone.trim().startsWith("+")) continue
+
+    return phone
+  }
+
+  return ""
 }
 
 export function extractName(source: string) {
@@ -93,6 +112,22 @@ export function extractShortName(source: string) {
   const name = cleanExtractedText(source)
 
   return isPlausibleShortName(name) ? name : ""
+}
+
+export function extractOptionalContactName(source: string) {
+  const email = extractEmail(source)
+  const phone = extractPhone(source)
+  const candidate = cleanExtractedText(
+    source
+      .replace(email, " ")
+      .replace(phone, " ")
+      .replace(/\b(?:mi\s+)?(?:tel[eé]fono|telefono|tel|m[oó]vil|movil|contacto)\b/gi, " ")
+      .replace(/\b(?:es|soy|me llamo|mi nombre es)\b/gi, " ")
+      .replace(/\b(?:y|con|para|llamadme|llamarme|whatsapp)\b/gi, " ")
+      .replace(/[()[\]{}]/g, " "),
+  )
+
+  return extractShortName(candidate)
 }
 
 function isPlausibleShortName(value: string) {
@@ -154,8 +189,19 @@ export function hasSendNowIntent(text: string) {
 
   return [
     /\b(envialo|envia|enviarlo ya|mandalo|manda|pasalo|hazlo|adelante|tira palante|tira|por favor envialo)\b/,
-    /\b(ya porfa|ya por favor|me estas hablando demasiado|ya te lo he dado|ya te pase el mail)\b/,
+    /\b(ya porfa|ya por favor|me estas hablando demasiado|ya te lo he dado|ya te pase el mail|no hace falta|sin telefono|sin movil|sin datos|no quiero dar mas datos|no anadir nada mas)\b/,
     /^(si|vale|ok|de acuerdo|perfecto|acepto|autorizo|consiento)[\s,.:;-]*(envialo|envia|mandalo|hazlo|adelante)?[\s.!]*$/,
+  ].some((pattern) => pattern.test(normalized))
+}
+
+export function hasOptionalContactSkipIntent(text: string) {
+  const normalized = normalizeSource(text)
+
+  return [
+    /\b(envialo|envia|enviarlo ya|mandalo|manda|pasalo|hazlo|adelante|tira palante|tira|por favor envialo)\b/,
+    /\b(ya porfa|ya por favor|me estas hablando demasiado|ya te lo he dado|ya te pase el mail)\b/,
+    /\b(no hace falta|sin telefono|sin movil|sin datos extra|sin mas datos|no quiero dar mas datos|no anadir nada mas|prefiero no)\b/,
+    /^(si|vale|ok|de acuerdo|perfecto)[\s,.:;-]*(envialo|envia|mandalo|hazlo|adelante)[\s.!]*$/,
   ].some((pattern) => pattern.test(normalized))
 }
 
@@ -213,7 +259,11 @@ export function updateLeadDraftFromMessage(draft: LeadDraft, text: string, messa
   const phone = extractPhone(source)
   const budget = extractBudget(source)
   const explicitName = extractName(source)
-  const shortName = !next.name && (next.isActive || next.hasAskedForName) ? extractShortName(text) : ""
+  const optionalContactName = !next.name && next.hasAskedForOptionalContact ? extractOptionalContactName(text) : ""
+  const shortName =
+    !next.name && (next.isActive || next.hasAskedForName || next.hasAskedForOptionalContact)
+      ? optionalContactName || extractShortName(text)
+      : ""
 
   if (email) next.email = email
   if (phone) next.phone = phone
@@ -264,4 +314,28 @@ export function shouldSendLead(text: string, draft: LeadDraft) {
   if (hasSendNowIntent(text)) return true
 
   return draft.isActive
+}
+
+export function shouldAskOptionalContact(
+  text: string,
+  draft: LeadDraft,
+  optionalContactPrompt?: LeadOptionalContactPrompt,
+) {
+  if (!optionalContactPrompt?.enabled) return false
+  if (!draft.email || !draft.consentAccepted || draft.sent) return false
+  if (!draft.interest || draft.interest === "Solicitud enviada desde chatbot sin resumen suficiente") return false
+  if (hasOptionalContactSkipIntent(text)) return false
+
+  const maxAskCount = optionalContactPrompt.maxAskCount ?? 1
+  if (draft.hasAskedForOptionalContact || draft.optionalContactAskCount >= maxAskCount) return false
+
+  const wantsName = optionalContactPrompt.askName !== false && !draft.name
+  const wantsPhone = optionalContactPrompt.askPhone !== false && !draft.phone
+
+  return wantsName || wantsPhone
+}
+
+export function markOptionalContactAsked(draft: LeadDraft) {
+  draft.hasAskedForOptionalContact = true
+  draft.optionalContactAskCount += 1
 }

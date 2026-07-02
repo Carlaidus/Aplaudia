@@ -14,7 +14,11 @@ Nivel de inteligencia recomendado: Alto
   - email valido;
   - consentimiento claro.
 - Nombre, telefono, tipo de proyecto, interes, presupuesto y copia son opcionales o inferibles.
-- Si hay email + consentimiento + historial util, el sistema puede enviar sin pedir nombre.
+- Si hay email + consentimiento + historial util, el chatbot pregunta una sola vez si el cliente quiere dejar nombre y telefono.
+- Nombre y telefono no bloquean el envio:
+  - si el usuario los da, se guardan;
+  - si dice `envialo`, `adelante`, `no hace falta`, `sin telefono`, `tira palante` o muestra impaciencia, se envia con lo disponible;
+  - no se vuelven a pedir en la misma solicitud.
 - El email interno pasa a ser una ficha comercial breve:
   - contacto;
   - resumen para responder;
@@ -32,6 +36,7 @@ Nivel de inteligencia recomendado: Alto
   - restaurante se detecta con contexto real de hosteleria, no por palabras dentro de otras.
 - El chatbot bloquea el scroll de fondo mientras esta abierto y evita que el scroll del historial arrastre la pagina de detras.
 - El textarea se vacia al enviar con boton y con Enter y vuelve a altura minima.
+- La respuesta final de envio confirma que Aplaudia respondera por email en la maxima brevedad y solo menciona telefono/copia si procede.
 - No se han tocado Cloudflare, Railway, DNS, variables, Resend ni Workers Paid.
 - No hay copia automatica al cliente ni base de datos.
 
@@ -41,7 +46,9 @@ Revisar en produccion con Carlos el nuevo email interno del chatbot.
 
 1. Generar una prueba interna desde `https://aplaudia.com` con una conversacion realista.
 2. Revisar en `carlosvfx@gmail.com`:
+   - acentos renderizados correctamente;
    - asunto;
+   - telefono como `No indicado` o telefono real si se facilita;
    - resumen para responder;
    - servicios detectados;
    - materiales mencionados;
@@ -69,6 +76,12 @@ Revisar en produccion con Carlos el nuevo email interno del chatbot.
 - `npm ls resend`.
 - Probar `/api/agent/quote` sin consentimiento: debe devolver `400`.
 - Probar `/api/agent/quote` con email y consentimiento pero sin opcionales: no debe devolver `400` por campos opcionales.
+- Probar chatbot:
+  - email + consentimiento -> pregunta opcionales una sola vez;
+  - usuario da nombre/telefono -> se incluyen;
+  - usuario dice `envialo` -> envia sin bloquear;
+  - usuario impaciente -> no insiste;
+  - fallo tecnico de envio -> muestra `No he podido enviar la solicitud ahora mismo...`.
 - Probar chatbot en escritorio:
   - enviar con boton;
   - enviar con Enter;

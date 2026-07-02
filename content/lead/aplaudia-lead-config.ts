@@ -6,6 +6,14 @@ export const aplaudiaLeadConfig = {
   consentText:
     "Para enviarlo, necesito que aceptes que Aplaudia trate los datos que has facilitado y el resumen de tu solicitud solo para gestionar esta consulta y responderte por email. No se guardarán en una base de datos. Los importes comentados son orientativos y sin IVA. ¿Aceptas?",
   internalRecipientEnv: "AGENT_QUOTE_RECIPIENT_EMAIL",
+  leadOptionalContactPrompt: {
+    allowPhoneCall: true,
+    askName: true,
+    askPhone: true,
+    enabled: true,
+    maxAskCount: 1,
+    text: "Ya tengo lo necesario para enviar la solicitud. Si quieres, puedes dejarme tu nombre y un teléfono de contacto para que Aplaudia pueda responderte mejor o llamarte si hace falta. Es opcional. Si prefieres no añadir nada más, dime ‘envíalo’ y lo mando.",
+  },
   labels: {
     fallbackProjectType: "Por definir",
     fallbackService: "Por definir",

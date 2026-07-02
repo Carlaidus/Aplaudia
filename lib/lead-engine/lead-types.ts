@@ -11,13 +11,24 @@ export type LeadDraft = {
   hasAskedForConsent: boolean
   hasAskedForEmail: boolean
   hasAskedForName: boolean
+  hasAskedForOptionalContact: boolean
   interest: string
   isActive: boolean
   name: string
+  optionalContactAskCount: number
   phone: string
   projectType: string
   sent: boolean
   wantsClientCopy: boolean
+}
+
+export type LeadOptionalContactPrompt = {
+  allowPhoneCall?: boolean
+  askName?: boolean
+  askPhone?: boolean
+  enabled: boolean
+  maxAskCount?: number
+  text: string
 }
 
 export type LeadServiceId =
@@ -64,6 +75,7 @@ export type LeadEngineConfig = {
   consentText: string
   internalRecipientEnv: "AGENT_QUOTE_RECIPIENT_EMAIL" | "CONTACT_RECIPIENT_EMAIL"
   labels: LeadLabels
+  leadOptionalContactPrompt?: LeadOptionalContactPrompt
   publicEmail: string
   priceReferences: LeadPriceReference[]
   sendClientCopyAutomatically: false

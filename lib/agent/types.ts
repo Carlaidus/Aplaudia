@@ -1,3 +1,5 @@
+import type { LeadOptionalContactPrompt } from "@/lib/lead-engine/lead-types"
+
 export type AgentMessage = {
   role: "user" | "assistant"
   content: string
@@ -42,6 +44,7 @@ export type AgentWidgetConfig = {
     consentText?: string
     enabled?: boolean
     fallbackEmail?: string
+    optionalContactPrompt?: LeadOptionalContactPrompt
   }
   listeningPlaceholder?: string
   maxHistoryItems?: number

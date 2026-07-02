@@ -113,6 +113,8 @@ Ultima actualizacion: 2026-07-02
   - flujo determinista en `components/agent/generic-agent-widget.tsx` para no depender de la IA al enviar solicitudes;
   - solo bloquea el envio si falta email valido o consentimiento claro;
   - nombre, telefono, tipo de negocio, interes, presupuesto y copia son opcionales o inferibles desde la conversacion;
+  - si ya hay email, consentimiento e historial util, pregunta una sola vez por nombre y telefono opcionales;
+  - si el usuario no quiere dar esos opcionales o muestra impaciencia, envia con los datos disponibles;
   - mantiene un borrador de solicitud durante la sesion y no repite datos que el usuario ya haya dado;
   - envio interno solo si Cloudflare Email Service esta configurado;
   - receptor por `AGENT_QUOTE_RECIPIENT_EMAIL`, `INTERNAL_EMAIL_RECIPIENT`, `CONTACT_RECIPIENT_EMAIL`, `CONTACT_TO_EMAIL` o fallback provisional `carlosvfx@gmail.com`;
@@ -130,6 +132,8 @@ Ultima actualizacion: 2026-07-02
   - `barato`, `barata` o `lo mas barato` no activan `bar`;
   - `no tengo fotos` queda como material mencionado, no como servicio visual;
   - el detector de visuales no cruza expresiones como `hacer reservas` con `no tengo fotos`;
+  - la configuracion `leadOptionalContactPrompt` permite pedir nombre/telefono opcionales sin acoplar el core a Aplaudia;
+  - el email interno muestra `Telefono: No indicado` si no se facilita y destaca el telefono solo si existe;
   - el chatbot bloquea el scroll de fondo mientras esta abierto y evita scroll chaining dentro del panel;
   - test de regresion ampliado disponible con `npm run test:quote-analysis`.
 

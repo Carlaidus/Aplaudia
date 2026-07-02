@@ -24,6 +24,7 @@ export function AplaudiaAgentWidget() {
           consentText: aplaudiaLeadConfig.consentText,
           enabled: true,
           fallbackEmail: aplaudiaLeadConfig.publicEmail,
+          optionalContactPrompt: aplaudiaLeadConfig.leadOptionalContactPrompt,
         },
         listeningPlaceholder: "Escuchando...",
         placeholder: "Cuéntame qué necesitas...",

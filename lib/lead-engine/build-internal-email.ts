@@ -43,8 +43,12 @@ export function buildInternalLeadEmail(args: {
   const { analysis, clientCopyRequested, config, date } = args
   const subjectName = analysis.contact.name !== "No indicado" ? analysis.contact.name : analysis.contact.email
   const subject = `Nueva solicitud ${config.brandName} - ${analysis.projectType} - ${subjectName}`
-  const phoneLine = analysis.contact.phone ? `Telefono: ${analysis.contact.phone}` : null
+  const phoneLabel = analysis.contact.phone || "No indicado"
+  const phoneSignal = analysis.contact.phone
+    ? "Teléfono facilitado: puede usarse para contacto directo si Aplaudia lo considera oportuno."
+    : null
   const signals = signalRows(analysis)
+  if (phoneSignal) signals.unshift(phoneSignal)
   const priceLines =
     analysis.priceLines.length > 0
       ? analysis.priceLines
@@ -56,7 +60,7 @@ export function buildInternalLeadEmail(args: {
     "1. Contacto",
     `Nombre: ${analysis.contact.name}`,
     `Email: ${analysis.contact.email}`,
-    phoneLine,
+    `Teléfono: ${phoneLabel}`,
     `Canal: ${config.channelLabel}`,
     "Consentimiento: Si",
     `Fecha/hora: ${date}`,
@@ -109,7 +113,7 @@ export function buildInternalLeadEmail(args: {
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:14px;color:#0f172a">
         <tr><td style="padding:7px 0;color:#64748b;width:170px">Nombre</td><td style="padding:7px 0;font-weight:700">${escapeHtml(analysis.contact.name)}</td></tr>
         <tr><td style="padding:7px 0;color:#64748b">Email</td><td style="padding:7px 0"><a href="mailto:${escapeHtml(analysis.contact.email)}" style="color:#2563eb;text-decoration:none">${escapeHtml(analysis.contact.email)}</a></td></tr>
-        ${analysis.contact.phone ? `<tr><td style="padding:7px 0;color:#64748b">Telefono</td><td style="padding:7px 0">${escapeHtml(analysis.contact.phone)}</td></tr>` : ""}
+        <tr><td style="padding:7px 0;color:#64748b">Teléfono</td><td style="padding:7px 0">${escapeHtml(phoneLabel)}</td></tr>
         <tr><td style="padding:7px 0;color:#64748b">Canal</td><td style="padding:7px 0">${escapeHtml(config.channelLabel)}</td></tr>
         <tr><td style="padding:7px 0;color:#64748b">Consentimiento</td><td style="padding:7px 0">Si</td></tr>
       </table>
