@@ -5,6 +5,14 @@ import { ArrowDown, Bot, Loader2, MessageCircle, Mic, MicOff, Send, Sparkles, X 
 
 import { cn } from "@/lib/utils"
 import type { AgentMessage, AgentWidgetConfig, AgentWidgetTheme } from "@/lib/agent/types"
+import {
+  createLeadDraft,
+  hasPriceQuestion as engineHasPriceQuestion,
+  shouldHandleLeadMessage as engineShouldHandleLeadMessage,
+  shouldSendLead as engineShouldSendLead,
+  updateLeadDraftFromMessage as engineUpdateLeadDraftFromMessage,
+  type LeadDraft,
+} from "@/lib/lead-engine"
 
 type SpeechRecognitionAlternativeLike = {
   transcript: string
@@ -74,347 +82,18 @@ const VOICE_SILENCE_TIMEOUT_MS = 3600
 const VOICE_RESTART_DELAY_MS = 220
 const VOICE_MAX_AUTO_RESTARTS = 5
 const NON_RETRYABLE_VOICE_ERRORS = new Set(["not-allowed", "service-not-allowed", "audio-capture"])
-const LEAD_CONSENT_TEXT =
-  "Para enviarlo, necesito que aceptes que Aplaudia trate los datos que has facilitado y el resumen de tu solicitud solo para gestionar esta consulta y responderte por email. No se guardarán en una base de datos. Los importes comentados son orientativos y sin IVA. ¿Aceptas?"
+const DEFAULT_LEAD_CONSENT_TEXT =
+  "Para enviarlo, necesito que aceptes que los datos que has facilitado y el resumen de tu solicitud se usen solo para gestionar esta consulta y responderte por email. No se guardarán en una base de datos. Los importes comentados son orientativos y sin IVA. ¿Aceptas?"
 
-type ConversationalLeadDetails = {
-  budget: string
-  clientCopy: boolean
-  email: string
-  hasConsent: boolean
-  interest: string
-  missingFields: string[]
-  name: string
-  phone: string
-  projectType: string
-  shouldHandle: boolean
-}
-
-type LeadDraft = Omit<ConversationalLeadDetails, "missingFields" | "shouldHandle"> & {
-  hasAskedConsent: boolean
-  hasAskedEmail: boolean
-  hasAskedName: boolean
-  isActive: boolean
-  sent: boolean
-}
-
-function createEmptyLeadDraft(): LeadDraft {
-  return {
-    budget: "",
-    clientCopy: false,
-    email: "",
-    hasAskedConsent: false,
-    hasAskedEmail: false,
-    hasAskedName: false,
-    hasConsent: false,
-    interest: "",
-    isActive: false,
-    name: "",
-    phone: "",
-    projectType: "",
-    sent: false,
-  }
-}
-
-function normalizeLeadText(text: string) {
-  return text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-}
-
-function hasRecentLeadContext(messages: AgentMessage[]) {
-  return messages.slice(-8).some((message) =>
-    /para enviarlo|aceptes que aplaudia trate|enviar un resumen|solicitud.*aplaudia|copia o respuesta/i.test(
-      message.content,
-    ),
-  )
-}
-
-function hasLeadIntent(text: string) {
-  const normalized = normalizeLeadText(text)
-
-  return [
-    /\b(presupuesto|propuesta|solicitud)\b[\s\S]{0,120}\b(enviar|envia|envialo|correo|email|mail|contact|persona)\b/i,
-    /\b(enviar|envia|envialo|mandar|mandalo|pasar|pasalo)\b[\s\S]{0,120}\b(resumen|solicitud|datos|aplaudia|persona|correo|email|mail)\b/i,
-    /\b(contactadme|escribidme|llamadme|que lo vea aplaudia|persona de aplaudia|humano de aplaudia)\b/i,
-    /\b(que me contacte|que me escriba|que me llame|que me respondan)\b[\s\S]{0,80}\b(aplaudia|alguien|una persona|email|correo)\b/i,
-    /\b(quiero|me gustaria|necesito|puedes|podeis)\b[\s\S]{0,100}\b(hablar con alguien|hablar con una persona|persona de aplaudia|enviar un resumen)\b/i,
-  ].some((pattern) => pattern.test(normalized))
-}
-
-function hasPriceQuestion(text: string) {
-  return /\b(precio|coste|presupuesto|tarifa|mensualidad|mantenimiento|cuanto cuesta|barato|economico|desde cuanto)\b/i.test(
-    normalizeLeadText(text),
-  )
-}
-
-function hasSendNowIntent(text: string) {
-  return [
-    /\b(envialo|envia|enviarlo ya|mandalo|manda|mándalo|pasalo|hazlo|adelante|tira)\b/i,
-    /\b(ya porfa|ya por favor|me estas hablando demasiado|me estás hablando demasiado)\b/i,
-    /^(si|sí|vale|ok|de acuerdo|perfecto)[\s,.:;-]*(envialo|envia|mandalo|hazlo|adelante)?[\s.!]*$/i,
-  ].some((pattern) => pattern.test(normalizeLeadText(text)))
-}
-
-function hasExplicitLeadConsent(text: string) {
-  return /\b(acepto|autorizo|doy mi consentimiento|te doy mi consentimiento|consiento|acepto el tratamiento|acepto que aplaudia trate)\b/i.test(
-    normalizeLeadText(text),
-  )
-}
-
-function hasAffirmativeConsentReply(text: string) {
-  return /^(si|sí|vale|ok|de acuerdo|acepto|autorizo|consiento|correcto|perfecto)[\s.!]*$/i.test(
-    normalizeLeadText(text),
-  )
-}
-
-function wantsClientCopy(text: string) {
-  return /\b(copia|enviame copia|mandame copia|recibir copia|quiero copia|que me llegue copia)\b/i.test(
-    normalizeLeadText(text),
-  )
-}
-
-function cleanExtractedText(value: string) {
-  return value
-    .replace(/\s+/g, " ")
-    .replace(/[.,;:]+$/g, "")
-    .trim()
-}
-
-function extractEmail(source: string) {
-  return source.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0]?.replace(/[).,;:!?]+$/g, "").trim() ?? ""
-}
-
-function extractPhone(source: string) {
-  const match = source.match(/(?:\+?\d[\d\s().-]{7,}\d)/)
-  if (!match) return ""
-
-  const phone = cleanExtractedText(match[0])
-  const digits = phone.replace(/\D/g, "")
-  return digits.length >= 9 ? phone : ""
-}
-
-function extractName(source: string) {
-  const match = source.match(
-    /(?:me llamo|mi nombre es|nombre\s*:|soy)\s+([A-Za-zÁÉÍÓÚÜÑáéíóúüñ][^,.;\n]{1,70})/i,
-  )
-  if (!match?.[1]) return ""
-
-  const name = cleanExtractedText(match[1].split(/\s+(?:y|con|email|correo|tel[eé]fono|telefono)\b/i)[0] ?? "")
-  if (/^(un|una|el|la|restaurante|bar|tienda|negocio|proyecto|empresa)\b/i.test(name)) return ""
-
-  return name
-}
-
-function extractShortName(source: string) {
-  const name = cleanExtractedText(source)
-  const normalized = normalizeLeadText(name)
-  const stopWords = new Set([
-    "acepto",
-    "adelante",
-    "email",
-    "envialo",
-    "hola",
-    "mail",
-    "ok",
-    "presupuesto",
-    "restaurante",
-    "si",
-    "vale",
-    "web",
-  ])
-
-  if (name.length < 2 || name.length > 42) return ""
-  if (stopWords.has(normalized)) return ""
-  if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]+$/.test(name)) return ""
-  if (name.split(/\s+/).length > 3) return ""
-
-  return name
-}
-
-function hasHostelryLeadContext(source: string) {
-  const normalized = normalizeLeadText(source)
-
-  return /\b(restaurantes?|bar|bares|cafeteria|cafeterias|hosteleria|menu|menus|reservas?)\b/.test(normalized)
-}
-
-function hasRestaurantLeadContext(source: string) {
-  const normalized = normalizeLeadText(source)
-
-  if (/\brestaurantes?\b/.test(normalized)) return true
-  if (/\bbar\b|\bbares\b/.test(normalized)) return true
-  if (/\bcafeteria\b|\bcafeterias\b/.test(normalized)) return true
-  if (/\bcafe\b/.test(normalized) && /\b(negocio|local|hosteleria|bar|restaurante|cafeteria)\b/.test(normalized)) {
-    return true
-  }
-
-  return /\bcarta\b/.test(normalized) && hasHostelryLeadContext(normalized)
-}
-
-function hasPersonalPageLeadContext(source: string) {
-  const normalized = normalizeLeadText(source)
-
-  return /\b(pagina personal|web personal|portfolio personal|landing personal|pagina pequena personal|pagina pequena y personal)\b/.test(
-    normalized,
-  )
-}
-
-function hasSimpleLandingLeadContext(source: string) {
-  return /\b(landing sencilla|web sencilla|pagina sencilla|pagina pequena)\b/.test(normalizeLeadText(source))
-}
-
-function hasCatalogLeadContext(source: string) {
-  return /\b(catalogo|productos?|fichas?|tienda|ecommerce|e-commerce|comercio online|venta online)\b/.test(
-    normalizeLeadText(source),
-  )
-}
-
-function hasVisualLeadRequest(source: string) {
-  return /\b(visuales|imagenes para|imagen para|creatividades|grafica|graficas|banner|banners|escaparate|pantalla comercial|retoque|composicion visual)\b/.test(
-    normalizeLeadText(source),
-  )
-}
-
-function hasVideoLeadRequest(source: string) {
-  return /\b(video|videos|reels?|animaciones?|audiovisual|edicion de video|edicion audiovisual)\b/.test(
-    normalizeLeadText(source),
-  )
-}
-
-function hasAgentLeadRequest(source: string) {
-  return /\b(agente|chatbot|whatsapp|asistente para whatsapp|automatizacion de whatsapp)\b/.test(
-    normalizeLeadText(source),
-  )
-}
-
-function hasWebLeadRequest(source: string) {
-  return /\b(web|pagina|landing|sitio|presencia digital)\b/.test(normalizeLeadText(source))
-}
-
-function extractProjectType(source: string) {
-  const explicitMatch = source.match(
-    /(?:tipo de negocio|tipo de proyecto|negocio|proyecto)\s*:\s*([^.;\n]{3,120})/i,
-  )
-  if (explicitMatch?.[1]) return cleanExtractedText(explicitMatch[1])
-
-  const normalized = normalizeLeadText(source)
-
-  if (hasPersonalPageLeadContext(source)) return "Página personal / web sencilla"
-  if (hasSimpleLandingLeadContext(source)) return "Landing / web sencilla"
-  if (hasRestaurantLeadContext(source)) return "Restaurante / bar / cafetería"
-  if (hasCatalogLeadContext(source)) return "Tienda o catálogo"
-  if (/\b(freelance|autonomo|autonoma|profesional independiente|consultor)\b/.test(normalized)) {
-    return "Profesional independiente"
-  }
-  if (/\b(clinica|salud|fisio|dentista|centro medico)\b/.test(normalized)) return "Centro profesional o servicios"
-  if (/\b(hotel|alojamiento|turismo|apartamento)\b/.test(normalized)) return "Turismo o alojamiento"
-  if (hasVideoLeadRequest(source)) return "Proyecto audiovisual o contenidos"
-  if (hasVisualLeadRequest(source)) return "Marca visual o escaparate digital"
-  if (hasAgentLeadRequest(source)) return "Agente web o WhatsApp"
-  if (hasWebLeadRequest(source)) return "Web o presencia digital"
-
-  return ""
-}
-
-function hasExplicitProjectData(text: string) {
-  return /\b(tipo de negocio|tipo de proyecto|mi negocio es|mi proyecto es|es un|es una|somos un|somos una)\b/i.test(
-    text,
-  )
-}
-
-function extractBudget(source: string) {
-  const budgetMatch = source.match(
-    /(?:no superar|presupuesto|rango|m[aá]ximo|maximo|hasta|dispongo de|tengo|invertir|poco presupuesto)[^\d€]{0,45}(\d[\d.\s]*(?:,\d+)?\s*(?:€|eur|euros)?(?:\s*(?:-|a|y)\s*\d[\d.\s]*(?:,\d+)?\s*(?:€|eur|euros)?)?)/i,
-  )
-  return budgetMatch?.[1] ? cleanExtractedText(budgetMatch[1]) : ""
-}
-
-function buildLeadInterest(text: string, messages: AgentMessage[]) {
-  const userMessages = [...messages.filter((message) => message.role === "user").map((message) => message.content), text]
-  const interest = userMessages.slice(-5).join("\n").slice(0, 1100).trim()
-
-  return interest.length >= 10 ? interest : text
-}
-
-function updateLeadDraftFromMessage(draft: LeadDraft, text: string, messages: AgentMessage[]) {
-  const userHistory = messages.filter((message) => message.role === "user").map((message) => message.content)
-  const source = [...userHistory, text].join("\n")
-  const next: LeadDraft = { ...draft }
-
-  const email = extractEmail(source)
-  const phone = extractPhone(source)
-  const projectType = extractProjectType(source)
-  const budget = extractBudget(source)
-  const explicitName = extractName(source)
-  const shortName = !next.name && next.hasAskedName ? extractShortName(text) : ""
-
-  if (email) next.email = email
-  if (phone) next.phone = phone
-  if (projectType) next.projectType = projectType
-  if (budget) next.budget = budget
-  if (explicitName || shortName) next.name = explicitName || shortName
-  if (wantsClientCopy(text)) next.clientCopy = true
-  if (hasExplicitLeadConsent(text) || (next.hasAskedConsent && hasAffirmativeConsentReply(text))) {
-    next.hasConsent = true
-  }
-
-  next.interest = buildLeadInterest(text, messages)
-  next.isActive =
-    next.isActive ||
-    hasLeadIntent(text) ||
-    (hasRecentLeadContext(messages) &&
-      (Boolean(email) ||
-        Boolean(phone) ||
-        Boolean(projectType) ||
-        Boolean(budget) ||
-        Boolean(explicitName) ||
-        Boolean(shortName) ||
-        hasExplicitLeadConsent(text) ||
-        hasAffirmativeConsentReply(text) ||
-        wantsClientCopy(text) ||
-        hasSendNowIntent(text)))
-
-  return next
-}
-
-function shouldHandleLeadMessage(text: string, messages: AgentMessage[], draft: LeadDraft) {
-  const normalized = normalizeLeadText(text)
-  const directLeadWithEnoughData =
-    Boolean(draft.email) &&
-    draft.hasConsent &&
-    Boolean(draft.projectType) &&
-    /\b(necesito|quiero|busco|me gustaria|presupuesto|propuesta|solicitud)\b/.test(normalized)
-
-  if (draft.sent && !hasLeadIntent(text) && !hasRecentLeadContext(messages)) return false
-  if (draft.isActive) return true
-  if (directLeadWithEnoughData) return true
-  if (hasLeadIntent(text)) return true
-
-  return hasRecentLeadContext(messages) && (hasSendNowIntent(text) || Boolean(extractEmail(text)))
-}
-
-function buildLeadEmailReply(text: string, draft: LeadDraft) {
+function buildLeadEmailReply(text: string) {
   const lines = ["### Para poder enviarlo"]
 
-  if (hasPriceQuestion(text)) {
-    const clientContext = `${text}\n${draft.interest}`
-
-    if (hasRestaurantLeadContext(clientContext)) {
-      lines.push(
-        "Para una web de restaurante con reservas puede haber una fase sencilla y otra más completa con carta, fotos y automatizaciones. Los importes son orientativos y sin IVA.",
-      )
-    } else if (hasVisualLeadRequest(clientContext) || hasVideoLeadRequest(clientContext)) {
-      lines.push(
-        "En visuales conviene preparar un pack personalizado según volumen, estilo, uso y presupuesto. Los importes se ajustan al alcance y son orientativos sin IVA.",
-      )
-    } else {
-      lines.push(
-        "Puedo preparar una orientación inicial, siempre con importes orientativos sin IVA y alcance por confirmar.",
-      )
-    }
+  if (engineHasPriceQuestion(text)) {
+    lines.push(
+      "Puedo preparar la solicitud con el contexto que me has dado. Si hemos hablado de importes, son orientativos y sin IVA.",
+    )
   } else {
-    lines.push("Tengo el contexto principal. Para que Aplaudia pueda responderte, falta un email de contacto.")
+    lines.push("Tengo el contexto principal. Para que puedan responderte, falta un email de contacto.")
   }
 
   lines.push("", "Dime el email y sigo con el envío.")
@@ -422,35 +101,27 @@ function buildLeadEmailReply(text: string, draft: LeadDraft) {
   return lines.join("\n")
 }
 
-function buildLeadConsentReply() {
-  return ["### Antes de enviarlo", LEAD_CONSENT_TEXT].join("\n")
-}
-
-function buildOptionalNameReply() {
-  return [
-    "### Ya tengo email y consentimiento",
-    "Si quieres, dime tu nombre y lo añado al resumen. Si prefieres no añadir nada más, dime “envíalo” y lo mando.",
-  ].join("\n")
-}
-
-function buildLeadAcknowledgementReply() {
-  return [
-    "Perfecto, lo añado al resumen.",
-    "",
-    "Si quieres incluir algún detalle más, dímelo. Cuando esté listo, dime “envíalo” y lo mando.",
-  ].join("\n")
+function buildLeadConsentReply(consentText: string) {
+  return ["### Antes de enviarlo", consentText].join("\n")
 }
 
 function buildLeadAlreadySentReply() {
-  return "Ya he enviado el resumen a una persona de Aplaudia. Te responderán por email."
+  return "Ya he enviado el resumen a una persona del equipo. Te responderán por email."
 }
 
 function buildLeadSentReply(clientCopy: boolean) {
   return clientCopy
-    ? "Perfecto, ya he enviado el resumen a una persona de Aplaudia. Te responderán por email.\n\nTambién he incluido que quieres recibir copia o respuesta por email."
-    : "Perfecto, ya he enviado el resumen a una persona de Aplaudia. Te responderán por email."
+    ? "Perfecto, ya he enviado el resumen a una persona del equipo. Te responderán por email.\n\nTambién he incluido que quieres recibir copia o respuesta por email."
+    : "Perfecto, ya he enviado el resumen a una persona del equipo. Te responderán por email."
 }
 
+function buildLeadSendErrorReply(fallbackEmail?: string) {
+  const email = fallbackEmail?.trim()
+
+  return email
+    ? `### No se ha podido enviar\nNo he podido enviar la solicitud ahora mismo. Puedes escribir directamente a ${email} o intentarlo de nuevo más tarde.`
+    : "### No se ha podido enviar\nNo he podido enviar la solicitud ahora mismo. Puedes intentarlo de nuevo más tarde."
+}
 function getSafeHref(rawHref: string) {
   const href = rawHref.trim()
 
@@ -650,6 +321,8 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
   )
   const isLeadRequestEnabled = leadRequest?.enabled ?? false
   const leadRequestEndpoint = leadRequest?.apiEndpoint ?? "/api/agent/quote"
+  const leadConsentText = leadRequest?.consentText ?? DEFAULT_LEAD_CONSENT_TEXT
+  const leadFallbackEmail = leadRequest?.fallbackEmail
 
   const welcomeMessage = useMemo<AgentMessage>(
     () => ({ role: "assistant", content: config.welcomeMessage }),
@@ -671,7 +344,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
   const messagesViewportRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const inputDraftRef = useRef("")
-  const leadDraftRef = useRef<LeadDraft>(createEmptyLeadDraft())
+  const leadDraftRef = useRef<LeadDraft>(createLeadDraft())
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null)
   const pendingUserAnchorIndexRef = useRef<number | null>(null)
   const voiceBaseTextRef = useRef("")
@@ -783,6 +456,79 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     const timeout = window.setTimeout(() => inputRef.current?.focus(), 200)
 
     return () => window.clearTimeout(timeout)
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen || typeof window === "undefined") return
+
+    const body = document.body
+    const html = document.documentElement
+    const scrollY = window.scrollY
+    const previous = {
+      bodyOverflow: body.style.overflow,
+      bodyOverscrollBehavior: body.style.overscrollBehavior,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyWidth: body.style.width,
+      htmlOverscrollBehavior: html.style.overscrollBehavior,
+    }
+
+    body.style.overflow = "hidden"
+    body.style.overscrollBehavior = "none"
+    body.style.position = "fixed"
+    body.style.top = `-${scrollY}px`
+    body.style.width = "100%"
+    html.style.overscrollBehavior = "none"
+
+    return () => {
+      body.style.overflow = previous.bodyOverflow
+      body.style.overscrollBehavior = previous.bodyOverscrollBehavior
+      body.style.position = previous.bodyPosition
+      body.style.top = previous.bodyTop
+      body.style.width = previous.bodyWidth
+      html.style.overscrollBehavior = previous.htmlOverscrollBehavior
+      window.scrollTo(0, scrollY)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const viewport = messagesViewportRef.current
+    if (!viewport) return
+
+    let touchStartY = 0
+    const shouldPreventScrollChain = (deltaY: number) => {
+      const canScroll = viewport.scrollHeight > viewport.clientHeight + 1
+
+      if (!canScroll) return true
+      if (deltaY < 0 && viewport.scrollTop <= 0) return true
+      if (deltaY > 0 && viewport.scrollTop + viewport.clientHeight >= viewport.scrollHeight - 1) return true
+
+      return false
+    }
+    const handleWheel = (event: WheelEvent) => {
+      if (shouldPreventScrollChain(event.deltaY)) event.preventDefault()
+    }
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartY = event.touches[0]?.clientY ?? 0
+    }
+    const handleTouchMove = (event: TouchEvent) => {
+      const currentY = event.touches[0]?.clientY ?? touchStartY
+      const deltaY = touchStartY - currentY
+
+      if (shouldPreventScrollChain(deltaY)) event.preventDefault()
+    }
+
+    viewport.addEventListener("wheel", handleWheel, { passive: false })
+    viewport.addEventListener("touchstart", handleTouchStart, { passive: true })
+    viewport.addEventListener("touchmove", handleTouchMove, { passive: false })
+
+    return () => {
+      viewport.removeEventListener("wheel", handleWheel)
+      viewport.removeEventListener("touchstart", handleTouchStart)
+      viewport.removeEventListener("touchmove", handleTouchMove)
+    }
   }, [isOpen])
 
   useEffect(() => {
@@ -1036,11 +782,10 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     let attemptedLeadSend = false
 
     try {
-      const previousLeadDraft = leadDraftRef.current
-      const leadDetails = isLeadRequestEnabled ? updateLeadDraftFromMessage(previousLeadDraft, text, messages) : null
-      const conversationHistory = [...messages.slice(-11), userMessage]
+      const leadDetails = isLeadRequestEnabled ? engineUpdateLeadDraftFromMessage(leadDraftRef.current, text, messages) : null
+      const conversationHistory = [...messages.slice(-17), userMessage]
 
-      if (leadDetails && shouldHandleLeadMessage(text, messages, leadDetails)) {
+      if (leadDetails && engineShouldHandleLeadMessage(text, messages, leadDetails)) {
         leadDetails.isActive = true
         leadDraftRef.current = leadDetails
 
@@ -1051,59 +796,27 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
         }
 
         if (!leadDetails.email) {
-          leadDetails.hasAskedEmail = true
+          leadDetails.hasAskedForEmail = true
           leadDraftRef.current = leadDetails
-          setMessages((current) => [...current, { role: "assistant", content: buildLeadEmailReply(text, leadDetails) }])
+          setMessages((current) => [...current, { role: "assistant", content: buildLeadEmailReply(text) }])
           if (!isOpen) setHasUnread(true)
           return
         }
 
-        if (!leadDetails.hasConsent) {
-          leadDetails.hasAskedConsent = true
+        if (!leadDetails.consentAccepted) {
+          leadDetails.hasAskedForConsent = true
           leadDraftRef.current = leadDetails
-          setMessages((current) => [...current, { role: "assistant", content: buildLeadConsentReply() }])
+          setMessages((current) => [...current, { role: "assistant", content: buildLeadConsentReply(leadConsentText) }])
           if (!isOpen) setHasUnread(true)
           return
         }
 
-        const justCapturedOptionalName =
-          !previousLeadDraft.name && Boolean(leadDetails.name) && previousLeadDraft.hasAskedName
-        const justCompletedRequiredData =
-          (!previousLeadDraft.email && Boolean(leadDetails.email)) ||
-          (!previousLeadDraft.hasConsent && leadDetails.hasConsent)
-        const onlyCompletedRequiredData =
-          justCompletedRequiredData &&
-          !extractProjectType(text) &&
-          !extractBudget(text) &&
-          !hasLeadIntent(text) &&
-          !hasSendNowIntent(text)
-        const shouldAskOptionalName =
-          (previousLeadDraft.isActive ||
-            previousLeadDraft.hasAskedEmail ||
-            previousLeadDraft.hasAskedConsent ||
-            onlyCompletedRequiredData) &&
-          justCompletedRequiredData &&
-          !previousLeadDraft.sent &&
-          !previousLeadDraft.hasAskedName &&
-          !leadDetails.name &&
-          !hasSendNowIntent(text)
-        const addedExtraContext =
-          previousLeadDraft.isActive &&
-          previousLeadDraft.hasAskedName &&
-          !hasSendNowIntent(text) &&
-          !justCapturedOptionalName
-
-        if (shouldAskOptionalName) {
-          leadDetails.hasAskedName = true
+        if (!engineShouldSendLead(text, leadDetails)) {
           leadDraftRef.current = leadDetails
-          setMessages((current) => [...current, { role: "assistant", content: buildOptionalNameReply() }])
-          if (!isOpen) setHasUnread(true)
-          return
-        }
-
-        if ((justCapturedOptionalName || addedExtraContext) && !hasSendNowIntent(text)) {
-          leadDraftRef.current = leadDetails
-          setMessages((current) => [...current, { role: "assistant", content: buildLeadAcknowledgementReply() }])
+          setMessages((current) => [
+            ...current,
+            { role: "assistant", content: "Perfecto. Cuando quieras, dime “envíalo” y lo mando al equipo." },
+          ])
           if (!isOpen) setHasUnread(true)
           return
         }
@@ -1114,7 +827,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             budget: leadDetails.budget,
-            clientCopy: leadDetails.clientCopy,
+            clientCopy: leadDetails.wantsClientCopy,
             consent: true,
             email: leadDetails.email,
             history: conversationHistory,
@@ -1135,7 +848,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
           ...current,
           {
             role: "assistant",
-            content: buildLeadSentReply(leadDetails.clientCopy),
+            content: buildLeadSentReply(leadDetails.wantsClientCopy),
           },
         ])
         leadDetails.sent = true
@@ -1154,16 +867,12 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
 
       setMessages((current) => [...current, { role: "assistant", content: reply }])
       if (!isOpen) setHasUnread(true)
-    } catch (error) {
+    } catch {
       setMessages((current) => [
         ...current,
         {
           role: "assistant",
-          content: attemptedLeadSend
-            ? `### No se ha podido enviar\n${
-                error instanceof Error ? error.message : "No se ha podido enviar la solicitud."
-              }`
-            : config.connectionErrorReply,
+          content: attemptedLeadSend ? buildLeadSendErrorReply(leadFallbackEmail) : config.connectionErrorReply,
         },
       ])
     } finally {
@@ -1177,6 +886,8 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
     isLeadRequestEnabled,
     isLoading,
     isOpen,
+    leadConsentText,
+    leadFallbackEmail,
     leadRequestEndpoint,
     maxHistoryItems,
     messages,
@@ -1197,7 +908,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
       {isOpen && (
         <div
           className={cn(
-            "fixed inset-x-1.5 bottom-1.5 top-1.5 z-[70] flex max-h-[calc(100dvh-0.75rem)] flex-col overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl transition-all duration-200 sm:inset-x-6 sm:bottom-6 sm:top-6 sm:max-h-[calc(100dvh-3rem)] lg:inset-x-[8vw] xl:inset-x-[10vw]",
+            "fixed inset-x-1.5 bottom-1.5 top-1.5 z-[70] flex max-h-[calc(100dvh-0.75rem)] flex-col overflow-hidden overscroll-none rounded-2xl border shadow-2xl backdrop-blur-xl transition-all duration-200 sm:inset-x-6 sm:bottom-6 sm:top-6 sm:max-h-[calc(100dvh-3rem)] lg:inset-x-[8vw] xl:inset-x-[10vw]",
             theme.panel,
           )}
           role="dialog"
@@ -1236,7 +947,7 @@ export function GenericAgentWidget({ config }: { config: AgentWidgetConfig }) {
               ref={messagesViewportRef}
               data-chat-scroll-viewport="true"
               onScroll={updateMessagesScrollHint}
-              className="h-full min-h-0 space-y-2.5 overflow-y-auto px-2.5 py-3 sm:space-y-3 sm:px-4 sm:py-4"
+              className="h-full min-h-0 space-y-2.5 overflow-y-auto overscroll-contain px-2.5 py-3 sm:space-y-3 sm:px-4 sm:py-4"
             >
               {messages.map((message, index) => (
                 <div

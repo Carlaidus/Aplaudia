@@ -1,46 +1,55 @@
 # NEXT TASK - Aplaudia
 
-Prioridad: Media-Alta
+Prioridad: Media
 Modelo recomendado para Codex: GPT-5.5
 Nivel de inteligencia recomendado: Alto
 
 ## Estado tras la ultima ejecucion
 
-- El flujo de solicitud desde chatbot se ha corregido para evitar bucles.
-- El widget mantiene un borrador conversacional durante la sesion.
+- El motor de captacion del chatbot queda separado en `lib/lead-engine/`.
+- La configuracion concreta de Aplaudia vive en `content/lead/aplaudia-lead-config.ts`.
+- `components/agent/generic-agent-widget.tsx` ya no clasifica leads con reglas Aplaudia hardcodeadas.
+- El widget mantiene un `LeadDraft` persistente durante la sesion.
 - Solo bloquea el envio si falta:
   - email valido;
   - consentimiento claro.
-- Nombre, telefono, tipo de negocio, interes, presupuesto y copia son opcionales o inferibles.
-- Si el visitante dice `envialo`, `mandalo`, `adelante` o algo equivalente:
-  - si hay email y consentimiento, se intenta enviar;
-  - si falta email, pide solo email;
-  - si falta consentimiento, pide solo consentimiento.
-- El textarea del chatbot se limpia al enviar con boton y con Enter.
-- El endpoint `/api/agent/quote` ya no devuelve `400` por faltar nombre, tipo de proyecto, interes o presupuesto.
-- La ficha interna por email incluye resumen ejecutivo, necesidades, senales comerciales, urgencia, friccion, sensibilidad a precio, precios comentados y ultimos mensajes.
-- No hay copia automatica al cliente; si la pide, queda como nota interna.
-- No se ha tocado Cloudflare, Railway, DNS, variables ni Resend.
-- Produccion `https://aplaudia.com` validada con el nuevo bundle del chatbot.
-- Railway dashboard muestra el commit `1225a21` como `Deployment successful` y servicio `Active`.
-- La ficha interna de presupuesto se ha reforzado para evitar falsos positivos:
-  - tipo de proyecto y servicios salen solo del texto del cliente;
+- Nombre, telefono, tipo de proyecto, interes, presupuesto y copia son opcionales o inferibles.
+- Si hay email + consentimiento + historial util, el sistema puede enviar sin pedir nombre.
+- El email interno pasa a ser una ficha comercial breve:
+  - contacto;
+  - resumen para responder;
+  - necesidad detectada;
+  - dudas;
+  - precio y alcance;
+  - senales comerciales utiles;
+  - frases utiles del cliente;
+  - nota legal minima.
+- Ya no se incluye transcript completo ni mensajes administrativos como `acepto`, `envialo`, email suelto o nombre suelto como frases utiles.
+- La deteccion de servicios es conservadora:
   - `barato` no activa `bar`;
-  - `no tengo fotos` queda como material, no como visuales;
-  - una pagina personal sencilla y barata solo activa `Web / landing`;
-  - una web de restaurante con reservas activa `Web / landing` y `Reservas`.
-- Hay test de regresion local: `npm run test:quote-analysis`.
-- Commit de codigo `4606afb` desplegado en Railway con `Deployment successful` y servicio `Active`.
+  - `no tengo fotos` no activa visuales;
+  - visuales solo se activan si el cliente pide crear, editar, retocar, preparar o producir piezas visuales;
+  - restaurante se detecta con contexto real de hosteleria, no por palabras dentro de otras.
+- El chatbot bloquea el scroll de fondo mientras esta abierto y evita que el scroll del historial arrastre la pagina de detras.
+- El textarea se vacia al enviar con boton y con Enter y vuelve a altura minima.
+- No se han tocado Cloudflare, Railway, DNS, variables, Resend ni Workers Paid.
+- No hay copia automatica al cliente ni base de datos.
 
 ## Proximo foco real
 
-Revisar correos internos reales recibidos desde el chatbot:
+Revisar en produccion con Carlos el nuevo email interno del chatbot.
 
-1. Carlos debe revisar en `carlosvfx@gmail.com` si la ficha interna resulta clara y util.
-2. Confirmar si el asunto, resumen ejecutivo y siguiente accion recomendada son adecuados.
-3. Confirmar que `Servicios de interes` ya no incluye servicios no pedidos.
-4. Si hay demasiado texto, reducir el email interno manteniendo los campos comerciales clave.
-5. Si falta informacion util, ajustar solo la plantilla interna de `/api/agent/quote`.
+1. Generar una prueba interna desde `https://aplaudia.com` con una conversacion realista.
+2. Revisar en `carlosvfx@gmail.com`:
+   - asunto;
+   - resumen para responder;
+   - servicios detectados;
+   - materiales mencionados;
+   - precio y alcance;
+   - frases utiles del cliente.
+3. Confirmar que el email es suficientemente corto y accionable.
+4. Si todavia hay demasiado texto, reducir solo la plantilla de `lib/lead-engine/build-internal-email.ts`.
+5. Si falta informacion util, ajustar solo detectores concretos y anadir test de regresion.
 
 ## Siguiente foco de producto
 
@@ -53,16 +62,18 @@ Revisar correos internos reales recibidos desde el chatbot:
 
 ## Validaciones base para la proxima tarea
 
+- `npm run test:quote-analysis`.
+- `npm run test:email-encoding`.
 - `npm run build`.
 - `npm run lint` si `eslint` llega a estar disponible.
 - `npm ls resend`.
 - Probar `/api/agent/quote` sin consentimiento: debe devolver `400`.
 - Probar `/api/agent/quote` con email y consentimiento pero sin opcionales: no debe devolver `400` por campos opcionales.
-- Ejecutar `npm run test:quote-analysis`.
 - Probar chatbot en escritorio:
   - enviar con boton;
   - enviar con Enter;
-  - textarea vacio tras enviar.
+  - textarea vacio tras enviar;
+  - scroll de fondo bloqueado con el panel abierto.
 - Probar chatbot en movil.
 - Validar `https://aplaudia.com`, `/robots.txt`, `/llms.txt` y `/sitemap.xml`.
 

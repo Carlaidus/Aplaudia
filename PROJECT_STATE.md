@@ -119,12 +119,19 @@ Ultima actualizacion: 2026-07-02
   - no envia copia automatica al cliente;
   - si el cliente pide copia, se anade solo una nota interna para que Aplaudia responda manualmente;
   - Resend no se usa actualmente como proveedor activo.
-- Analisis interno de solicitudes del chatbot reforzado el 2026-07-02:
-  - `lib/agent/quote-analysis.ts` centraliza tipo de proyecto, servicios, materiales, urgencia y sensibilidad a precio;
+- Motor reutilizable de captacion del chatbot reforzado el 2026-07-02:
+  - core generico en `lib/lead-engine/`;
+  - configuracion especifica de Aplaudia en `content/lead/aplaudia-lead-config.ts`;
+  - documentacion tecnica en `docs/lead-engine.md`;
+  - `components/agent/generic-agent-widget.tsx` usa un `LeadDraft` persistente y ya no contiene reglas Aplaudia hardcodeadas para clasificar leads;
+  - `lib/agent/quote-analysis.ts` queda como fachada compatible del motor nuevo;
+  - el email interno es una ficha comercial breve, no un transcript;
   - los detectores usan solo texto del cliente y datos explicitos, no respuestas del asistente ni transcript mixto;
   - `barato`, `barata` o `lo mas barato` no activan `bar`;
   - `no tengo fotos` queda como material mencionado, no como servicio visual;
-  - test de regresion disponible con `npm run test:quote-analysis`.
+  - el detector de visuales no cruza expresiones como `hacer reservas` con `no tengo fotos`;
+  - el chatbot bloquea el scroll de fondo mientras esta abierto y evita scroll chaining dentro del panel;
+  - test de regresion ampliado disponible con `npm run test:quote-analysis`.
 
 ## Estado de despliegue
 

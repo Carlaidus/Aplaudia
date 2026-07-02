@@ -2,6 +2,103 @@
 
 Fecha: 2026-07-02
 
+## Actualizacion - Motor de captacion reutilizable y scroll lock del chatbot
+
+### Objetivo
+
+Rehacer y estabilizar el motor de captacion del chatbot para que Aplaudia genere emails internos claros, no invente servicios, no se bloquee pidiendo datos opcionales y quede preparado como base reutilizable para otras webs.
+
+### Causa confirmada
+
+- La logica de captacion estaba repartida entre el widget, el endpoint y `lib/agent/quote-analysis.ts`.
+- El email interno todavia dependia de resumenes amplios y podia mezclar contexto comercial con mensajes administrativos.
+- El widget generico conservaba reglas especificas de Aplaudia y respuestas hardcodeadas.
+- El scroll del panel no bloqueaba por completo el scroll de la pagina de fondo mientras el chatbot estaba abierto.
+
+### Cambios aplicados
+
+- `lib/lead-engine/`:
+  - creado motor reutilizable con tipos, extraccion de datos, clasificacion de mensajes, deteccion de servicios, senales comerciales, resumen y plantilla de email interno;
+  - los detectores usan solo mensajes del cliente y datos explicitos del borrador;
+  - `barato` no activa `bar`;
+  - `no tengo fotos` queda como material, no como servicio visual;
+  - visuales solo se activan si el cliente pide crear, editar, retocar, preparar o producir piezas visuales;
+  - mensajes como `si dime`, `vale hazlo`, `acepto`, `envialo`, nombre suelto o email suelto no pasan a frases utiles.
+- `content/lead/aplaudia-lead-config.ts`:
+  - centraliza marca, email publico, consentimiento, servicios, tipos de proyecto y referencias internas de Aplaudia.
+- `components/agent/generic-agent-widget.tsx`:
+  - eliminado el bloque antiguo de lead hardcodeado;
+  - usa `LeadDraft` del motor reutilizable;
+  - email y consentimiento son los unicos campos obligatorios;
+  - no pide nombre ni presupuesto para enviar;
+  - textarea se vacia al enviar con boton y con Enter y vuelve a altura minima;
+  - bloquea el scroll del body mientras el panel esta abierto;
+  - corta el scroll chaining en wheel/touch dentro del area de mensajes.
+- `app/api/agent/quote/route.ts`:
+  - usa `buildLeadSummary()` y `buildInternalLeadEmail()`;
+  - el email interno pasa a ser ficha comercial breve, sin transcript completo.
+- `lib/agent/quote-analysis.ts`:
+  - queda como fachada compatible del nuevo motor.
+- `scripts/validate-agent-quote-analysis.mjs`:
+  - ampliado con cinco casos de regresion: mascotas/clinica, pagina personal barata, restaurante con reservas, solo precio y envio rapido.
+- `docs/lead-engine.md`:
+  - documenta arquitectura, reglas y como reutilizar el motor.
+
+### Archivos modificados
+
+- `app/api/agent/quote/route.ts`
+- `components/agent/aplaudia-agent-widget.tsx`
+- `components/agent/generic-agent-widget.tsx`
+- `content/lead/aplaudia-lead-config.ts`
+- `docs/lead-engine.md`
+- `lib/agent/quote-analysis.ts`
+- `lib/agent/types.ts`
+- `lib/lead-engine/*`
+- `scripts/validate-agent-quote-analysis.mjs`
+- `PROJECT_STATE.md`
+- `DECISIONS.md`
+- `NEXT_TASK.md`
+- `LAST_REPORT.md`
+
+### Validaciones locales
+
+- `npm run test:quote-analysis`: OK.
+- `npm run test:email-encoding`: OK.
+- `npm run build`: OK.
+- `npm run lint`: no disponible; el script existe, pero `eslint` no esta instalado como ejecutable local.
+- `npm ls resend`: arbol vacio; no hay dependencia `resend`.
+- `git diff --check`: OK; solo avisos normales de CRLF en Windows.
+
+### QA local de chatbot
+
+- Escritorio:
+  - home local en `http://localhost:3047`: OK;
+  - aviso de construccion visible;
+  - al abrir el chat, `body` queda con `overflow:hidden`, `position:fixed` y `top` negativo;
+  - envio con Enter: textarea vacio y altura 48px;
+  - envio con boton: textarea vacio y altura 48px;
+  - al cerrar, la pagina vuelve al scroll previo.
+- Movil 390x844:
+  - panel abierto: 378 x 832 px;
+  - area de mensajes: 704 px de alto;
+  - sin overflow horizontal;
+  - body bloqueado con panel abierto;
+  - envio con boton: textarea vacio y altura 48px;
+  - al cerrar, la pagina vuelve al scroll previo.
+
+### Estado externo
+
+- No se tocaron Cloudflare, Railway, DNS, variables, Resend ni Workers Paid.
+- No se guardaron secretos.
+- No se creo base de datos.
+- No se envio copia automatica a cliente.
+- No se retiro el aviso de construccion.
+- Railway: pendiente de comprobar tras el push final de esta tarea.
+
+### Siguiente paso recomendado
+
+Revisar en `carlosvfx@gmail.com` el siguiente email interno real generado desde produccion y confirmar si la ficha es suficientemente corta y accionable. Si hay que ajustar, tocar solo plantilla o detectores concretos y anadir test de regresion.
+
 ## Actualizacion - Acentos en emails internos
 
 ### Objetivo

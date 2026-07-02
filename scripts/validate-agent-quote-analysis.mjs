@@ -1,98 +1,245 @@
 import fs from "node:fs"
+import path from "node:path"
 import vm from "node:vm"
+import { createRequire } from "node:module"
+import { fileURLToPath } from "node:url"
 import ts from "typescript"
 
-const source = fs.readFileSync(new URL("../lib/agent/quote-analysis.ts", import.meta.url), "utf8")
-const { outputText } = ts.transpileModule(source, {
-  compilerOptions: {
-    module: ts.ModuleKind.CommonJS,
-    target: ts.ScriptTarget.ES2020,
-  },
-})
+const nativeRequire = createRequire(import.meta.url)
+const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
+const moduleCache = new Map()
 
-const module = { exports: {} }
-vm.runInNewContext(outputText, { module, exports: module.exports }, { filename: "quote-analysis.cjs" })
+function resolveTsModule(specifier, parentDir) {
+  if (!specifier.startsWith(".") && !specifier.startsWith("@/")) return null
 
-const { analyzeAgentQuote } = module.exports
+  const base = specifier.startsWith("@/")
+    ? path.resolve(rootDir, specifier.slice(2))
+    : path.resolve(parentDir, specifier)
+  const candidates = [base, `${base}.ts`, `${base}.tsx`, path.join(base, "index.ts")]
+  const found = candidates.find((candidate) => fs.existsSync(candidate))
+
+  if (!found) throw new Error(`No se ha podido resolver ${specifier} desde ${parentDir}`)
+
+  return found
+}
+
+function loadTsModule(filePath) {
+  const fullPath = path.resolve(filePath)
+  const cached = moduleCache.get(fullPath)
+  if (cached) return cached.exports
+
+  const source = fs.readFileSync(fullPath, "utf8")
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: {
+      esModuleInterop: true,
+      jsx: ts.JsxEmit.ReactJSX,
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2020,
+    },
+    fileName: fullPath,
+  })
+  const module = { exports: {} }
+  const dirname = path.dirname(fullPath)
+  moduleCache.set(fullPath, module)
+
+  const localRequire = (specifier) => {
+    const resolved = resolveTsModule(specifier, dirname)
+
+    return resolved ? loadTsModule(resolved) : nativeRequire(specifier)
+  }
+
+  vm.runInNewContext(
+    outputText,
+    {
+      __dirname: dirname,
+      __filename: fullPath,
+      console,
+      exports: module.exports,
+      module,
+      process,
+      require: localRequire,
+    },
+    { filename: fullPath },
+  )
+
+  return module.exports
+}
+
+const {
+  buildInternalLeadEmail,
+  buildLeadSummary,
+  createLeadDraft,
+  shouldHandleLeadMessage,
+  shouldSendLead,
+  updateLeadDraftFromMessage,
+} = loadTsModule(path.join(rootDir, "lib/lead-engine/index.ts"))
+const { aplaudiaLeadConfig } = loadTsModule(path.join(rootDir, "content/lead/aplaudia-lead-config.ts"))
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
 }
 
-function analyzeUserMessage(content, overrides = {}) {
-  return analyzeAgentQuote({
-    budget: "",
-    email: "carlosvfx@gmail.com",
-    history: [
-      {
-        role: "assistant",
-        content:
-          "Podemos hacer webs, agentes WhatsApp, visuales, mantenimiento, catalogo y proyectos para restaurantes.",
-      },
-      { role: "user", content },
-    ],
-    interest: "",
-    name: "",
-    phone: "",
-    projectType: "",
-    sessionId: "quote-analysis-test",
-    ...overrides,
+function assertIncludes(items, expected, label) {
+  assert(items.includes(expected), `${label}: falta ${expected}. Recibido: ${items.join(" | ")}`)
+}
+
+function assertExcludes(value, patterns, label) {
+  for (const pattern of patterns) {
+    assert(!pattern.test(value), `${label}: falso positivo ${pattern} en "${value}"`)
+  }
+}
+
+function analyze({ budget = "", email = "carlosvfx@yahoo.es", history, interest = "", name = "", phone = "", projectType = "" }) {
+  return buildLeadSummary({
+    budget,
+    config: aplaudiaLeadConfig,
+    email,
+    history,
+    interest,
+    name,
+    phone,
+    projectType,
   })
 }
 
-function hasAny(value, patterns) {
-  return patterns.some((pattern) => pattern.test(value))
+function runDraftFlow(messages) {
+  let draft = createLeadDraft()
+  const history = []
+
+  for (const message of messages) {
+    if (message.role === "user") {
+      draft = updateLeadDraftFromMessage(draft, message.content, history)
+    }
+    history.push(message)
+  }
+
+  return { draft, history }
 }
 
-const personal = analyzeUserMessage(
-  "quiero presupuesto para una página pequeña personal de lo más barato que tengas me llamo Carlos ya te pasó mi correo y nada no tengo fotos ni nada quiero que me pases un presupuesto de eso y muy sencillito todo lo más barato que tengas",
-  { projectType: "Restaurante, bar o cafetería" },
-)
-const personalServices = personal.detectedServices.join(" | ")
-const personalCombined = [personal.projectType, personal.clientType, personalServices].join(" | ")
+const mascotasHistory = [
+  {
+    role: "user",
+    content:
+      "hola muy buenas me gustaría saber si hacéis páginas web para yo que sé el control de vacunas de mascotas y cosas así y saber precios y tiempos de entrega",
+  },
+  {
+    role: "assistant",
+    content:
+      "Podría plantearse por fases. Proyecto sencillo con acceso privado, fichas de mascotas y vacunas: desde 1.500 €. Con avisos, varios usuarios y panel interno más completo: desde 2.300 €. Si luego crece con más funciones, permisos o automatizaciones: a medida. Si quieres, puedo enviar un resumen a una persona de Aplaudia.",
+  },
+  {
+    role: "user",
+    content:
+      "bueno las pantallas de secciones quiero que me digáis vosotros un poco que que hay en panel interno no sé a qué te refieres y sí el registro de Mascotas vacunas avisos todo eso que dices está muy guay y en principio sí sería para accesos a varios usuarios es para una clínica personal y también uso interno mascotas no lo sé si irán ampliando depende de éxito que tengamos",
+  },
+  { role: "user", content: "vale" },
+  { role: "user", content: "si dime" },
+  { role: "user", content: "vale hazlo" },
+  { role: "assistant", content: aplaudiaLeadConfig.consentText },
+  { role: "user", content: "acepto" },
+  { role: "user", content: "carlosvfx@yahoo.es" },
+  { role: "user", content: "carlos" },
+  { role: "user", content: "envialo" },
+]
+const mascotasFlow = runDraftFlow(mascotasHistory)
+const mascotas = analyze({
+  history: mascotasHistory,
+  name: mascotasFlow.draft.name || "carlos",
+})
 
-assert(personal.name === "Carlos", `Nombre esperado Carlos; recibido ${personal.name}`)
+assert(mascotas.contact.name.toLowerCase() === "carlos", `Mascotas nombre incorrecto: ${mascotas.contact.name}`)
+assert(mascotas.contact.email === "carlosvfx@yahoo.es", `Mascotas email incorrecto: ${mascotas.contact.email}`)
 assert(
-  personal.projectType === "Página personal / web sencilla",
-  `Tipo esperado Página personal / web sencilla; recibido ${personal.projectType}`,
+  mascotas.projectType === "Web-app / herramienta interna para clínica o gestión de mascotas",
+  `Mascotas proyecto incorrecto: ${mascotas.projectType}`,
 )
+for (const service of [
+  "Web-app / herramienta interna",
+  "Panel interno",
+  "Gestión de datos",
+  "Usuarios / permisos",
+  "Avisos / recordatorios",
+]) {
+  assertIncludes(mascotas.requestedServices, service, "Mascotas servicios")
+}
+for (const price of ["1.500", "2.300", "a medida"]) {
+  assert(mascotas.priceLines.some((line) => line.includes(price)), `Mascotas precio ausente: ${price}`)
+}
+const mascotasUseful = mascotas.usefulClientPhrases.join(" | ").toLowerCase()
+assertExcludes(mascotasUseful, [/acepto/, /env[ií]alo/, /carlosvfx@yahoo\.es/, /^carlos$/], "Mascotas frases útiles")
 assert(
-  personal.detectedServices.length === 1 && personal.detectedServices[0] === "Web / landing",
-  `Servicios esperados Web / landing; recibido ${personalServices}`,
+  mascotas.commercialSignals.timeline === "Pregunta por plazos, sin urgencia concreta.",
+  `Mascotas plazos incorrectos: ${mascotas.commercialSignals.timeline}`,
 )
-assert(personal.materials.includes("No tiene fotos"), `Materiales esperados No tiene fotos; recibido ${personal.materials}`)
-assert(personal.priceSensitivity === "Alta", `Sensibilidad esperada Alta; recibida ${personal.priceSensitivity}`)
+assert(mascotas.commercialSignals.nextAction.includes("propuesta por fases"), "Mascotas próximo paso sin fases")
+
+const personalMessages = [
+  {
+    role: "user",
+    content:
+      "quiero presupuesto para una página pequeña personal de lo más barato que tengas me llamo Carlos ya te pasó mi correo y nada no tengo fotos ni nada quiero que me pases un presupuesto de eso y muy sencillito todo lo más barato que tengas",
+  },
+  { role: "user", content: "si enviado por favor a carlosvfx@yahoo.es" },
+  { role: "user", content: "acepto acepto" },
+]
+const personalFlow = runDraftFlow(personalMessages)
+const personal = analyze({ history: personalMessages, name: personalFlow.draft.name, email: personalFlow.draft.email })
+const personalCombined = [personal.projectType, personal.requestedServices.join(" | ")].join(" | ")
+
+assert(personalFlow.draft.name === "Carlos", `Personal nombre esperado Carlos; recibido ${personalFlow.draft.name}`)
+assert(personal.projectType === "Página personal / web sencilla", `Personal proyecto incorrecto: ${personal.projectType}`)
 assert(
-  !hasAny(personalCombined, [
-    /\brestaurante\b/i,
-    /\bbar\b/i,
-    /\bcafeter/i,
-    /cat[aá]logo/i,
-    /whatsapp/i,
-    /agente/i,
-    /visual/i,
-    /v[ií]deo|video/i,
-    /mantenimiento/i,
-  ]),
-  `Falso positivo en caso personal: ${personalCombined}`,
+  personal.requestedServices.length === 1 && personal.requestedServices[0] === "Web / landing",
+  `Personal servicios incorrectos: ${personal.requestedServices.join(" | ")}`,
+)
+assertIncludes(personal.materials, "No tiene fotos", "Personal materiales")
+assert(personal.commercialSignals.priceSensitivity === "Sensibilidad al precio alta.", "Personal sensibilidad incorrecta")
+assert(personal.priceLines.some((line) => line.includes("390")), `Personal precio 390 ausente: ${personal.priceLines}`)
+assertExcludes(
+  personalCombined,
+  [/restaurante/i, /\bbar\b/i, /cafeter/i, /cat[aá]logo/i, /whatsapp/i, /agente/i, /visual/i, /v[ií]deo|video/i, /mantenimiento/i],
+  "Personal falsos positivos",
 )
 
-const restaurant = analyzeUserMessage(
-  "necesito presupuesto urgente para una web de un restaurante para hacer reservas, no tengo web ni carta ni fotos",
-)
-const restaurantServices = restaurant.detectedServices.join(" | ")
+const restaurantMessage =
+  "necesito presupuesto urgente para una web de un restaurante para hacer reservas, no tengo web ni carta ni fotos, mi email es carlosvfx@yahoo.es, acepto"
+const restaurantFlow = runDraftFlow([{ role: "user", content: restaurantMessage }])
+const restaurant = analyze({
+  history: [{ role: "user", content: restaurantMessage }],
+  email: restaurantFlow.draft.email,
+})
+assert(restaurant.projectType === "Restaurante / bar / cafetería", `Restaurante proyecto incorrecto: ${restaurant.projectType}`)
+assertIncludes(restaurant.requestedServices, "Web / landing", "Restaurante servicios")
+assertIncludes(restaurant.requestedServices, "Reservas", "Restaurante servicios")
+assert(restaurant.requestedServices.length === 2, `Restaurante servicios extra: ${restaurant.requestedServices.join(" | ")}`)
+for (const material of ["No tiene web", "No tiene carta", "No tiene fotos"]) {
+  assertIncludes(restaurant.materials, material, "Restaurante materiales")
+}
+assert(restaurant.commercialSignals.urgency === "Urgencia alta.", "Restaurante urgencia incorrecta")
+assert(!restaurant.requestedServices.some((service) => /visual|imagen|v[ií]deo|video/i.test(service)), "Restaurante marcó visuales")
+assert(shouldHandleLeadMessage(restaurantMessage, [], restaurantFlow.draft), "Restaurante debería manejar lead")
+assert(shouldSendLead(restaurantMessage, restaurantFlow.draft), "Restaurante debería enviar sin pedir más datos")
 
-assert(
-  restaurant.projectType === "Restaurante / bar / cafetería",
-  `Tipo esperado Restaurante / bar / cafetería; recibido ${restaurant.projectType}`,
-)
-assert(restaurant.detectedServices.includes("Web / landing"), `Falta Web / landing: ${restaurantServices}`)
-assert(restaurant.detectedServices.includes("Reservas"), `Falta Reservas: ${restaurantServices}`)
-assert(restaurant.detectedServices.length === 2, `Servicios extra no esperados: ${restaurantServices}`)
-assert(restaurant.materials.includes("No tiene web"), `Falta material No tiene web: ${restaurant.materials}`)
-assert(restaurant.materials.includes("No tiene carta"), `Falta material No tiene carta: ${restaurant.materials}`)
-assert(restaurant.materials.includes("No tiene fotos"), `Falta material No tiene fotos: ${restaurant.materials}`)
-assert(restaurant.urgency === "Alta", `Urgencia esperada Alta; recibida ${restaurant.urgency}`)
-assert(!/visual|imagen|v[ií]deo|video/i.test(restaurantServices), `Falso positivo visual: ${restaurantServices}`)
+const onlyPrice = "Quiero precio de una landing."
+const onlyPriceDraft = updateLeadDraftFromMessage(createLeadDraft(), onlyPrice, [])
+assert(!shouldHandleLeadMessage(onlyPrice, [], onlyPriceDraft), "Solo precio no debe iniciar envío")
+assert(!shouldSendLead(onlyPrice, onlyPriceDraft), "Solo precio no debe enviar")
 
-console.log("quote-analysis regression tests OK")
+const quickSendMessage = "Quiero presupuesto para una web. Mi email es carlosvfx@yahoo.es. Acepto."
+const quickSendDraft = updateLeadDraftFromMessage(createLeadDraft(), quickSendMessage, [])
+assert(quickSendDraft.email === "carlosvfx@yahoo.es", `Envío rápido email incorrecto: ${quickSendDraft.email}`)
+assert(quickSendDraft.consentAccepted, "Envío rápido debería guardar consentimiento")
+assert(shouldHandleLeadMessage(quickSendMessage, [], quickSendDraft), "Envío rápido debería activar lead")
+assert(shouldSendLead(quickSendMessage, quickSendDraft), "Envío rápido debería enviar aunque no haya nombre")
+
+const emailContent = buildInternalLeadEmail({
+  analysis: personal,
+  clientCopyRequested: false,
+  config: aplaudiaLeadConfig,
+  date: "02/07/2026, 12:00",
+})
+assert(!/transcript|ultimos mensajes|últimos mensajes/i.test(emailContent.html), "El email no debe incluir transcript")
+assert(!/acepto acepto|envialo/i.test(emailContent.text), "El email no debe incluir trámites como frases útiles")
+assert(emailContent.text.includes("sin copia automatica al cliente"), "El email debe documentar que no hay copia automática")
+
+console.log("lead-engine regression tests OK")

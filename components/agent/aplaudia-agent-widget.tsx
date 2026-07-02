@@ -1,6 +1,7 @@
 "use client"
 
 import { GenericAgentWidget } from "@/components/agent/generic-agent-widget"
+import { aplaudiaLeadConfig } from "@/content/lead/aplaudia-lead-config"
 
 export function AplaudiaAgentWidget() {
   return (
@@ -20,7 +21,9 @@ export function AplaudiaAgentWidget() {
         inputMaxLength: 500,
         leadRequest: {
           apiEndpoint: "/api/agent/quote",
+          consentText: aplaudiaLeadConfig.consentText,
           enabled: true,
+          fallbackEmail: aplaudiaLeadConfig.publicEmail,
         },
         listeningPlaceholder: "Escuchando...",
         placeholder: "Cuéntame qué necesitas...",

@@ -13,6 +13,7 @@
 - El chatbot no envia copia automatica al cliente. Si el cliente pide copia, se anade una nota interna para que una persona de Aplaudia responda manualmente.
 - En solicitudes desde chatbot, solo son obligatorios email valido y consentimiento claro. El nombre, telefono, tipo de proyecto, interes, presupuesto o copia no deben bloquear el envio interno.
 - En la ficha interna del chatbot, el tipo de proyecto y los servicios de interes se detectan solo desde texto del cliente (`role=user`) y datos explicitos del borrador. No se deben usar el saludo, respuestas del asistente, textos comerciales, texto legal ni transcript mixto para clasificar servicios. Los materiales mencionados, como "no tiene fotos", van en una seccion separada y no activan visuales.
+- El motor de captacion debe vivir en `lib/lead-engine/` como core reutilizable. Las reglas especificas de Aplaudia deben ir en `content/lead/aplaudia-lead-config.ts`, no hardcodeadas dentro del widget generico.
 - Los aliases `hola@aplaudia.com`, `presupuestos@aplaudia.com`, `soporte@aplaudia.com` y `legal@aplaudia.com` estan creados en Cloudflare Email Routing hacia `carlosvfx@gmail.com`; la prueba final de recepcion externa debe hacerse desde un buzon real autenticado, no desde SMTP directo sin SPF/DKIM.
 
 ## Git y despliegue
@@ -39,6 +40,7 @@
 - El aviso no debe romper navegacion, mobile ni CTA.
 - El aviso debe ser visualmente premium y coherente con la estetica oscura/glow de Aplaudia.
 - Fecha visible de construccion: dinamica, calculada en la web con la fecha actual en zona Europe/Madrid. `content/site.ts` conserva solo un fallback.
+- Cuando el chatbot este abierto, la pagina de fondo no debe moverse. El panel debe conservar scroll interno y cortar el scroll chaining en escritorio y movil.
 
 ## IA y ejecucion
 

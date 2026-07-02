@@ -39,7 +39,9 @@ export type AgentWidgetConfig = {
   inputMaxLength?: number
   leadRequest?: {
     apiEndpoint?: string
+    consentText?: string
     enabled?: boolean
+    fallbackEmail?: string
   }
   listeningPlaceholder?: string
   maxHistoryItems?: number
