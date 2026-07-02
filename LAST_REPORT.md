@@ -69,10 +69,27 @@ Corregir los falsos positivos del email interno del chatbot para que no invente 
   - desalineacion antigua de traducciones `about` en `i18n/provider.tsx`.
 - `git diff --check`: OK; solo avisos CRLF normales de Windows.
 
+### Validaciones en produccion
+
+- Commit de codigo: `4606afb` (`Evita falsos positivos en presupuestos del chatbot`).
+- Push a `main`: OK.
+- Railway dashboard:
+  - servicio `Aplaudia`: `Active`;
+  - deployment del commit `4606afb`: `Deployment successful`;
+  - Node visible: `22.23.1`.
+- Railway CLI:
+  - sigue sin sesion valida (`invalid_grant` / `Unauthorized`), por lo que la comprobacion real se hizo en dashboard.
+- Produccion:
+  - `https://aplaudia.com`: `200`;
+  - `https://aplaudia.com/robots.txt`: `200`;
+  - `https://aplaudia.com/llms.txt`: `200`;
+  - `https://aplaudia.com/sitemap.xml`: `200`.
+
 ### Estado final
 
-- Cambio validado localmente.
-- Pendiente de commit, push y comprobacion de despliegue tras cerrar esta tarea.
+- Cambio validado localmente y desplegado.
+- Railway en verde por dashboard.
+- Produccion operativa.
 - No se han tocado Cloudflare, Railway, DNS, variables ni Resend.
 - No se han enviado emails reales durante esta correccion.
 - No se han guardado secretos.

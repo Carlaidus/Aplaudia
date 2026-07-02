@@ -30,6 +30,7 @@ Nivel de inteligencia recomendado: Alto
   - una pagina personal sencilla y barata solo activa `Web / landing`;
   - una web de restaurante con reservas activa `Web / landing` y `Reservas`.
 - Hay test de regresion local: `npm run test:quote-analysis`.
+- Commit de codigo `4606afb` desplegado en Railway con `Deployment successful` y servicio `Active`.
 
 ## Proximo foco real
 

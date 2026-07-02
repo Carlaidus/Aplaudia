@@ -147,6 +147,10 @@ Ultima actualizacion: 2026-07-02
   - Railway dashboard: `Deployment successful`, servicio `Active`.
   - Produccion `https://aplaudia.com` sirve el bundle nuevo del chatbot.
   - Chatbot probado en produccion: textarea se vacia, no repite datos y envia el resumen interno solo tras email + consentimiento + orden clara de envio.
+- Commit de analisis conservador de presupuestos verificado el 2026-07-02: `4606afb`.
+  - Railway dashboard: `Deployment successful`, servicio `Active`.
+  - Produccion `https://aplaudia.com`, `/robots.txt`, `/llms.txt` y `/sitemap.xml`: `200`.
+  - `npm run test:quote-analysis`: OK con los casos de pagina personal barata y restaurante con reservas.
 
 ## Dominio y DNS
 
