@@ -78,11 +78,32 @@ Ajustar el flujo de solicitud comercial del chatbot para mantenerlo agil: email 
 - No se creo base de datos.
 - No se envio copia automatica al cliente.
 - No se retiro el aviso de construccion.
-- Produccion pendiente de validar tras push de este cambio.
+- Commit desplegado: `ed0db4a` (`Ajusta flujo opcional del chatbot`).
+- Produccion:
+  - `https://aplaudia.com`: `200`;
+  - `/robots.txt`: `200`;
+  - `/llms.txt`: `200`;
+  - `/sitemap.xml`: `200`;
+  - bundle nuevo servido desde `/_next/static/chunks/app/layout-c3619ce9be088430.js`;
+  - el bundle contiene el prompt exacto `Ya tengo lo necesario para enviar la solicitud`.
+- Validacion visual en navegador:
+  - aviso de construccion visible con fecha dinamica `2 de julio de 2026`;
+  - etiqueta del chatbot: `¿Dudas?`;
+  - sin boton fijo `Generar presupuesto`;
+  - chatbot abre correctamente;
+  - saludo inicial neutro, sin mencionar Cronoras, Arik Custom ni Aventuras Pixeladas;
+  - scroll de fondo bloqueado con `body` en `overflow:hidden` y `position:fixed`;
+  - al enviar mensaje de prueba con email + consentimiento, el textarea se vacia y vuelve a `48px`;
+  - el chatbot muestra la pregunta opcional de nombre/telefono antes de enviar.
+- Validacion API produccion:
+  - `/api/agent/quote` sin consentimiento: `400`;
+  - `/api/agent/quote` con datos ficticios, consentimiento aceptado y telefono: `200`;
+  - respuesta: `clientCopySent:false`;
+  - se envio una prueba interna controlada a Aplaudia/Carlos, no a un cliente real.
 
 ### Siguiente paso recomendado
 
-Desplegar, probar desde produccion un flujo completo con email + consentimiento, confirmar que se pregunta nombre/telefono una sola vez y revisar en Gmail que los acentos y el telefono se renderizan correctamente.
+Revisar en Gmail la prueba interna generada desde produccion y confirmar visualmente que los acentos y el telefono se renderizan correctamente. Si Carlos confirma que el formato es bueno, el siguiente foco es revisar legal/privacidad antes de retirar el aviso de construccion.
 
 ## Actualizacion - Motor de captacion reutilizable y scroll lock del chatbot
 
