@@ -21,6 +21,8 @@ Nivel de inteligencia recomendado: Alto
 - La ficha interna por email incluye resumen ejecutivo, necesidades, senales comerciales, urgencia, friccion, sensibilidad a precio, precios comentados y ultimos mensajes.
 - No hay copia automatica al cliente; si la pide, queda como nota interna.
 - No se ha tocado Cloudflare, Railway, DNS, variables ni Resend.
+- Produccion `https://aplaudia.com` validada con el nuevo bundle del chatbot.
+- Railway dashboard muestra el commit `1225a21` como `Deployment successful` y servicio `Active`.
 
 ## Proximo foco real
 

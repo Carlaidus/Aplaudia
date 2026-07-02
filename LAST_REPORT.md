@@ -2,6 +2,129 @@
 
 Fecha: 2026-07-02
 
+## Actualizacion - Chatbot sin bucle y ficha interna de presupuesto
+
+### Objetivo
+
+Corregir definitivamente el flujo conversacional de solicitud de presupuesto del chatbot para que deje de pedir datos ya entregados, no bloquee por campos opcionales y envie la solicitud interna solo cuando haya email valido y consentimiento claro.
+
+### Error real observado
+
+- El chatbot entraba en bucle pidiendo nombre, email, consentimiento, presupuesto o contexto aunque el usuario ya hubiera dado parte de esos datos.
+- Causa confirmada en codigo:
+  - `components/agent/generic-agent-widget.tsx` reconstruia los datos desde el historial en cada mensaje y trataba nombre, tipo de proyecto e interes como campos obligatorios;
+  - `/api/agent/quote` devolvia `400` si faltaban nombre, tipo de proyecto o interes;
+  - el flujo no mantenia un borrador persistente de lead durante la sesion.
+
+### Cambios aplicados
+
+- `components/agent/generic-agent-widget.tsx`:
+  - nuevo borrador persistente de solicitud en la sesion del widget;
+  - extraccion acumulativa de email, consentimiento, nombre, telefono, tipo de proyecto, interes, presupuesto y peticion de copia;
+  - solo bloquea por email valido o consentimiento claro;
+  - no repite datos ya dados;
+  - no envia al detectar solo `venga`; espera una orden clara como `envialo`, `mandalo`, `adelante` o equivalente;
+  - textarea reforzado para vaciarse al enviar con boton y con Enter.
+- `app/api/agent/quote/route.ts`:
+  - relajada la validacion: solo `400` por falta de consentimiento o email invalido;
+  - nombre, proyecto, interes, presupuesto y telefono pasan a ser opcionales o inferidos;
+  - email interno enriquecido con resumen ejecutivo, necesidades, senales comerciales, urgencia, friccion, sensibilidad al precio, dudas/objeciones, precios comentados y ultimos mensajes.
+- `lib/agent/build-agent-prompt.ts` y `content/agent/aplaudia-agent.md`:
+  - reglas reforzadas para no insistir en datos opcionales;
+  - el agente solo debe hablar de precios si se pregunta directamente;
+  - todos los precios siguen siendo orientativos y sin IVA.
+- Copy publico:
+  - retirada mencion publica a `Trabajos ya construidos por Carlos`;
+  - retiradas menciones publicas a `Next.js`, `Vercel` y `Claude AI`;
+  - el hero muestra capacidades publicas: diseno web, rendimiento, SEO tecnico y automatizacion.
+- `components/sections/construction-notice.tsx`:
+  - ajuste minimo de tipado del estado de fecha dinamica.
+
+### Archivos modificados
+
+- `components/agent/generic-agent-widget.tsx`
+- `app/api/agent/quote/route.ts`
+- `lib/agent/build-agent-prompt.ts`
+- `content/agent/aplaudia-agent.md`
+- `components/sections/hero.tsx`
+- `components/sections/construction-notice.tsx`
+- `i18n/messages/es.json`
+- `i18n/messages/ca.json`
+- `i18n/messages/en.json`
+- `PROJECT_STATE.md`
+- `DECISIONS.md`
+- `NEXT_TASK.md`
+- `LAST_REPORT.md`
+
+### Validaciones locales
+
+- `npm run build`: OK.
+- `npm run lint`: no disponible; el script existe pero `eslint` no esta instalado como ejecutable local.
+- `npm ls resend`: vacio.
+- `npx tsc --noEmit`: sigue fallando por deudas previas conocidas:
+  - tipos de `react-day-picker` en `components/ui/calendar.tsx`;
+  - desalineacion antigua de traducciones `about` en `i18n/provider.tsx`.
+- `git diff --check`: OK; solo avisos CRLF normales en Windows.
+- API local con variables Cloudflare vacias:
+  - `/api/agent/quote` sin consentimiento: `400`;
+  - `/api/agent/quote` con email + consentimiento y sin campos opcionales: no devuelve `400` por opcionales; llega al proveedor y devuelve `503` local por email desconfigurado a proposito.
+- Browser QA local:
+  - envio con boton: textarea queda vacio;
+  - envio con Enter: textarea queda vacio;
+  - caso A `Quiero presupuesto para una web. Mi email es prueba@example.com. Acepto.` intenta enviar sin pedir nombre;
+  - caso C `Quiero precio de una landing.` no pide email ni consentimiento;
+  - conversacion exacta validada hasta el ultimo paso; local devuelve `503` final porque el email se aislo sin proveedor.
+
+### Validaciones en produccion
+
+- Railway:
+  - CLI sigue sin sesion valida: `invalid_grant`;
+  - dashboard Railway revisado en modo lectura;
+  - commit `1225a21` (`Corrige flujo conversacional de presupuesto`) aparece como `Deployment successful`;
+  - servicio `Aplaudia` en `Active`.
+- Produccion:
+  - `https://aplaudia.com`: `200`;
+  - `https://aplaudia.com/robots.txt`: `200`;
+  - `https://aplaudia.com/llms.txt`: `200`;
+  - `https://aplaudia.com/sitemap.xml`: `200`;
+  - bundle nuevo del chatbot servido desde `https://aplaudia.com/_next/static/chunks/app/layout-7b458bf2d75bfd49.js`.
+- `/api/agent/quote` en produccion:
+  - sin consentimiento: `400`;
+  - prueba controlada con datos ficticios y email `carlosvfx@gmail.com`: `200`;
+  - respuesta: `clientCopyRequested:true`, `clientCopySent:false`, `ok:true`.
+- Chatbot UI en produccion:
+  - textarea vacio tras cada envio;
+  - no repite email, consentimiento ni nombre;
+  - al recibir mas contexto, lo anade y espera `envialo`;
+  - con `envialo ya porfa me estas hablando demasiado`, confirma: `Perfecto, ya he enviado el resumen a una persona de Aplaudia. Te responderan por email.`
+- Auditoria publica:
+  - aviso de construccion visible;
+  - sin boton fijo de presupuesto;
+  - sin menciones publicas a Carlos;
+  - sin menciones publicas a `Claude AI`, `Next.js` o `Vercel`.
+
+### Emails y privacidad
+
+- Se enviaron solo pruebas internas controladas a Aplaudia/Carlos.
+- No se envio ninguna copia automatica al cliente.
+- Si el usuario pide copia, queda como nota interna.
+- No se tocaron Cloudflare, DNS, Railway variables, Resend ni Workers Paid.
+- No se guardaron secretos.
+- No se creo base de datos.
+- No se retiro el aviso de construccion.
+
+### Estado final
+
+- Flujo del chatbot corregido y desplegado.
+- Railway en verde por dashboard.
+- Produccion operativa.
+- Email interno automatico desde chatbot operativo.
+- Resend sigue sin dependencia activa en el repo.
+
+### Siguiente paso recomendado
+
+Carlos debe revisar en `carlosvfx@gmail.com` los emails internos de prueba recibidos desde el chatbot y confirmar si la ficha comercial es suficientemente clara o si conviene reducirla.
+
 ## Actualizacion - Email gratuito Cloudflare verificado y aliases creados
 
 ### Objetivo

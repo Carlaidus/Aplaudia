@@ -137,6 +137,10 @@ Ultima actualizacion: 2026-07-02
   - Railway CLI no pudo leer dashboard por token caducado (`invalid_grant`).
   - Produccion `https://aplaudia.com` sirvio home, rutas de casos y assets nuevos con `200`.
   - En movil, el aviso minimizado queda abajo y ya no tapa el encabezado del caso.
+- Commit de flujo conversacional de presupuesto verificado en produccion el 2026-07-02: `1225a21`.
+  - Railway dashboard: `Deployment successful`, servicio `Active`.
+  - Produccion `https://aplaudia.com` sirve el bundle nuevo del chatbot.
+  - Chatbot probado en produccion: textarea se vacia, no repite datos y envia el resumen interno solo tras email + consentimiento + orden clara de envio.
 
 ## Dominio y DNS
 
