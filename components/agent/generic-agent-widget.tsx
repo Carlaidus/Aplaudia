@@ -233,25 +233,88 @@ function extractShortName(source: string) {
   return name
 }
 
+function hasHostelryLeadContext(source: string) {
+  const normalized = normalizeLeadText(source)
+
+  return /\b(restaurantes?|bar|bares|cafeteria|cafeterias|hosteleria|menu|menus|reservas?)\b/.test(normalized)
+}
+
+function hasRestaurantLeadContext(source: string) {
+  const normalized = normalizeLeadText(source)
+
+  if (/\brestaurantes?\b/.test(normalized)) return true
+  if (/\bbar\b|\bbares\b/.test(normalized)) return true
+  if (/\bcafeteria\b|\bcafeterias\b/.test(normalized)) return true
+  if (/\bcafe\b/.test(normalized) && /\b(negocio|local|hosteleria|bar|restaurante|cafeteria)\b/.test(normalized)) {
+    return true
+  }
+
+  return /\bcarta\b/.test(normalized) && hasHostelryLeadContext(normalized)
+}
+
+function hasPersonalPageLeadContext(source: string) {
+  const normalized = normalizeLeadText(source)
+
+  return /\b(pagina personal|web personal|portfolio personal|landing personal|pagina pequena personal|pagina pequena y personal)\b/.test(
+    normalized,
+  )
+}
+
+function hasSimpleLandingLeadContext(source: string) {
+  return /\b(landing sencilla|web sencilla|pagina sencilla|pagina pequena)\b/.test(normalizeLeadText(source))
+}
+
+function hasCatalogLeadContext(source: string) {
+  return /\b(catalogo|productos?|fichas?|tienda|ecommerce|e-commerce|comercio online|venta online)\b/.test(
+    normalizeLeadText(source),
+  )
+}
+
+function hasVisualLeadRequest(source: string) {
+  return /\b(visuales|imagenes para|imagen para|creatividades|grafica|graficas|banner|banners|escaparate|pantalla comercial|retoque|composicion visual)\b/.test(
+    normalizeLeadText(source),
+  )
+}
+
+function hasVideoLeadRequest(source: string) {
+  return /\b(video|videos|reels?|animaciones?|audiovisual|edicion de video|edicion audiovisual)\b/.test(
+    normalizeLeadText(source),
+  )
+}
+
+function hasAgentLeadRequest(source: string) {
+  return /\b(agente|chatbot|whatsapp|asistente para whatsapp|automatizacion de whatsapp)\b/.test(
+    normalizeLeadText(source),
+  )
+}
+
+function hasWebLeadRequest(source: string) {
+  return /\b(web|pagina|landing|sitio|presencia digital)\b/.test(normalizeLeadText(source))
+}
+
 function extractProjectType(source: string) {
   const explicitMatch = source.match(
     /(?:tipo de negocio|tipo de proyecto|negocio|proyecto)\s*:\s*([^.;\n]{3,120})/i,
   )
   if (explicitMatch?.[1]) return cleanExtractedText(explicitMatch[1])
 
-  const projectTypes: Array<[RegExp, string]> = [
-    [/restaurante|bar|cafeter[ií]a|carta|reservas/i, "Restaurante, bar o cafetería"],
-    [/tienda|ecommerce|e-commerce|cat[aá]logo|producto|ropa|comercio/i, "Tienda o comercio"],
-    [/freelance|aut[oó]nomo|profesional independiente|consultor/i, "Profesional independiente"],
-    [/cl[ií]nica|salud|fisio|dentista|centro/i, "Centro profesional o servicios"],
-    [/hotel|alojamiento|turismo|apartamento/i, "Turismo o alojamiento"],
-    [/v[ií]deo|video|reels|audiovisual|edici[oó]n/i, "Proyecto audiovisual o contenidos"],
-    [/marca|visual|escaparate|pantalla|imagen|v[ií]deo|video/i, "Marca visual o escaparate digital"],
-    [/web|landing|p[aá]gina|seo|presencia digital/i, "Web o presencia digital"],
-    [/whatsapp|chatbot|agente/i, "Agente IA o WhatsApp"],
-  ]
+  const normalized = normalizeLeadText(source)
 
-  return projectTypes.find(([pattern]) => pattern.test(source))?.[1] ?? ""
+  if (hasPersonalPageLeadContext(source)) return "Página personal / web sencilla"
+  if (hasSimpleLandingLeadContext(source)) return "Landing / web sencilla"
+  if (hasRestaurantLeadContext(source)) return "Restaurante / bar / cafetería"
+  if (hasCatalogLeadContext(source)) return "Tienda o catálogo"
+  if (/\b(freelance|autonomo|autonoma|profesional independiente|consultor)\b/.test(normalized)) {
+    return "Profesional independiente"
+  }
+  if (/\b(clinica|salud|fisio|dentista|centro medico)\b/.test(normalized)) return "Centro profesional o servicios"
+  if (/\b(hotel|alojamiento|turismo|apartamento)\b/.test(normalized)) return "Turismo o alojamiento"
+  if (hasVideoLeadRequest(source)) return "Proyecto audiovisual o contenidos"
+  if (hasVisualLeadRequest(source)) return "Marca visual o escaparate digital"
+  if (hasAgentLeadRequest(source)) return "Agente web o WhatsApp"
+  if (hasWebLeadRequest(source)) return "Web o presencia digital"
+
+  return ""
 }
 
 function hasExplicitProjectData(text: string) {
@@ -335,11 +398,13 @@ function buildLeadEmailReply(text: string, draft: LeadDraft) {
   const lines = ["### Para poder enviarlo"]
 
   if (hasPriceQuestion(text)) {
-    if (/restaurante|reserva|carta/i.test(normalizeLeadText(`${text} ${draft.projectType} ${draft.interest}`))) {
+    const clientContext = `${text}\n${draft.interest}`
+
+    if (hasRestaurantLeadContext(clientContext)) {
       lines.push(
         "Para una web de restaurante con reservas puede haber una fase sencilla y otra más completa con carta, fotos y automatizaciones. Los importes son orientativos y sin IVA.",
       )
-    } else if (/imagen|visual|foto|reel|video|vídeo/i.test(normalizeLeadText(text))) {
+    } else if (hasVisualLeadRequest(clientContext) || hasVideoLeadRequest(clientContext)) {
       lines.push(
         "En visuales conviene preparar un pack personalizado según volumen, estilo, uso y presupuesto. Los importes se ajustan al alcance y son orientativos sin IVA.",
       )

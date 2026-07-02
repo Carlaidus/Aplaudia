@@ -23,6 +23,13 @@ Nivel de inteligencia recomendado: Alto
 - No se ha tocado Cloudflare, Railway, DNS, variables ni Resend.
 - Produccion `https://aplaudia.com` validada con el nuevo bundle del chatbot.
 - Railway dashboard muestra el commit `1225a21` como `Deployment successful` y servicio `Active`.
+- La ficha interna de presupuesto se ha reforzado para evitar falsos positivos:
+  - tipo de proyecto y servicios salen solo del texto del cliente;
+  - `barato` no activa `bar`;
+  - `no tengo fotos` queda como material, no como visuales;
+  - una pagina personal sencilla y barata solo activa `Web / landing`;
+  - una web de restaurante con reservas activa `Web / landing` y `Reservas`.
+- Hay test de regresion local: `npm run test:quote-analysis`.
 
 ## Proximo foco real
 
@@ -30,8 +37,9 @@ Revisar correos internos reales recibidos desde el chatbot:
 
 1. Carlos debe revisar en `carlosvfx@gmail.com` si la ficha interna resulta clara y util.
 2. Confirmar si el asunto, resumen ejecutivo y siguiente accion recomendada son adecuados.
-3. Si hay demasiado texto, reducir el email interno manteniendo los campos comerciales clave.
-4. Si falta informacion util, ajustar solo la plantilla interna de `/api/agent/quote`.
+3. Confirmar que `Servicios de interes` ya no incluye servicios no pedidos.
+4. Si hay demasiado texto, reducir el email interno manteniendo los campos comerciales clave.
+5. Si falta informacion util, ajustar solo la plantilla interna de `/api/agent/quote`.
 
 ## Siguiente foco de producto
 
@@ -49,6 +57,7 @@ Revisar correos internos reales recibidos desde el chatbot:
 - `npm ls resend`.
 - Probar `/api/agent/quote` sin consentimiento: debe devolver `400`.
 - Probar `/api/agent/quote` con email y consentimiento pero sin opcionales: no debe devolver `400` por campos opcionales.
+- Ejecutar `npm run test:quote-analysis`.
 - Probar chatbot en escritorio:
   - enviar con boton;
   - enviar con Enter;

@@ -4,16 +4,14 @@ import {
   getInternalEmailRecipient,
   sendInternalEmail,
 } from "@/lib/email/cloudflare-email"
+import {
+  analyzeAgentQuote,
+  isValidEmail,
+  normalizeHistory,
+  normalizeText,
+} from "@/lib/agent/quote-analysis"
 
 export const runtime = "nodejs"
-
-type AgentQuoteHistoryMessage = {
-  role: "assistant" | "user"
-  content: string
-}
-
-const MAX_TEXT_LENGTH = 1200
-const MAX_HISTORY_ITEMS = 14
 
 function escapeHtml(value: unknown) {
   if (typeof value !== "string") return ""
@@ -24,196 +22,6 @@ function escapeHtml(value: unknown) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;")
-}
-
-function normalizeSource(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-}
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-}
-
-function normalizeText(value: unknown, maxLength = MAX_TEXT_LENGTH) {
-  return typeof value === "string" ? value.trim().slice(0, maxLength) : ""
-}
-
-function normalizeHistory(value: unknown): AgentQuoteHistoryMessage[] {
-  if (!Array.isArray(value)) return []
-
-  return value
-    .map((item) => {
-      if (!item || typeof item !== "object") return null
-
-      const role = "role" in item ? item.role : null
-      const content = "content" in item ? normalizeText(item.content, 900) : ""
-
-      if ((role !== "user" && role !== "assistant") || !content) return null
-
-      return { role, content }
-    })
-    .filter((item): item is AgentQuoteHistoryMessage => Boolean(item))
-    .slice(-MAX_HISTORY_ITEMS)
-}
-
-function buildConversationSummary(history: AgentQuoteHistoryMessage[]) {
-  const userMessages = history.filter((item) => item.role === "user").map((item) => item.content)
-  const assistantMessages = history.filter((item) => item.role === "assistant").map((item) => item.content)
-  const questions = userMessages.filter((message) => message.includes("?") || message.includes("¿")).slice(-6)
-  const priceQuestionCount = userMessages.filter((message) =>
-    /precio|coste|presupuesto|tarifa|mensualidad|mantenimiento|cu[aá]nto cuesta|barato|econ[oó]mico|desde cu[aá]nto/i.test(
-      message,
-    ),
-  ).length
-  const priceLines = assistantMessages
-    .flatMap((message) => message.split("\n"))
-    .map((line) => line.trim().replace(/^[-*]\s+/, ""))
-    .filter((line) => /€|eur|desde|presupuesto|sin iva|pack personalizado/i.test(line))
-    .slice(-10)
-
-  return {
-    lastUserMessages: userMessages.slice(-6),
-    latestRelevantMessages: history.slice(-8).map((item) => `${item.role === "user" ? "Cliente" : "Aplaudia"}: ${item.content}`),
-    priceQuestionCount,
-    priceLines,
-    questions,
-    transcript: history.map((item) => `${item.role === "user" ? "Cliente" : "Aplaudia"}: ${item.content}`),
-    userMessages,
-  }
-}
-
-function detectServices(source: string) {
-  const normalized = normalizeSource(source)
-  const services: string[] = []
-
-  if (/web|landing|pagina|catalogo|seo|presencia digital/.test(normalized)) services.push("Web / landing")
-  if (/restaurante|bar|cafeteria|carta|reservas/.test(normalized)) {
-    services.push("Restaurante: carta, reservas o presencia digital")
-  }
-  if (/tienda|ecommerce|catalogo|producto|ropa|comercio/.test(normalized)) services.push("Catalogo / comercio")
-  if (/agente|chatbot|whatsapp/.test(normalized)) services.push("Agente web o WhatsApp")
-  if (/visual|imagen|foto|video|reel|pantalla|escaparate/.test(normalized)) services.push("Visuales / imagen / video")
-  if (/mantenimiento|mensualidad|soporte|actualizacion/.test(normalized)) services.push("Mantenimiento")
-  if (/panel|dashboard|gestion|editar/.test(normalized)) services.push("Panel de gestion")
-
-  return services.length > 0 ? Array.from(new Set(services)) : ["Por definir"]
-}
-
-function inferProjectType(source: string) {
-  const normalized = normalizeSource(source)
-
-  if (/restaurante|bar|cafeteria|carta|reservas/.test(normalized)) return "Restaurante, bar o cafetería"
-  if (/tienda|ecommerce|catalogo|producto|ropa|comercio/.test(normalized)) return "Tienda o comercio"
-  if (/clinica|salud|fisio|dentista|centro medico/.test(normalized)) return "Clinica o centro profesional"
-  if (/freelance|autonomo|consultor|profesional independiente/.test(normalized)) return "Profesional independiente"
-  if (/hotel|alojamiento|turismo|apartamento/.test(normalized)) return "Turismo o alojamiento"
-  if (/visual|imagen|foto|video|reel|pantalla|escaparate/.test(normalized)) return "Proyecto visual o audiovisual"
-  if (/web|landing|pagina|seo|presencia digital/.test(normalized)) return "Web o presencia digital"
-
-  return "Por definir"
-}
-
-function detectUrgency(source: string) {
-  const normalized = normalizeSource(source)
-  if (/urgente|ya|cuanto antes|prisa|esta semana|hoy|manana|mañana/.test(normalized)) return "Alta"
-  if (/pronto|rapido|rápido|en breve|lo antes posible/.test(normalized)) return "Media"
-  return "No indicada"
-}
-
-function detectPriceSensitivity(source: string) {
-  const normalized = normalizeSource(source)
-  if (/caro|poco presupuesto|barato|economico|ajustar|no superar|maximo|maximo|limite/.test(normalized)) {
-    return "Alta"
-  }
-  if (/precio|coste|presupuesto|tarifa|mensualidad|desde cuanto/.test(normalized)) return "Media"
-  return "No detectada"
-}
-
-function detectFriction(source: string) {
-  const normalized = normalizeSource(source)
-  if (/me estas hablando demasiado|bloqueado|raro|no funciona|no entiendo|pesado|demasiado texto/.test(normalized)) {
-    return "Alta"
-  }
-  if (/duda|no se|no sé|orientacion|orientación|me pierdo/.test(normalized)) return "Media"
-  return "Baja"
-}
-
-function detectProjectClarity(source: string, services: string[]) {
-  const normalized = normalizeSource(source)
-  if (services.length >= 3 || /no tengo web|no tengo carta|no tengo fotos|quiero orientacion/.test(normalized)) {
-    return "Media: hay necesidad clara, pero falta concretar alcance"
-  }
-  if (services.length >= 2 || /quiero|necesito|busco/.test(normalized)) return "Media"
-  return "Inicial"
-}
-
-function detectClientType(source: string) {
-  const normalized = normalizeSource(source)
-  if (/restaurante|bar|cafeteria/.test(normalized)) return "Negocio de hostelería"
-  if (/tienda|ecommerce|comercio|ropa/.test(normalized)) return "Comercio / retail"
-  if (/clinica|salud|fisio|dentista/.test(normalized)) return "Servicio profesional / salud"
-  if (/freelance|autonomo|consultor/.test(normalized)) return "Profesional independiente"
-  if (/marca|empresa|negocio/.test(normalized)) return "Marca o negocio"
-  return "No definido"
-}
-
-function detectObjections(source: string, questions: string[]) {
-  const normalized = normalizeSource(source)
-  const objections: string[] = []
-
-  if (/no tengo web/.test(normalized)) objections.push("No tiene web actual")
-  if (/no tengo carta/.test(normalized)) objections.push("No tiene carta preparada")
-  if (/no tengo fotos/.test(normalized)) objections.push("No tiene fotos/material visual")
-  if (/caro|poco presupuesto|barato|economico/.test(normalized)) objections.push("Sensibilidad al precio")
-  if (/no entiendo|me pierdo|me estas hablando demasiado|demasiado texto/.test(normalized)) {
-    objections.push("Necesita respuesta más directa y guiada")
-  }
-
-  return objections.length > 0 ? objections : questions.length > 0 ? questions : ["No detectadas"]
-}
-
-function recommendNextAction(urgency: string, friction: string, priceSensitivity: string) {
-  if (friction === "Alta") return "Responder con un email breve, directo y con el siguiente paso claro."
-  if (urgency === "Alta") return "Priorizar respuesta rápida y proponer una llamada o email de alcance inicial."
-  if (priceSensitivity === "Alta") return "Proponer una fase inicial ajustada y dejar ampliaciones para después."
-  return "Responder con orientación comercial y pedir solo los datos que falten para acotar alcance."
-}
-
-function buildFallbackInterest(history: AgentQuoteHistoryMessage[]) {
-  const userMessages = history.filter((item) => item.role === "user").map((item) => item.content)
-  const fallback = userMessages.slice(-5).join("\n").trim()
-
-  return fallback || "No especificado. Revisar conversación."
-}
-
-function buildExecutiveSummary(args: {
-  budgetLabel: string
-  clientType: string
-  email: string
-  interest: string
-  name: string
-  projectType: string
-  services: string[]
-  source: string
-  urgency: string
-}) {
-  const normalized = normalizeSource(args.source)
-  const lines = [
-    `Contacto: ${args.name || "nombre no indicado"} (${args.email}).`,
-    `Tipo de cliente: ${args.clientType}. Proyecto: ${args.projectType}.`,
-    `Necesidad principal: ${args.interest}`,
-    `Servicios o bloques detectados: ${args.services.join(", ")}.`,
-    `Urgencia: ${args.urgency}. Presupuesto indicado: ${args.budgetLabel}.`,
-  ]
-
-  if (/no tengo web/.test(normalized)) lines.push("El cliente indica que parte sin web.")
-  if (/no tengo carta/.test(normalized)) lines.push("El cliente indica que no tiene carta preparada.")
-  if (/no tengo fotos/.test(normalized)) lines.push("El cliente indica que no tiene fotos/material visual preparado.")
-
-  return lines.slice(0, 8)
 }
 
 function listText(title: string, items: string[]) {
@@ -242,37 +50,6 @@ export async function POST(request: Request) {
     const clientCopy = body.clientCopy === true
     const consent = body.consent === true
     const history = normalizeHistory(body.history)
-    const summary = buildConversationSummary(history)
-    const source = [rawName, rawProjectType, rawInterest, budget, ...summary.userMessages].join("\n")
-    const name = rawName || "No indicado"
-    const projectType = rawProjectType || inferProjectType(source)
-    const interest = rawInterest || buildFallbackInterest(history)
-    const budgetLabel = budget || "No indicado"
-    const detectedServices = detectServices(source)
-    const urgency = detectUrgency(source)
-    const priceSensitivity = detectPriceSensitivity(source)
-    const friction = detectFriction(source)
-    const clarity = detectProjectClarity(source, detectedServices)
-    const clientType = detectClientType(source)
-    const objections = detectObjections(source, summary.questions)
-    const nextAction = recommendNextAction(urgency, friction, priceSensitivity)
-    const executiveSummary = buildExecutiveSummary({
-      budgetLabel,
-      clientType,
-      email,
-      interest,
-      name,
-      projectType,
-      services: detectedServices,
-      source,
-      urgency,
-    })
-    const priceFocus =
-      summary.priceQuestionCount > 1
-        ? "Sí, ha preguntado varias veces por precio"
-        : summary.priceQuestionCount === 1
-          ? "Sí, ha preguntado por precio"
-          : "No detectado"
 
     if (!consent) {
       return NextResponse.json(
@@ -288,6 +65,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Introduce un email valido." }, { status: 400 })
     }
 
+    const analysis = analyzeAgentQuote({
+      budget,
+      email,
+      history,
+      interest: rawInterest,
+      name: rawName,
+      phone,
+      projectType: rawProjectType,
+      sessionId,
+    })
     const date = new Date().toLocaleString("es-ES", {
       timeZone: "Europe/Madrid",
       day: "2-digit",
@@ -297,48 +84,51 @@ export async function POST(request: Request) {
       minute: "2-digit",
     })
 
-    const safeName = escapeHtml(name)
+    const safeName = escapeHtml(analysis.name)
     const safeEmail = escapeHtml(email)
     const safePhone = escapeHtml(phone)
-    const safeProjectType = escapeHtml(projectType)
-    const safeInterest = escapeHtml(interest)
-    const safeBudget = escapeHtml(budgetLabel)
+    const safeProjectType = escapeHtml(analysis.projectType)
+    const safeInterest = escapeHtml(analysis.interest)
+    const safeBudget = escapeHtml(analysis.budgetLabel)
     const safeSessionId = escapeHtml(sessionId || "No disponible")
 
     const internalText = [
       "Solicitud de presupuesto desde el chatbot de Aplaudia",
       "",
       `Fecha: ${date}`,
-      `Nombre: ${name}`,
+      `Nombre: ${analysis.name}`,
       `Email: ${email}`,
       phone ? `Telefono: ${phone}` : null,
-      `Tipo de negocio/proyecto: ${projectType}`,
-      `Servicios detectados: ${detectedServices.join(", ")}`,
-      `Tipo de cliente: ${clientType}`,
-      `Urgencia: ${urgency}`,
-      `Interes aproximado: ${clarity}`,
-      `Sensibilidad a precio: ${priceSensitivity}`,
-      `Friccion detectada: ${friction}`,
-      `Foco en precios: ${priceFocus}`,
-      `Siguiente accion recomendada: ${nextAction}`,
+      `Tipo de negocio/proyecto: ${analysis.projectType}`,
+      `Servicios de interes: ${analysis.detectedServices.join(", ")}`,
+      `Materiales mencionados: ${analysis.materials.join(", ")}`,
+      `Tipo de cliente: ${analysis.clientType}`,
+      `Urgencia: ${analysis.urgency}`,
+      `Interes aproximado: ${analysis.clarity}`,
+      `Sensibilidad a precio: ${analysis.priceSensitivity}`,
+      `Friccion detectada: ${analysis.friction}`,
+      `Foco en precios: ${analysis.priceFocus}`,
+      `Siguiente accion recomendada: ${analysis.nextAction}`,
       `Session: ${sessionId || "No disponible"}`,
       "",
       "Resumen ejecutivo:",
-      ...executiveSummary.map((line) => `- ${line}`),
+      ...analysis.executiveSummary.map((line) => `- ${line}`),
       "",
       "Interes principal indicado/inferido:",
-      interest,
+      analysis.interest,
       "",
       "Presupuesto orientativo indicado por el cliente:",
-      budgetLabel,
+      analysis.budgetLabel,
       "",
-      listText("Necesidades, servicios o extras detectados", detectedServices),
+      listText("Servicios de interes", analysis.detectedServices),
       "",
-      listText("Dudas u objeciones detectadas", objections),
+      listText("Materiales mencionados", analysis.materials),
       "",
-      listText("Importes o referencias de presupuesto mencionadas por el agente", summary.priceLines),
+      listText("Dudas u objeciones detectadas", analysis.objections),
       "",
-      listText("Ultimos mensajes relevantes", summary.latestRelevantMessages),
+      listText("Importes o referencias de presupuesto mencionadas por el agente", analysis.summary.priceLines),
+      "",
+      listText("Ultimos mensajes relevantes", analysis.summary.latestRelevantMessages),
       "",
       "Bloque legal:",
       "Consentimiento: aceptado antes de enviar.",
@@ -348,7 +138,7 @@ export async function POST(request: Request) {
         ? "Peticion del cliente: quiere recibir copia o respuesta por email. No se envia copia automatica desde el chatbot."
         : "Peticion del cliente: no ha pedido copia. No se envia copia automatica desde el chatbot.",
       "",
-      listText("Resumen completo de conversacion", summary.transcript),
+      listText("Resumen completo de conversacion", analysis.summary.transcript),
     ]
       .filter(Boolean)
       .join("\n")
@@ -376,18 +166,23 @@ export async function POST(request: Request) {
 
       <div style="background:#eff6ff;border-left:4px solid #2563eb;border-radius:10px;padding:16px 18px;margin-bottom:24px">
         <p style="margin:0;color:#1d4ed8;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Resumen ejecutivo</p>
-        <ul style="margin:10px 0 0;padding-left:18px;color:#0f172a;font-size:14px;line-height:1.7">${listHtml(executiveSummary)}</ul>
+        <ul style="margin:10px 0 0;padding-left:18px;color:#0f172a;font-size:14px;line-height:1.7">${listHtml(analysis.executiveSummary)}</ul>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
         <div style="background:#f8fafc;border-radius:10px;padding:14px 16px">
-          <p style="margin:0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Servicios</p>
-          <p style="margin:10px 0 0;color:#0f172a;font-size:14px;line-height:1.6">${escapeHtml(detectedServices.join(", "))}</p>
+          <p style="margin:0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Servicios de interes</p>
+          <p style="margin:10px 0 0;color:#0f172a;font-size:14px;line-height:1.6">${escapeHtml(analysis.detectedServices.join(", "))}</p>
         </div>
         <div style="background:#f8fafc;border-radius:10px;padding:14px 16px">
-          <p style="margin:0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Señales comerciales</p>
-          <p style="margin:10px 0 0;color:#0f172a;font-size:14px;line-height:1.6">Urgencia: ${escapeHtml(urgency)}<br />Claridad: ${escapeHtml(clarity)}<br />Precio: ${escapeHtml(priceSensitivity)}<br />Fricción: ${escapeHtml(friction)}</p>
+          <p style="margin:0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Materiales mencionados</p>
+          <p style="margin:10px 0 0;color:#0f172a;font-size:14px;line-height:1.6">${escapeHtml(analysis.materials.join(", "))}</p>
         </div>
+      </div>
+
+      <div style="background:#f8fafc;border-radius:10px;padding:16px 18px;margin-bottom:24px">
+        <p style="margin:0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Senales comerciales</p>
+        <p style="margin:10px 0 0;color:#0f172a;font-size:14px;line-height:1.7">Urgencia: ${escapeHtml(analysis.urgency)}<br />Claridad: ${escapeHtml(analysis.clarity)}<br />Precio: ${escapeHtml(analysis.priceSensitivity)}<br />Friccion: ${escapeHtml(analysis.friction)}</p>
       </div>
 
       <div style="background:#f8fafc;border-radius:10px;padding:16px 18px;margin-bottom:24px">
@@ -403,23 +198,23 @@ export async function POST(request: Request) {
 
       <div style="background:#f8fafc;border-radius:10px;padding:16px 18px;margin-bottom:24px">
         <p style="margin:0;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Siguiente paso recomendado</p>
-        <p style="margin:10px 0 0;color:#0f172a;font-size:15px;line-height:1.7">${escapeHtml(nextAction)}</p>
+        <p style="margin:10px 0 0;color:#0f172a;font-size:15px;line-height:1.7">${escapeHtml(analysis.nextAction)}</p>
       </div>
 
       <h2 style="margin:0 0 10px;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Dudas u objeciones</h2>
-      <ul style="margin:0 0 24px;padding-left:18px;color:#1e293b;font-size:14px;line-height:1.7">${listHtml(objections)}</ul>
+      <ul style="margin:0 0 24px;padding-left:18px;color:#1e293b;font-size:14px;line-height:1.7">${listHtml(analysis.objections)}</ul>
 
       <h2 style="margin:0 0 10px;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Precios comentados</h2>
-      <ul style="margin:0 0 24px;padding-left:18px;color:#1e293b;font-size:14px;line-height:1.7">${listHtml(summary.priceLines.length > 0 ? summary.priceLines : ["No hay importes concretos en el historial."])}</ul>
+      <ul style="margin:0 0 24px;padding-left:18px;color:#1e293b;font-size:14px;line-height:1.7">${listHtml(analysis.summary.priceLines.length > 0 ? analysis.summary.priceLines : ["No hay importes concretos en el historial."])}</ul>
 
       <h2 style="margin:0 0 10px;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.12em">Ultimos mensajes relevantes</h2>
-      <pre style="white-space:pre-wrap;margin:0;background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6">${escapeHtml(summary.latestRelevantMessages.join("\n\n"))}</pre>
+      <pre style="white-space:pre-wrap;margin:0;background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6">${escapeHtml(analysis.summary.latestRelevantMessages.join("\n\n"))}</pre>
 
       <div style="background:#fff7ed;border-radius:10px;padding:16px 18px;margin-top:24px;color:#7c2d12;font-size:13px;line-height:1.7">
-        <strong>Legal:</strong> consentimiento aceptado antes del envío. Finalidad: gestionar esta consulta y responder por email. No newsletter, publicidad ni otros fines. No se guarda en base de datos. ${
+        <strong>Legal:</strong> consentimiento aceptado antes del envio. Finalidad: gestionar esta consulta y responder por email. No newsletter, publicidad ni otros fines. No se guarda en base de datos. ${
           clientCopy
-            ? "El cliente ha pedido copia o respuesta por email; queda como nota interna, sin copia automática."
-            : "El chatbot no envía copia automática al cliente."
+            ? "El cliente ha pedido copia o respuesta por email; queda como nota interna, sin copia automatica."
+            : "El chatbot no envia copia automatica al cliente."
         }
       </div>
     </div>
@@ -431,7 +226,7 @@ export async function POST(request: Request) {
       const to = getInternalEmailRecipient("AGENT_QUOTE_RECIPIENT_EMAIL")
 
       await sendInternalEmail({
-        subject: `Solicitud Aplaudia - ${projectType} - ${email}`,
+        subject: `Solicitud Aplaudia - ${analysis.projectType} - ${email}`,
         html: internalHtml,
         text: internalText,
         replyTo: email,

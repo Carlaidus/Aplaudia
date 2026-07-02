@@ -2,6 +2,85 @@
 
 Fecha: 2026-07-02
 
+## Actualizacion - Ficha interna sin falsos positivos
+
+### Objetivo
+
+Corregir los falsos positivos del email interno del chatbot para que no invente servicios ni tipo de proyecto cuando el cliente pide algo sencillo, por ejemplo una pagina personal pequena y barata.
+
+### Error real observado
+
+- Caso detectado: el cliente pidio una pagina personal pequena, sencilla y barata.
+- La ficha interna marco incorrectamente:
+  - Web / landing / catalogo;
+  - agente IA / WhatsApp;
+  - visuales / imagen / video;
+  - mantenimiento;
+  - restaurante, bar o cafeteria.
+- Causa confirmada:
+  - habia detectores amplios con patrones como `bar`, `carta`, `foto` o `visual`;
+  - parte del analisis podia contaminarse con texto que no era estrictamente del cliente;
+  - `no tengo fotos` se estaba tratando como senal de visuales en vez de material disponible.
+
+### Cambios aplicados
+
+- `lib/agent/quote-analysis.ts`:
+  - creado analizador puro para la ficha interna del chatbot;
+  - creado `clientOnlyText` con mensajes `role=user` y datos explicitos, excluyendo respuestas del asistente y transcript mixto;
+  - servicios, tipo de proyecto, materiales, urgencia y sensibilidad a precio salen de `clientOnlyText`;
+  - `barato`, `barata` y `lo mas barato` ya no activan `bar`;
+  - `carta` solo ayuda a hosteleria si hay contexto de restaurante/bar/cafeteria/menu/reservas;
+  - `foto` o `no tengo fotos` no activa visuales;
+  - materiales separados en `Materiales mencionados`.
+- `app/api/agent/quote/route.ts`:
+  - sustituido el analisis inline antiguo por `analyzeAgentQuote`;
+  - el email interno lista `Servicios de interes` y `Materiales mencionados` por separado.
+- `components/agent/generic-agent-widget.tsx`:
+  - endurecida la deteccion del borrador conversacional;
+  - eliminados patrones amplios que podian confundir `barato` con `bar`;
+  - la respuesta de precios para visuales ya no se activa por decir `no tengo fotos`.
+- `scripts/validate-agent-quote-analysis.mjs` y `package.json`:
+  - anadido `npm run test:quote-analysis` con los dos casos reales de regresion.
+
+### Casos cubiertos por test
+
+- Input: `quiero presupuesto para una pagina pequena personal de lo mas barato... no tengo fotos...`
+  - Nombre: Carlos.
+  - Tipo proyecto: `Página personal / web sencilla`.
+  - Servicios de interes: `Web / landing`.
+  - Materiales mencionados: `No tiene fotos`.
+  - Sensibilidad al precio: alta.
+  - No detecta restaurante, bar, cafeteria, catalogo, WhatsApp, agente, visuales, video ni mantenimiento.
+- Input: `necesito presupuesto urgente para una web de un restaurante para hacer reservas, no tengo web ni carta ni fotos`
+  - Tipo proyecto: `Restaurante / bar / cafetería`.
+  - Servicios de interes: `Web / landing`, `Reservas`.
+  - Materiales mencionados: no tiene web, carta ni fotos.
+  - Urgencia: alta.
+  - No marca visuales por decir que no tiene fotos.
+
+### Validaciones locales
+
+- `npm run test:quote-analysis`: OK.
+- `npm run build`: OK.
+- `npm run lint`: no disponible; `eslint` no esta instalado como ejecutable local.
+- `npm ls resend`: arbol vacio, sin dependencia `resend`.
+- `npx tsc --noEmit`: falla por deudas previas conocidas no relacionadas:
+  - tipos de `react-day-picker` en `components/ui/calendar.tsx`;
+  - desalineacion antigua de traducciones `about` en `i18n/provider.tsx`.
+- `git diff --check`: OK; solo avisos CRLF normales de Windows.
+
+### Estado final
+
+- Cambio validado localmente.
+- Pendiente de commit, push y comprobacion de despliegue tras cerrar esta tarea.
+- No se han tocado Cloudflare, Railway, DNS, variables ni Resend.
+- No se han enviado emails reales durante esta correccion.
+- No se han guardado secretos.
+
+### Siguiente paso recomendado
+
+Carlos debe revisar el proximo email interno real del chatbot y confirmar que `Servicios de interes` queda conservador. Si hace falta, el siguiente ajuste deberia ser solo de plantilla, no de deteccion.
+
 ## Actualizacion - Chatbot sin bucle y ficha interna de presupuesto
 
 ### Objetivo

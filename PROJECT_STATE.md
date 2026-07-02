@@ -119,6 +119,12 @@ Ultima actualizacion: 2026-07-02
   - no envia copia automatica al cliente;
   - si el cliente pide copia, se anade solo una nota interna para que Aplaudia responda manualmente;
   - Resend no se usa actualmente como proveedor activo.
+- Analisis interno de solicitudes del chatbot reforzado el 2026-07-02:
+  - `lib/agent/quote-analysis.ts` centraliza tipo de proyecto, servicios, materiales, urgencia y sensibilidad a precio;
+  - los detectores usan solo texto del cliente y datos explicitos, no respuestas del asistente ni transcript mixto;
+  - `barato`, `barata` o `lo mas barato` no activan `bar`;
+  - `no tengo fotos` queda como material mencionado, no como servicio visual;
+  - test de regresion disponible con `npm run test:quote-analysis`.
 
 ## Estado de despliegue
 

@@ -9,7 +9,8 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:quote-analysis": "node scripts/validate-agent-quote-analysis.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
